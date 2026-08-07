@@ -15,15 +15,10 @@
   },
   "dependencies": {
     "@tanstack/react-router": "^1.170.21",
-    "@tanstack/router-devtools": "^1.167.1",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.29.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-icons": "^5.7.0",
-    "tailwind-merge": "^3.6.0",
     "tw-animate-css": "^1.3.4"
   },
   "devDependencies": {
