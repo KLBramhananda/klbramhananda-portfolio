@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
+import emailjs from "@emailjs/browser";
 import { SectionEyebrow } from "./about";
 import {
   Mail,
@@ -8,7 +10,14 @@ import {
   Download,
   Send,
   ArrowUp,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
+
+const EMAILJS_SERVICE_ID = "service_qr820ew";
+const EMAILJS_TEMPLATE_ID = "template_utu7ay8";
+const EMAILJS_PUBLIC_KEY = "Do3-w2LKSBN27y8sY";
 
 const channels = [
   { icon: Mail, label: "Email", value: "bramhanandakl2030@gmail.com", href: "mailto:bramhanandakl2030@gmail.com", external: false },
@@ -18,7 +27,40 @@ const channels = [
 ];
 
 export function Contact() {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
+    "idle",
+  );
+  const formRef = useRef<HTMLFormElement>(null);
+  const resetTimerRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current !== undefined) {
+        window.clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (status === "sending") return;
+
+    setStatus("sending");
+    try {
+      await emailjs.sendForm(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        formRef.current!,
+        { publicKey: EMAILJS_PUBLIC_KEY },
+      );
+      formRef.current?.reset();
+      setStatus("success");
+      resetTimerRef.current = window.setTimeout(() => setStatus("idle"), 3500);
+    } catch {
+      setStatus("error");
+      resetTimerRef.current = window.setTimeout(() => setStatus("idle"), 5000);
+    }
+  };
 
   return (
     <section id="contact" className="relative py-24 lg:py-32">
@@ -85,11 +127,8 @@ export function Contact() {
 
             {/* Form */}
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSent(true);
-                setTimeout(() => setSent(false), 3500);
-              }}
+              ref={formRef}
+              onSubmit={handleSubmit}
               className="glass rounded-3xl p-6 sm:p-8"
             >
               <div className="grid sm:grid-cols-2 gap-4">
@@ -97,7 +136,7 @@ export function Contact() {
                 <Field label="Email" name="email" type="email" placeholder="you@company.com" />
               </div>
               <div className="mt-4">
-                <Field label="Subject" name="subject" placeholder="What would you like to discuss?" />
+                <Field label="Subject" name="subject" placeholder="How can I help you?" />
               </div>
               <div className="mt-4">
                 <label
@@ -108,25 +147,52 @@ export function Contact() {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   required
                   rows={5}
-                  placeholder="Tell me a little about what you'd like to discuss..."
+                  placeholder="Tell me what you'd like to discuss, ask, or build..."
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:border-cyan-accent/50 focus:bg-white/[0.05]"
                 />
               </div>
 
               <button
                 type="submit"
-                disabled={sent}
+                disabled={status === "sending" || status === "success"}
                 className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-accent to-blue-accent px-5 py-3 text-sm font-semibold text-background shadow-[0_10px_40px_-10px_rgba(6,182,212,0.6)] transition-shadow hover:shadow-[0_14px_50px_-8px_rgba(6,182,212,0.75)] disabled:opacity-70"
               >
-                {sent ? "Thanks! I'll get back to you soon" : (
+                {status === "sending" ? (
+                  <>
+                    Sending…
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </>
+                ) : status === "success" ? (
+                  "Thanks! I'll get back to you soon"
+                ) : (
                   <>
                     Send Message
                     <Send className="h-4 w-4" />
                   </>
                 )}
               </button>
+
+              {status === "success" && (
+                <p
+                  role="status"
+                  className="mt-3 flex items-center gap-2 text-sm text-emerald-400"
+                >
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  Message sent — I'll get back to you soon.
+                </p>
+              )}
+              {status === "error" && (
+                <p
+                  role="alert"
+                  className="mt-3 flex items-center gap-2 text-sm text-rose-400"
+                >
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  Something went wrong. Please try again or email me directly.
+                </p>
+              )}
             </form>
           </div>
         </div>
