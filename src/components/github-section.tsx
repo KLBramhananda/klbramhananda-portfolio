@@ -1,5 +1,11 @@
 import { SectionEyebrow } from "./about";
-import { GitFork as Github, Star, GitFork, GitCommit, Award } from "lucide-react";
+import {
+  GitFork as Github,
+  Star,
+  GitFork,
+  GitCommit,
+  Award,
+} from "lucide-react";
 
 const repos = [
   {
@@ -57,34 +63,34 @@ export function GithubSection() {
   return (
     <section id="github" className="relative py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4">
-        <SectionEyebrow>GitHub</SectionEyebrow>
+        <SectionEyebrow>Open Source</SectionEyebrow>
         <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
           Open-source cadence and pinned work.
         </h2>
 
-        {/* Contribution graph */}
+        {/* Profile + stats */}
         <div className="mt-12 glass-strong rounded-3xl p-6">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5">
-                <Github className="h-5 w-5" />
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent to-blue-accent text-background font-bold">
+                B
               </div>
               <div>
-                <div className="font-semibold">@bramhananda-kl</div>
+                <div className="font-semibold">@KLBramhananda</div>
                 <div className="text-xs text-muted-foreground">
-                  Contribution activity · last 26 weeks
+                  Public work, shipped in the open
                 </div>
               </div>
             </div>
             <a
-              href="#"
-              className="text-xs text-[color:var(--cyan-accent)] hover:underline"
+              href="https://github.com/KLBramhananda"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-cyan-accent hover:underline"
             >
               View on GitHub →
             </a>
           </div>
-
-          <ContribGraph />
 
           <dl className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {stats.map((s) => (
@@ -102,21 +108,19 @@ export function GithubSection() {
             {repos.map((r) => (
               <a
                 key={r.name}
-                href="#"
-                className="glass-strong rounded-2xl p-5 block hover:bg-white/[0.06] hover:-translate-y-1 transition-all"
+                href="#github"
+                className="glass-strong rounded-2xl p-5 block transition-colors hover:bg-white/[0.06]"
               >
                 <div className="flex items-center gap-2 text-foreground">
                   <Github className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium text-[color:var(--cyan-accent)]">
-                    {r.name}
-                  </span>
+                  <span className="font-medium text-cyan-accent">{r.name}</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground min-h-[2.5rem]">
                   {r.desc}
                 </p>
                 <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-[color:var(--cyan-accent)]" />
+                    <span className="h-2 w-2 rounded-full bg-cyan-accent" />
                     {r.lang}
                   </span>
                   <span className="flex items-center gap-1">
@@ -138,7 +142,7 @@ export function GithubSection() {
             <ul className="mt-4 space-y-3">
               {commits.map((c, i) => (
                 <li key={i} className="flex gap-3">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/5 text-[color:var(--cyan-accent)]">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/5 text-cyan-accent">
                     <GitCommit className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -156,7 +160,7 @@ export function GithubSection() {
         </div>
 
         {/* Certifications */}
-        <div id="certifications" className="mt-28 lg:mt-32">
+        <div id="certifications" className="mt-24 lg:mt-32">
           <SectionEyebrow>Certifications</SectionEyebrow>
           <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
             Validated skills and what's next.
@@ -166,13 +170,14 @@ export function GithubSection() {
             {certs.map((c) => (
               <div
                 key={c.name}
-                className="relative glass-strong rounded-2xl p-6 overflow-hidden hover:-translate-y-1 transition-all"
+                className="relative glass-strong rounded-2xl p-6 overflow-hidden"
               >
                 <div
+                  aria-hidden
                   className={`absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br ${c.accent} opacity-25 blur-2xl`}
                 />
                 <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-white/5">
-                  <Award className="h-6 w-6 text-[color:var(--cyan-accent)]" />
+                  <Award className="h-6 w-6 text-cyan-accent" />
                 </div>
                 <div className="relative mt-4 text-lg font-semibold">
                   {c.name}
@@ -198,51 +203,5 @@ export function GithubSection() {
         </div>
       </div>
     </section>
-  );
-}
-
-// Simple contribution graph — 7 rows x 26 weeks
-function ContribGraph() {
-  const weeks = 26;
-  const days = 7;
-  // deterministic pseudo-random
-  const cells: number[] = [];
-  for (let i = 0; i < weeks * days; i++) {
-    const v = Math.abs(Math.sin(i * 12.9898) * 43758.5453) % 1;
-    cells.push(v > 0.7 ? 4 : v > 0.5 ? 3 : v > 0.35 ? 2 : v > 0.2 ? 1 : 0);
-  }
-  const shades = [
-    "bg-white/[0.04]",
-    "bg-[color:var(--cyan-accent)]/25",
-    "bg-[color:var(--cyan-accent)]/45",
-    "bg-[color:var(--cyan-accent)]/70",
-    "bg-[color:var(--cyan-accent)]",
-  ];
-  return (
-    <div className="mt-6 overflow-x-auto">
-      <div
-        className="inline-grid gap-1"
-        style={{
-          gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))`,
-          gridAutoRows: "12px",
-          gridAutoFlow: "column",
-        }}
-      >
-        {cells.map((v, i) => (
-          <div
-            key={i}
-            className={`h-3 w-3 rounded-[3px] ${shades[v]}`}
-            title={`${v * 3} contributions`}
-          />
-        ))}
-      </div>
-      <div className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
-        <span>Less</span>
-        {shades.map((s, i) => (
-          <span key={i} className={`h-3 w-3 rounded-[3px] ${s}`} />
-        ))}
-        <span>More</span>
-      </div>
-    </div>
   );
 }

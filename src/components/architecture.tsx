@@ -6,6 +6,8 @@ import {
   Boxes,
   ShoppingCart,
   FileCheck,
+  MoveRight,
+  type LucideIcon,
 } from "lucide-react";
 
 const diagrams = [
@@ -76,15 +78,15 @@ function Diagram({
   subtitle,
   nodes,
 }: {
-  icon: typeof Layers;
+  icon: LucideIcon;
   title: string;
   subtitle: string;
   nodes: string[];
 }) {
   return (
-    <article className="glass-strong rounded-3xl p-6 lg:p-7 group hover:bg-white/[0.06] transition-all">
+    <article className="glass-strong rounded-3xl p-6 lg:p-7 transition-colors hover:bg-white/[0.06]">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[color:var(--cyan-accent)]/20 to-[color:var(--blue-accent)]/20 text-[color:var(--cyan-accent)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
           <Icon className="h-5 w-5" />
         </div>
         <div>
@@ -93,18 +95,18 @@ function Diagram({
         </div>
       </div>
 
-      <div className="mt-6 relative rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.08),transparent_70%)] p-5 overflow-hidden">
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-4">
+      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+        <div className="flex flex-wrap items-center justify-center gap-y-4">
           {nodes.map((n, i) => (
             <div key={n} className="flex items-center">
-              <div className="relative rounded-lg glass px-3 py-2 text-xs font-medium text-foreground/90 border border-white/10 group-hover:border-[color:var(--cyan-accent)]/40 transition">
+              <div className="rounded-lg glass px-3 py-2 text-xs font-medium text-foreground/90 border border-white/10">
                 {n}
-                <span className="absolute inset-0 rounded-lg blur-md bg-[color:var(--cyan-accent)]/10 -z-10" />
               </div>
               {i < nodes.length - 1 && (
-                <div className="relative mx-2 h-px w-6 sm:w-10 bg-gradient-to-r from-[color:var(--cyan-accent)]/60 to-[color:var(--blue-accent)]/60">
-                  <span className="absolute inset-0 blur-sm bg-[color:var(--cyan-accent)]/50" />
-                </div>
+                <MoveRight
+                  aria-hidden
+                  className="mx-2 h-4 w-4 shrink-0 text-cyan-accent/60"
+                />
               )}
             </div>
           ))}

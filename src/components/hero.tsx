@@ -1,26 +1,158 @@
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Download, Sparkles } from "lucide-react";
-import profileImg from "@/assets/images/profile.jpg";
-
-const roles = [
-  "Software Engineer",
-  "ERPNext Developer",
-  "Backend Engineer",
-  "AI-Powered Enterprise Apps",
-];
+import profileImg from "@/assets/images/profile.jpeg";
 
 const stats = [
   { value: "2+", label: "Years Experience" },
   { value: "3", label: "Enterprise Projects" },
   { value: "10+", label: "Technologies" },
-  { value: "AI · ERP · Backend", label: "Focus Areas" },
+  { value: "Full Stack · AI · ERP", label: "Focus Areas" },
 ];
 
-const codeSnippets = [
-  { top: "8%", left: "-6%", text: "def process_order(po):" },
-  { top: "68%", left: "-10%", text: "@frappe.whitelist()" },
-  { top: "22%", right: "-8%", text: "kafka.produce('orders', evt)" },
-  { top: "78%", right: "-4%", text: "SELECT * FROM procurement;" },
-];
+const terminalLines = [
+  { text: "$ bench start", tone: "muted" },
+  { text: "✓ bench ready · frappe v15", tone: "ok" },
+  { text: "SAP BTP · HANA connected", tone: "accent" },
+  { text: "▶ deploying s2p-matrix …", tone: "muted" },
+  { text: "✓ RFQ service online", tone: "ok" },
+] as const;
+
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  return reduced;
+}
+
+function TerminalPanel() {
+  const reduced = useReducedMotion();
+  const full = terminalLines.map((l) => l.text).join("\n");
+  const [out, setOut] = useState<string>(() => (reduced ? full : ""));
+  const idxRef = useRef(0);
+  const timerRef = useRef<number | undefined>(undefined);
+  const visibleRef = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Replay the typing animation whenever the Hero section becomes meaningfully
+  // visible, and blank the terminal when the Hero scrolls out of view. Uses an
+  // IntersectionObserver (no scroll listeners) with a visibility threshold so
+  // tiny scroll movements don't repeatedly restart the animation.
+  useEffect(() => {
+    const host = rootRef.current?.closest("section");
+    if (!host) return;
+
+    const clearTimer = () => {
+      if (timerRef.current !== undefined) {
+        window.clearTimeout(timerRef.current);
+        timerRef.current = undefined;
+      }
+    };
+
+    const start = () => {
+      clearTimer();
+      if (reduced) {
+        setOut(full);
+        return;
+      }
+      idxRef.current = 0;
+      setOut("");
+      const tick = () => {
+        idxRef.current += 1;
+        setOut(full.slice(0, idxRef.current));
+        if (idxRef.current < full.length) {
+          timerRef.current = window.setTimeout(tick, 24 + Math.random() * 46);
+        } else {
+          timerRef.current = undefined;
+        }
+      };
+      timerRef.current = window.setTimeout(tick, 350);
+    };
+
+    const reset = () => {
+      clearTimer();
+      idxRef.current = 0;
+      setOut(reduced ? full : "");
+    };
+
+    visibleRef.current = false;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!visibleRef.current) start();
+          visibleRef.current = true;
+        } else {
+          if (visibleRef.current) reset();
+          visibleRef.current = false;
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    observer.observe(host);
+    return () => {
+      observer.disconnect();
+      clearTimer();
+    };
+  }, [reduced, full]);
+
+  const rendered = out.split("\n");
+  const done = out === full;
+  const toneCls = (tone: (typeof terminalLines)[number]["tone"]) =>
+    tone === "ok"
+      ? "text-emerald-300/90"
+      : tone === "accent"
+        ? "text-cyan-accent/90"
+        : "text-muted-foreground";
+
+  return (
+    <div
+      ref={rootRef}
+      aria-hidden
+      className="absolute -top-8 -left-8 z-10 hidden w-60 rounded-2xl glass-strong shadow-[0_14px_36px_-20px_rgba(0,0,0,0.55)] lg:block"
+    >
+      <div className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
+        <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+        <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+        <span className="ml-2 truncate font-mono text-[10px] text-muted-foreground">
+          ~ — enterprise
+        </span>
+        <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[9px] text-emerald-300">
+          <span
+            className={`h-1 w-1 rounded-full bg-emerald-400 ${
+              done ? "" : "animate-pulse"
+            }`}
+          />
+          {done ? "online" : "syncing"}
+        </span>
+      </div>
+      <div className="px-3 py-2.5 font-mono text-[10px] leading-relaxed">
+        {rendered.map((line, i) => (
+          <div
+            key={i}
+            className={`whitespace-nowrap ${toneCls(terminalLines[i].tone)}`}
+          >
+            {line}
+            {i === rendered.length - 1 && !done && (
+              <span className="ml-0.5 inline-block h-3 w-1.5 translate-y-0.5 bg-cyan-accent animate-caret" />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function Hero() {
   return (
@@ -28,58 +160,44 @@ export function Hero() {
       id="home"
       className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28"
     >
-      {/* Ambient blobs */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute top-20 left-[10%] h-80 w-80 rounded-full bg-[color:var(--cyan-accent)]/20 blur-[110px] animate-float-slow" />
-        <div className="absolute bottom-10 right-[8%] h-96 w-96 rounded-full bg-[color:var(--blue-accent)]/20 blur-[130px] animate-float-slower" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-[color:var(--cyan-accent)]/5 blur-[100px]" />
+      {/* Ambient blobs — static, composited once (no continuous animation) */}
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+        <div className="absolute top-20 left-[10%] h-80 w-80 rounded-full bg-cyan-accent/20 blur-[110px]" />
+        <div className="absolute bottom-10 right-[8%] h-96 w-96 rounded-full bg-blue-accent/20 blur-[130px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-cyan-accent/5 blur-[100px]" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4">
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-14 items-center">
           {/* Left */}
           <div className="animate-fade-up">
-            <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5 text-xs text-muted-foreground mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              Available for enterprise projects
-            </div>
-
             <p className="text-muted-foreground text-lg mb-3">Hi, I'm</p>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] text-gradient">
               Bramhananda K L
             </h1>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {roles.map((r) => (
-                <span
-                  key={r}
-                  className="glass rounded-full px-3 py-1.5 text-xs sm:text-sm text-foreground/90"
-                >
-                  {r}
-                </span>
-              ))}
-            </div>
-
-            <p className="mt-8 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Building scalable enterprise software, ERP solutions,
-              AI-powered procurement platforms, modern backend systems, and
-              high-performance web applications.
+            <p className="mt-5 text-xl sm:text-2xl font-semibold tracking-tight text-cyan-accent">
+              Full Stack · AI · ERPNext · SAP BTP
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <p className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+              Building scalable enterprise software across full-stack
+              applications, ERPNext, AI-powered systems, and SAP BTP
+              integrations.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <a
                 href="#projects"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[color:var(--cyan-accent)] to-[color:var(--blue-accent)] px-5 py-3 text-sm font-semibold text-background shadow-[0_10px_40px_-10px_rgba(6,182,212,0.6)] hover:shadow-[0_14px_50px_-8px_rgba(6,182,212,0.75)] transition-shadow"
+                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-accent to-blue-accent px-5 py-3 text-sm font-semibold text-background shadow-[0_10px_40px_-10px_rgba(6,182,212,0.6)] transition-shadow hover:shadow-[0_14px_50px_-8px_rgba(6,182,212,0.75)]"
               >
                 View Projects
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
               <a
-                href="#resume"
-                className="inline-flex items-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground hover:bg-white/10 transition"
+                href="/resume/Bramhananda-K-L-Resume.pdf"
+                download
+                className="inline-flex items-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-white/10"
               >
                 <Download className="h-4 w-4" />
                 Download Resume
@@ -91,7 +209,7 @@ export function Hero() {
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="glass rounded-2xl p-4 hover:bg-white/[0.06] transition"
+                  className="glass rounded-2xl p-4 transition-colors hover:bg-white/[0.06]"
                 >
                   <dt className="text-xs text-muted-foreground">{s.label}</dt>
                   <dd className="mt-1 text-lg font-semibold text-foreground">
@@ -104,32 +222,23 @@ export function Hero() {
 
           {/* Right: profile */}
           <div className="relative mx-auto w-full max-w-md animate-fade-up">
-            {/* Glow rings */}
-            <div className="absolute inset-0 -m-8">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[color:var(--cyan-accent)]/30 via-transparent to-[color:var(--blue-accent)]/30 blur-3xl animate-pulse-glow" />
+            {/* Static glow ring */}
+            <div className="absolute inset-0 -m-8" aria-hidden>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-accent/30 via-transparent to-blue-accent/30 blur-3xl" />
             </div>
 
-            {/* Floating code chips */}
-            {codeSnippets.map((c, i) => (
-              <div
-                key={i}
-                style={{ top: c.top, left: c.left, right: c.right }}
-                className={`hidden sm:block absolute glass rounded-lg px-3 py-1.5 font-mono text-[11px] text-muted-foreground whitespace-nowrap ${
-                  i % 2 === 0 ? "animate-float-slow" : "animate-float-slower"
-                }`}
-              >
-                {c.text}
-              </div>
-            ))}
+            {/* Live engineering terminal — types once on load, then idles */}
+            <TerminalPanel />
 
-            {/* Image container */}
-            <div className="relative aspect-square rounded-[2rem] glass-strong p-3 glow-cyan">
+            {/* Image container — 4/5 frame matches the source photo, no cropping */}
+            <div className="relative aspect-[4/5] rounded-[2rem] glass-strong p-3 glow-cyan">
               <div className="relative h-full w-full overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-slate-800 to-slate-900">
                 <img
                   src={profileImg}
                   alt="Bramhananda K L — Software Engineer"
-                  width={912}
-                  height={1104}
+                  width={900}
+                  height={1125}
+                  fetchPriority="high"
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
@@ -137,7 +246,7 @@ export function Hero() {
 
               {/* Corner badge */}
               <div className="absolute -bottom-4 -left-4 glass-strong rounded-2xl px-4 py-3 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[color:var(--cyan-accent)] to-[color:var(--blue-accent)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent to-blue-accent">
                   <Sparkles className="h-5 w-5 text-background" />
                 </div>
                 <div>
@@ -146,10 +255,6 @@ export function Hero() {
                     KeeMeds · ERPNext
                   </div>
                 </div>
-              </div>
-
-              <div className="absolute -top-3 -right-3 glass rounded-full px-3 py-1.5 text-xs text-foreground/90">
-                v2026 · Portfolio
               </div>
             </div>
           </div>

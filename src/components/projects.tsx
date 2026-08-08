@@ -1,4 +1,10 @@
-import { ArrowUpRight, CheckCircle2, Target, Lightbulb, TrendingUp } from "lucide-react";
+import {
+  CheckCircle2,
+  Target,
+  Lightbulb,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
 import { SectionEyebrow } from "./about";
 import s2p from "@/assets/images/proj-s2p.jpg";
 import fastays from "@/assets/images/proj-fastays.jpg";
@@ -11,6 +17,8 @@ type Project = {
   role: string;
   status: "Completed" | "Currently Working On";
   image: string;
+  imageWidth: number;
+  imageHeight: number;
   description: string;
   tech: string[];
   challenge: string;
@@ -20,18 +28,46 @@ type Project = {
 
 const projects: Project[] = [
   {
+    name: "KeeMeds",
+    tagline: "Healthcare Commerce · ERPNext",
+    role: "ERPNext developer & implementation lead",
+    status: "Currently Working On",
+    image: keemeds,
+    imageWidth: 1440,
+    imageHeight: 619,
+    description:
+      "End-to-end ERPNext + Frappe implementation for a healthcare commerce platform — catalog, orders, compliance, and fulfillment.",
+    tech: ["ERPNext", "Frappe", "Python", "MariaDB", "Docker"],
+    challenge:
+      "Healthcare commerce needs strict compliance, controlled catalogs, and reliable fulfillment — off-the-shelf ERP alone won't cover it.",
+    solution:
+      "Modeling domain-specific inventory and compliance workflows on ERPNext and shipping custom Frappe apps for supplier onboarding and payments.",
+    outcome:
+      "Laying the ERP backbone for a compliant, scalable healthcare commerce launch.",
+  },
+  {
     name: "S2P Matrix",
     tagline: "Enterprise Procurement Platform",
-    role: "Backend & platform engineer",
+    role: "Full stack & platform engineer",
     status: "Completed",
     image: s2p,
+    imageWidth: 1440,
+    imageHeight: 634,
     description:
       "Source-to-Pay platform unifying supplier discovery, RFQ automation, contract management, and payment reconciliation for enterprise buyers.",
-    tech: ["Python", "FastAPI", "React", "SAP HANA", "AI/LLM", "PostgreSQL"],
+    tech: [
+      "Python",
+      "FastAPI",
+      "React",
+      "SAP BTP",
+      "SAP HANA",
+      "AI/LLM",
+      "PostgreSQL",
+    ],
     challenge:
       "Enterprises ran procurement across scattered spreadsheets, SAP modules, and email — no unified view, slow RFQ cycles, weak supplier scoring.",
     solution:
-      "Built a multi-tenant FastAPI backend with a React operator console, SAP HANA integration for master data, and LLM-assisted supplier matching and RFQ scoring.",
+      "Built a multi-tenant FastAPI backend with a React operator console, SAP BTP integration for SAP HANA master data, and LLM-assisted supplier matching and RFQ scoring.",
     outcome:
       "Cut RFQ turnaround from days to hours and gave buyers a single source of truth across procurement.",
   },
@@ -41,6 +77,8 @@ const projects: Project[] = [
     role: "Backend engineer",
     status: "Completed",
     image: fastays,
+    imageWidth: 1440,
+    imageHeight: 592,
     description:
       "High-throughput booking backend handling flights and stays with event-driven order processing and inventory synchronization.",
     tech: ["Java", "Spring Boot", "Kafka", "MongoDB", "Redis"],
@@ -57,6 +95,8 @@ const projects: Project[] = [
     role: "Architect & lead engineer",
     status: "Completed",
     image: psp,
+    imageWidth: 1440,
+    imageHeight: 616,
     description:
       "A shared procurement toolkit — supplier, catalog, RFQ, contract, and approval services — reused across enterprise client engagements.",
     tech: ["Python", "FastAPI", "PostgreSQL", "Docker", "AWS"],
@@ -66,22 +106,6 @@ const projects: Project[] = [
       "Extracted the common domain into versioned microservices with clean APIs, shared auth, and a config-driven workflow engine.",
     outcome:
       "Cut new-client onboarding effort by ~50% and standardized procurement flows across engagements.",
-  },
-  {
-    name: "KeeMeds",
-    tagline: "Healthcare Commerce · ERPNext",
-    role: "ERPNext developer & implementation lead",
-    status: "Currently Working On",
-    image: keemeds,
-    description:
-      "End-to-end ERPNext + Frappe implementation for a healthcare commerce platform — catalog, orders, compliance, and fulfillment.",
-    tech: ["ERPNext", "Frappe", "Python", "MariaDB", "Docker"],
-    challenge:
-      "Healthcare commerce needs strict compliance, controlled catalogs, and reliable fulfillment — off-the-shelf ERP alone won't cover it.",
-    solution:
-      "Modeling domain-specific inventory and compliance workflows on ERPNext and shipping custom Frappe apps for supplier onboarding and payments.",
-    outcome:
-      "Laying the ERP backbone for a compliant, scalable healthcare commerce launch.",
   },
 ];
 
@@ -112,29 +136,32 @@ export function Projects() {
   );
 }
 
-function ProjectCard({ project: p, flip }: { project: Project; flip: boolean }) {
+function ProjectCard({
+  project: p,
+  flip,
+}: {
+  project: Project;
+  flip: boolean;
+}) {
   const isCurrent = p.status === "Currently Working On";
   return (
-    <article className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden group hover:bg-white/[0.06] transition-all">
+    <article className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-white/[0.06]">
       <div
-        className={`grid lg:grid-cols-[1.05fr_1fr] gap-6 lg:gap-8 items-stretch ${
+        className={`grid lg:grid-cols-[1fr_1.05fr] gap-6 lg:gap-8 items-center ${
           flip ? "lg:[&>*:first-child]:order-2" : ""
         }`}
       >
-        {/* Image */}
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 aspect-[16/10]">
-          <img
-            src={p.image}
-            alt={`${p.name} — ${p.tagline}`}
-            width={1200}
-            height={720}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
-          <div className="absolute top-4 left-4">
+        {/* Content (left by default, alternates right) */}
+        <div className="p-3 sm:p-4 lg:p-6 flex flex-col">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+                {p.name}
+              </h3>
+              <div className="text-cyan-accent text-sm mt-1">{p.tagline}</div>
+            </div>
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
                 isCurrent
                   ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/20"
                   : "bg-white/10 text-white/85 border border-white/15"
@@ -145,23 +172,6 @@ function ProjectCard({ project: p, flip }: { project: Project; flip: boolean }) 
               )}
               {p.status}
             </span>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-3 sm:p-4 lg:p-6 flex flex-col">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-                {p.name}
-              </h3>
-              <div className="text-[color:var(--cyan-accent)] text-sm mt-1">
-                {p.tagline}
-              </div>
-            </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl glass text-foreground group-hover:bg-white/10 transition">
-              <ArrowUpRight className="h-5 w-5" />
-            </div>
           </div>
 
           <p className="mt-4 text-foreground/85 leading-relaxed">
@@ -195,6 +205,19 @@ function ProjectCard({ project: p, flip }: { project: Project; flip: boolean }) 
             />
           </div>
         </div>
+
+        {/* Screenshot — full screenshot always visible, never cropped */}
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 aspect-[16/10] lg:aspect-[7/3]">
+          <img
+            src={p.image}
+            alt={`${p.name} — ${p.tagline} screenshot`}
+            width={p.imageWidth}
+            height={p.imageHeight}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-contain"
+          />
+        </div>
       </div>
     </article>
   );
@@ -206,7 +229,7 @@ function Detail({
   text,
   highlight,
 }: {
-  icon: typeof Target;
+  icon: LucideIcon;
   label: string;
   text: string;
   highlight?: boolean;
@@ -216,7 +239,7 @@ function Detail({
       <div
         className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
           highlight
-            ? "bg-gradient-to-br from-[color:var(--cyan-accent)]/25 to-[color:var(--blue-accent)]/25 text-[color:var(--cyan-accent)]"
+            ? "bg-gradient-to-br from-cyan-accent/25 to-blue-accent/25 text-cyan-accent"
             : "bg-white/5 text-muted-foreground"
         }`}
       >

@@ -1,6 +1,5 @@
 @import "tailwindcss" source(none);
 @source "../";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -112,12 +111,20 @@
 
 @layer base {
   html {
+    /* Smooth anchor scrolling with offset for the fixed header */
     scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
     color-scheme: dark;
   }
 
   * {
     border-color: var(--color-border);
+  }
+
+  /* Accessible, visible focus ring */
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--cyan-accent) 70%, transparent);
+    outline-offset: 2px;
   }
 
   body {
@@ -126,10 +133,6 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 15% -10%, color-mix(in oklab, var(--cyan-accent) 18%, transparent), transparent 60%),
-      radial-gradient(ellipse 70% 50% at 100% 20%, color-mix(in oklab, var(--blue-accent) 14%, transparent), transparent 60%);
-    background-attachment: fixed;
   }
 
   ::selection {
@@ -138,17 +141,29 @@
   }
 }
 
+/*
+  Fixed ambient gradient layer.
+  Uses a fixed, composited layer instead of `background-attachment: fixed`,
+  which forced full-page repaints on scroll and caused the noticeable jank.
+*/
+@utility bg-ambience {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 15% -10%, color-mix(in oklab, var(--cyan-accent) 18%, transparent), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 100% 20%, color-mix(in oklab, var(--blue-accent) 14%, transparent), transparent 60%);
+}
+
+/* Cheap glass: modest blur, no saturate filter (expensive to repaint). */
 @utility glass {
-  background: color-mix(in oklab, white 4%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background: color-mix(in oklab, white 5%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid color-mix(in oklab, white 8%, transparent);
 }
 
 @utility glass-strong {
-  background: color-mix(in oklab, white 6%, transparent);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: color-mix(in oklab, white 7%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid color-mix(in oklab, white 10%, transparent);
 }
 
@@ -163,28 +178,413 @@
   box-shadow: 0 0 40px -8px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
 }
 
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-24px) translateX(10px); }
-}
-@keyframes float-slower {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(20px) translateX(-14px); }
-}
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.06); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@utility animate-float-slow { animation: float-slow 9s ease-in-out infinite; }
-@utility animate-float-slower { animation: float-slower 12s ease-in-out infinite; }
-@utility animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
-@utility animate-fade-up { animation: fade-up 0.7s ease-out both; }
+@utility animate-fade-up { animation: fade-up 0.6s ease-out both; }
+
+/* Blinking terminal caret (compositor-friendly: opacity only). */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@utility animate-caret { animation: caret-blink 1.1s steps(1, end) infinite; }
+
+/* ── Engineering Tech Constellation ────────────────────────────────────
+   Static, symmetrical network. All motion is slow, subtle, and driven by
+   compositor-friendly transform/opacity where possible. No rotation, no
+   random movement, no per-frame JS. */
+.tech-network {
+  position: relative;
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+  aspect-ratio: 10 / 6;
+}
+
+.tech-network__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tech-network__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+/* Connection lines: base line + slow flowing overlay. */
+.tech-link {
+  stroke: oklch(0.72 0.03 255);
+  stroke-opacity: 0.22;
+  stroke-width: 1;
+  transition:
+    stroke-opacity 0.35s ease,
+    stroke-width 0.35s ease;
+}
+
+.tech-link.is-active {
+  stroke: var(--cyan-accent);
+  stroke-opacity: 0.85;
+  stroke-width: 1.6;
+}
+
+.tech-link.is-related {
+  stroke-opacity: 0.45;
+}
+
+.tech-link.is-dimmed {
+  stroke-opacity: 0.07;
+}
+
+.tech-link-flow {
+  stroke: var(--cyan-accent);
+  stroke-opacity: 0.35;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 14;
+  animation: link-flow 24s linear infinite;
+}
+
+.tech-link-flow.is-active {
+  stroke-opacity: 0.8;
+}
+
+.tech-link-flow.is-related {
+  stroke-opacity: 0.5;
+}
+
+.tech-link-flow.is-dimmed {
+  stroke-opacity: 0.04;
+}
+
+@keyframes link-flow {
+  to { stroke-dashoffset: -41; }
+}
+
+/* Small data particle traveling along a selected link. */
+.node-particle {
+  fill: var(--cyan-accent);
+  opacity: 0;
+  animation: particle-travel 9s ease-in-out infinite;
+}
+
+@keyframes particle-travel {
+  0% { offset-distance: 0%; opacity: 0; }
+  14% { opacity: 0.9; }
+  84% { opacity: 0.9; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+/* Technology node — premium enterprise chip. */
+.network-node {
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    opacity 0.35s ease,
+    background 0.35s ease;
+}
+
+.network-node:hover,
+.network-node:focus-visible {
+  transform: translate(-50%, -50%) scale(1.06);
+  border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent);
+}
+
+.network-node.is-active {
+  transform: translate(-50%, -50%) scale(1.07);
+  border-color: color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--cyan-accent) 14%, rgba(255, 255, 255, 0.06)),
+    color-mix(in oklab, var(--cyan-accent) 5%, rgba(255, 255, 255, 0.02))
+  );
+  box-shadow: 0 0 26px -10px color-mix(in oklab, var(--cyan-accent) 60%, transparent);
+}
+
+.network-node.is-related {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.network-node.is-dimmed {
+  opacity: 0.38;
+}
+
+/* Central "Enterprise Engineering" node. */
+.network-core {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  padding: 0.9rem 1.5rem;
+  border: 1px solid color-mix(in oklab, var(--cyan-accent) 40%, transparent);
+  border-radius: 1rem;
+  background:
+    radial-gradient(120% 170% at 0% 0%, color-mix(in oklab, var(--cyan-accent) 18%, transparent), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 44px -12px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.network-core__ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(1rem + 8px);
+  border: 1px solid color-mix(in oklab, var(--cyan-accent) 28%, transparent);
+  animation: core-ring 4.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes core-ring {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.12; transform: scale(1.05); }
+}
+
+/* Colored status dot on each node — subtle heartbeat. */
+.network-node__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: node-dot 3.8s ease-in-out infinite;
+}
+
+@keyframes node-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Mobile compact network chips. */
+.tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.tech-chip:hover,
+.tech-chip.is-active {
+  border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent);
+}
+
+.tech-chip.is-active {
+  box-shadow: 0 0 20px -10px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+}
+
+.tech-chip.is-related {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.tech-chip.is-dimmed {
+  opacity: 0.4;
+}
+
+/* Tablet: tighten spacing while keeping the network structure. */
+@media (max-width: 1023px) {
+  .network-node {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8125rem;
+    gap: 0.4rem;
+  }
+}
+
+/* Skill Insight card — fixed, viewport-clamped by the component, subtle fade+rise. */
+.skill-insight {
+  position: fixed;
+  z-index: 55;
+  width: min(360px, calc(100vw - 2rem));
+  animation: skill-insight-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+  box-shadow:
+    0 24px 60px -24px rgba(2, 6, 23, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 44px -14px color-mix(in oklab, var(--cyan-accent) 32%, transparent);
+}
+
+@keyframes skill-insight-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Currently Building status strip */
+.status-dot {
+  animation: status-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes status-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+
+@keyframes status-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-status-in { animation: status-in 0.35s ease-out both; }
+
+/* ── Ambient System Activity Background ─────────────────────────────
+   Sparse, faint technical network behind the interface. Pure SVG + CSS
+   keyframes (transform/opacity/offset-path only) — no JS loop, no event
+   listeners, so it can never intercept clicks, selection, or hover, and
+   adds no React re-renders. */
+.sys-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sys-cluster {
+  position: absolute;
+  animation: sys-drift 34s ease-in-out infinite alternate;
+}
+
+/* Staggered drift so each section's network moves at its own tempo. */
+.sys-cluster--b { animation-duration: 46s; animation-delay: -14s; }
+.sys-cluster--c { animation-duration: 40s; animation-delay: -6s; }
+.sys-cluster--d { animation-duration: 52s; animation-delay: -22s; }
+
+.sys-cluster svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.sys-link {
+  stroke: oklch(0.78 0.15 210);
+  stroke-width: 1;
+  stroke-opacity: 0.1;
+}
+
+.sys-link--blue {
+  stroke: oklch(0.65 0.19 258);
+  stroke-opacity: 0.13;
+}
+
+/* One subtle flowing dash per cluster — very slow, low opacity. */
+.sys-link-flow {
+  stroke-dasharray: 2 14;
+  stroke-opacity: 0.17;
+  animation: sys-flow 18s linear infinite;
+}
+
+.sys-node {
+  fill: var(--cyan-accent);
+  animation: sys-breathe 8s ease-in-out infinite;
+}
+
+.sys-node--blue { fill: var(--blue-accent); }
+
+/* Tiny dot traveling along a connection. */
+.sys-particle {
+  fill: var(--cyan-accent);
+  opacity: 0;
+  animation: sys-travel 16s ease-in-out infinite;
+}
+
+@keyframes sys-drift {
+  from { transform: translate(-6px, -4px); }
+  to { transform: translate(8px, 6px); }
+}
+
+@keyframes sys-breathe {
+  0%, 100% { opacity: 0.18; }
+  50% { opacity: 0.32; }
+}
+
+@keyframes sys-flow {
+  to { stroke-dashoffset: -48; }
+}
+
+@keyframes sys-travel {
+  0% { offset-distance: 0%; opacity: 0; }
+  14% { opacity: 0.6; }
+  84% { opacity: 0.6; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Constellation: strip continuous motion, keep the network interactive. */
+  .tech-link-flow,
+  .node-particle,
+  .network-core__ring {
+    display: none;
+  }
+
+  .network-node__dot {
+    animation: none;
+  }
+
+  /* System background: freeze to a static, faint network. */
+  .sys-cluster,
+  .sys-node,
+  .sys-link-flow {
+    animation: none;
+  }
+
+  .sys-link-flow,
+  .sys-particle {
+    display: none;
+  }
+
+  .sys-node {
+    opacity: 0.13;
+  }
+}

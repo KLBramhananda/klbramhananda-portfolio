@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { MotionConfig } from "framer-motion";
 import { routeTree } from "./routeTree.gen";
 import "./styles/styles.css";
 
@@ -14,6 +15,9 @@ declare module "@tanstack/react-router" {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    {/* Respect the user's reduced-motion preference for all Framer Motion */}
+    <MotionConfig reducedMotion="user">
+      <RouterProvider router={router} />
+    </MotionConfig>
   </React.StrictMode>
 );
