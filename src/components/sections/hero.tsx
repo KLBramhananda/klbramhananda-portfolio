@@ -246,11 +246,24 @@ export function Hero() {
 
               {/* Corner badge */}
               <div className="absolute -bottom-4 -left-4 glass-strong rounded-2xl px-4 py-3 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent to-blue-accent">
+                <div
+                  aria-hidden
+                  className="building-fx absolute inset-0 rounded-2xl overflow-hidden pointer-events-none"
+                >
+                  <div className="building-glow absolute inset-0" />
+                  <div className="building-sweep" />
+                </div>
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent to-blue-accent">
                   <Sparkles className="h-5 w-5 text-background" />
                 </div>
-                <div>
-                  <div className="text-xs text-muted-foreground">Currently building</div>
+                <div className="relative">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      aria-hidden
+                      className="status-pulse h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-accent"
+                    />
+                    <span className="text-xs text-muted-foreground">Currently building</span>
+                  </div>
                   <div className="text-sm font-semibold text-foreground">
                     KeeMeds · ERPNext
                   </div>

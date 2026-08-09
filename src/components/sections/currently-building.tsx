@@ -5,13 +5,20 @@ export function CurrentlyBuilding() {
     <div className="relative z-10 mx-auto max-w-7xl px-4 pt-[112px] -mb-[88px] lg:pt-[120px] lg:-mb-[120px]">
       <aside
         aria-label="Current status"
-        className="animate-status-in glass rounded-2xl px-5 py-4 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.7)] sm:px-6"
+        className="relative animate-status-in glass rounded-2xl px-5 py-4 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.7)] sm:px-6"
       >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+        <div
+          aria-hidden
+          className="building-fx absolute inset-0 rounded-2xl overflow-hidden pointer-events-none"
+        >
+          <div className="building-glow absolute inset-0" />
+          <div className="building-sweep" />
+        </div>
+        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
           <span className="inline-flex w-max shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-foreground/80">
             <span
               aria-hidden
-              className="status-dot h-2 w-2 rounded-full bg-cyan-accent"
+              className="status-pulse h-2 w-2 rounded-full bg-cyan-accent"
             />
             Currently Building
           </span>

@@ -779,6 +779,82 @@
   }
 }
 
+/* ── "Currently Building" badge — live system-activity effect ─────────
+   A gentle cyan status-dot pulse and a faint light sweep that glides
+   left-to-right in a continuous, steady rhythm with a soft ambient bloom
+   trailing each pass. Compositor-friendly: only transform + opacity are
+   animated. The dot reuses .status-pulse to breathe with the footer. */
+.building-fx {
+  z-index: 0;
+}
+
+.building-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    color-mix(in oklab, var(--cyan-accent) 5%, transparent) 35%,
+    color-mix(in oklab, white 9%, transparent) 50%,
+    color-mix(in oklab, var(--blue-accent) 5%, transparent) 65%,
+    transparent 100%
+  );
+  transform: skewX(-16deg);
+  animation: building-sweep 1.4s linear infinite;
+}
+
+@keyframes building-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-16deg);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  82% {
+    transform: translateX(420%) skewX(-16deg);
+    opacity: 1;
+  }
+  90%, 100% {
+    transform: translateX(420%) skewX(-16deg);
+    opacity: 0;
+  }
+}
+
+.building-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    130% 130% at 28% 50%,
+    color-mix(in oklab, var(--cyan-accent) 10%, transparent) 0%,
+    color-mix(in oklab, var(--blue-accent) 6%, transparent) 40%,
+    transparent 65%
+  );
+  animation: building-glow 1.4s linear infinite;
+}
+
+@keyframes building-glow {
+  0%, 100% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0;
+  }
+}
+
 /* Social / action buttons — gentle lift with accent on hover. */
 .social-btn {
   transition:
@@ -870,6 +946,12 @@
   .status-pulse {
     animation: none;
     box-shadow: none;
+  }
+
+  /* Currently Building badge: freeze sweep and ambient glow. */
+  .building-sweep,
+  .building-glow {
+    display: none;
   }
 
   /* Social buttons: no lift for reduced-motion users. */
