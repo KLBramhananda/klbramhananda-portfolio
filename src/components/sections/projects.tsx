@@ -26,6 +26,7 @@ type Project = {
   outcome: string;
 };
 
+
 const projects: Project[] = [
   {
     name: "KeeMeds",
