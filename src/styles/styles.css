@@ -547,6 +547,253 @@
   100% { offset-distance: 100%; opacity: 0; }
 }
 
+/* ── Architecture Flow Diagrams ──────────────────────────────────────
+   Each diagram is a miniature live system: a small cyan signal travels
+   along every arrow segment and the node it reaches lights up briefly.
+   Pure CSS keyframes (transform/opacity/border-color/box-shadow only),
+   staggered per element with negative animation-delays so every segment
+   starts mid-cycle, loops continuously, and never animates in lock-step.
+   No JS loops, no event listeners, no React re-renders. */
+
+/* Arrow segment: hosts the traveling signal without changing layout. */
+.flow-segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The traveling data/request pulse. */
+.flow-particle {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 6px;
+  width: 6px;
+  margin-top: -3px;
+  border-radius: 9999px;
+  background: var(--cyan-accent);
+  opacity: 0;
+  box-shadow: 0 0 8px 0 color-mix(in oklab, var(--cyan-accent) 60%, transparent);
+  will-change: transform, opacity;
+  animation: flow-particle 7.2s linear infinite;
+}
+
+/* Faint trailing tail so the signal reads as motion, not a blinking dot. */
+.flow-particle::after {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  height: 2px;
+  width: 9px;
+  margin-top: -1px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to left,
+    color-mix(in oklab, var(--cyan-accent) 50%, transparent),
+    transparent
+  );
+}
+
+/* Node: brief border + glow when the signal arrives, then back to base. */
+.flow-node {
+  animation: flow-node-hit 7.2s linear infinite;
+}
+
+/* Card hover: gently lift arrow tint and pulse glow. Layout untouched. */
+.architecture-card:hover .flow-arrow {
+  color: color-mix(in oklab, var(--cyan-accent) 85%, transparent);
+}
+
+.architecture-card:hover .flow-particle {
+  box-shadow: 0 0 12px 1px color-mix(in oklab, var(--cyan-accent) 80%, transparent);
+}
+
+@keyframes flow-particle {
+  0%   { opacity: 0; transform: translateX(-6px); }
+  4%   { opacity: 1; transform: translateX(-4px); }
+  13%  { opacity: 1; transform: translateX(20px); }
+  17%  { opacity: 0; transform: translateX(23px); }
+  100% { opacity: 0; transform: translateX(23px); }
+}
+
+@keyframes flow-node-hit {
+  0%   { border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+  5%   { border-color: color-mix(in oklab, var(--cyan-accent) 75%, transparent); box-shadow: 0 0 12px -4px color-mix(in oklab, var(--cyan-accent) 55%, transparent); }
+  12%  { border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent); box-shadow: 0 0 10px -5px color-mix(in oklab, var(--cyan-accent) 35%, transparent); }
+  20%  { border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+  100% { border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+}
+
+/* ── Skill Capability Cards ──────────────────────────────────────────
+   Subtle, secondary hover: gentle lift, brighter border, icon glow, pill
+   emphasis, and a faint light sweep. Pure CSS transforms/transitions — no
+   JS, no re-renders, compositor-friendly. */
+.skill-card {
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0);
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* Faint light/gradient sweep that passes across the card once on hover. */
+.skill-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    color-mix(in oklab, var(--cyan-accent) 10%, transparent) 48%,
+    transparent 78%
+  );
+  transform: translateX(-110%);
+  transition: transform 0.5s ease;
+}
+
+.skill-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--cyan-accent) 38%, transparent);
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.7),
+    0 0 24px -12px color-mix(in oklab, var(--cyan-accent) 42%, transparent);
+}
+
+.skill-card:hover::before {
+  transform: translateX(110%);
+}
+
+/* Icon: subtle glow on hover. */
+.skill-card__icon {
+  transition: box-shadow 0.2s ease;
+}
+
+.skill-card:hover .skill-card__icon {
+  box-shadow: 0 0 18px -4px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+}
+
+/* Pills: slight border/text emphasis on hover. */
+.skill-card:hover .skill-card__pill {
+  border-color: color-mix(in oklab, var(--cyan-accent) 30%, transparent);
+  color: var(--foreground);
+}
+
+/* ── GitHub Repository Cards ────────────────────────────────────────
+   Secondary hover: gentle lift, brighter border/glow, subtle link and
+   pill emphasis. Pure CSS transforms/transitions — no JS, compositor-
+   friendly, matches the skill-card hover language. */
+.repo-card {
+  position: relative;
+  transform: translateY(0);
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.repo-card:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in oklab, var(--cyan-accent) 38%, transparent);
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.7),
+    0 0 24px -12px color-mix(in oklab, var(--cyan-accent) 42%, transparent);
+}
+
+/* GitHub link icon: subtle emphasis on hover. */
+.repo-card__link {
+  transition: color 0.2s ease;
+}
+
+.repo-card:hover .repo-card__link {
+  color: var(--cyan-accent);
+}
+
+/* Tech pills: very small emphasis on hover. */
+.repo-card__pill {
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.repo-card:hover .repo-card__pill {
+  border-color: color-mix(in oklab, var(--cyan-accent) 30%, transparent);
+  color: var(--foreground);
+}
+
+/* ── Footer Navigation Links ───────────────────────────────────────
+   Subtle accent transition + thin underline on hover. Pure CSS color /
+   transform transitions, compositor-friendly, no JS. */
+.footer-link {
+  position: relative;
+  display: inline-block;
+  color: var(--muted-foreground);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: color-mix(in oklab, var(--cyan-accent) 70%, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  color: var(--cyan-accent);
+  transform: translateX(3px);
+}
+
+.footer-link:hover::after,
+.footer-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Availability status dot — very subtle breathing glow every few seconds. */
+.status-pulse {
+  animation: status-pulse 4s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--cyan-accent) 0%, transparent);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 6px 1px color-mix(in oklab, var(--cyan-accent) 30%, transparent);
+  }
+}
+
+/* Social / action buttons — gentle lift with accent on hover. */
+.social-btn {
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.social-btn:hover,
+.social-btn:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--cyan-accent) 35%, transparent);
+  background-color: color-mix(in oklab, white 8%, transparent);
+}
+
 /* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -581,6 +828,82 @@
 
   .sys-link-flow,
   .sys-particle {
+    display: none;
+  }
+
+  .sys-node {
+    opacity: 0.13;
+  }
+
+  /* Architecture flows: freeze to a static diagram. */
+  .flow-particle,
+  .flow-node {
+    animation: none;
+  }
+
+  .flow-particle {
+    display: none;
+  }
+
+  /* Skill cards: no lift or sweep for reduced-motion users. */
+  .skill-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .skill-card::before {
+    display: none;
+  }
+
+  /* Repository cards: no lift or glow for reduced-motion users. */
+  .repo-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Footer links: no underline animation for reduced-motion users. */
+  .footer-link::after {
+    transform: none;
+  }
+
+  /* Footer status dot: static for reduced-motion users. */
+  .status-pulse {
+    animation: none;
+    box-shadow: none;
+  }
+
+  /* Social buttons: no lift for reduced-motion users. */
+  .social-btn:hover,
+  .social-btn:focus-visible {
+    transform: none;
+  }
+}
+
+/*
+  Low-power / small-screen ambient reduction.
+  Phones render a far smaller, less useful version of the background network
+  and constellation flow. Freezing the decorative loops keeps the same
+  aesthetic (static faint links + dots) while the compositor saves the cycles
+  for scrolling, reveals, and interaction. Mirrors the reduced-motion handling
+  so no element jumps to an unwanted brightness when its animation is off.
+*/
+@media (max-width: 767px) {
+  .sys-cluster,
+  .sys-node,
+  .sys-link-flow,
+  .sys-particle,
+  .tech-link-flow,
+  .node-particle,
+  .network-core__ring,
+  .network-node__dot {
+    animation: none;
+  }
+
+  .sys-link-flow,
+  .sys-particle,
+  .tech-link-flow,
+  .node-particle,
+  .network-core__ring {
     display: none;
   }
 

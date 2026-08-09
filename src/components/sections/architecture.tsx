@@ -63,8 +63,8 @@ export function Architecture() {
         </p>
 
         <div className="mt-14 grid md:grid-cols-2 gap-6">
-          {diagrams.map((d) => (
-            <Diagram key={d.title} {...d} />
+          {diagrams.map((d, i) => (
+            <Diagram key={d.title} {...d} phase={i * 0.45} />
           ))}
         </div>
       </div>
@@ -77,14 +77,19 @@ function Diagram({
   title,
   subtitle,
   nodes,
+  phase,
 }: {
   icon: LucideIcon;
   title: string;
   subtitle: string;
   nodes: string[];
+  phase: number;
 }) {
+  const cycle = 7.2;
+  const step = cycle / nodes.length;
+
   return (
-    <article className="glass-strong rounded-3xl p-6 lg:p-7 transition-colors hover:bg-white/[0.06]">
+    <article className="architecture-card glass-strong rounded-3xl p-6 lg:p-7 transition-colors hover:bg-white/[0.06]">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
           <Icon className="h-5 w-5" />
@@ -95,18 +100,27 @@ function Diagram({
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5 overflow-hidden">
         <div className="flex flex-wrap items-center justify-center gap-y-4">
           {nodes.map((n, i) => (
             <div key={n} className="flex items-center">
-              <div className="rounded-lg glass px-3 py-2 text-xs font-medium text-foreground/90 border border-white/10">
+              <div
+                className="flow-node rounded-lg glass px-3 py-2 text-xs font-medium text-foreground/90 border border-white/10"
+                style={{ animationDelay: `${phase + i * step - cycle}s` }}
+              >
                 {n}
               </div>
               {i < nodes.length - 1 && (
-                <MoveRight
+                <span
                   aria-hidden
-                  className="mx-2 h-4 w-4 shrink-0 text-cyan-accent/60"
-                />
+                  className="flow-segment mx-2 inline-flex h-4 w-4 shrink-0 items-center justify-center"
+                >
+                  <MoveRight className="flow-arrow h-4 w-4 text-cyan-accent/60" />
+                  <span
+                    className="flow-particle"
+                    style={{ animationDelay: `${phase + i * step - cycle}s` }}
+                  />
+                </span>
               )}
             </div>
           ))}

@@ -9,45 +9,51 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { skills } from "@/data/skills";
 import { SectionEyebrow } from "./about";
-import { SkillInsight } from "./skill-insight";
-import { TechConstellation } from "./tech-constellation";
+import { SkillInsight } from "../ui/skill-insight";
+import { TechConstellation } from "../effects/tech-constellation";
 
 const capabilities = [
   {
     icon: Server,
     title: "Backend & Systems",
-    blurb: "Event-driven services and APIs built to stay reliable under load.",
+    blurb:
+      "Production-ready services, APIs, and event-driven systems designed for reliability and scale.",
     items: ["Python", "Java", "Spring Boot", "FastAPI", "Kafka", "REST APIs"],
   },
   {
     icon: Layout,
     title: "Frontend Engineering",
-    blurb: "Clean, responsive interfaces on modern React stacks.",
+    blurb:
+      "Scalable, responsive interfaces built with modern component-driven web architecture.",
     items: ["React", "TypeScript", "Tailwind", "Vite", "HTML", "CSS"],
   },
   {
     icon: Bot,
     title: "AI & Automation",
-    blurb: "LLMs and retrieval woven into real enterprise workflows.",
-    items: ["AI/LLM", "AI Agents", "MCP", "RAG workflows", "Vector search"],
+    blurb:
+      "AI-powered workflows, retrieval systems, and agent-based integrations for enterprise applications.",
+    items: ["AI / LLM", "AI Agents", "MCP", "RAG Workflows", "Vector Search"],
   },
   {
     icon: Boxes,
     title: "Enterprise & ERP",
-    blurb: "End-to-end ERPNext, Frappe, and SAP BTP implementations.",
+    blurb:
+      "Enterprise workflows, ERP platforms, integrations, and business process automation.",
     items: ["ERPNext", "Frappe", "SAP BTP", "SAP HANA", "Enterprise Integration"],
   },
   {
     icon: GitBranch,
     title: "DevOps & Delivery",
-    blurb: "Repeatable pipelines and infrastructure for product teams.",
+    blurb:
+      "Containerized deployments, version control, CI/CD, and production delivery workflows.",
     items: ["Docker", "Git", "CI/CD", "Microservices"],
   },
   {
     icon: Cloud,
     title: "Cloud & Data",
-    blurb: "Managed data stores and cloud services in production.",
-    items: ["AWS", "MongoDB", "PostgreSQL", "MySQL", "SAP BTP"],
+    blurb:
+      "Cloud infrastructure, databases, and data services supporting production applications.",
+    items: ["AWS", "MongoDB", "PostgreSQL", "MySQL"],
   },
 ];
 
@@ -153,16 +159,19 @@ export function Skills() {
       <div className="mx-auto max-w-7xl px-4">
         <SectionEyebrow>Technical Skills</SectionEyebrow>
         <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-          Capabilities, grouped by what they ship.
+          Engineering capabilities, built for production.
         </h2>
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          The systems, platforms, and engineering practices I work across.
+        </p>
 
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {capabilities.map((g) => (
             <article
               key={g.title}
-              className="glass-strong rounded-2xl p-6 transition-colors hover:bg-white/[0.07]"
+              className="skill-card glass-strong rounded-2xl p-6"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
+              <div className="skill-card__icon flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
                 <g.icon className="h-5 w-5" />
               </div>
               <h3 className="mt-4 text-lg font-semibold">{g.title}</h3>
@@ -173,7 +182,7 @@ export function Skills() {
                 {g.items.map((it) => (
                   <span
                     key={it}
-                    className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-foreground/90"
+                    className="skill-card__pill rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-foreground/90 transition-colors"
                   >
                     {it}
                   </span>

@@ -36,10 +36,10 @@ const projects: Project[] = [
     imageWidth: 1440,
     imageHeight: 619,
     description:
-      "End-to-end ERPNext + Frappe implementation for a healthcare commerce platform — catalog, orders, compliance, and fulfillment.",
+      "End-to-end ERPNext + Frappe implementation for a healthcare commerce platform - catalog, orders, compliance, and fulfillment.",
     tech: ["ERPNext", "Frappe", "Python", "MariaDB", "Docker"],
     challenge:
-      "Healthcare commerce needs strict compliance, controlled catalogs, and reliable fulfillment — off-the-shelf ERP alone won't cover it.",
+      "Healthcare commerce needs strict compliance, controlled catalogs, and reliable fulfillment - off-the-shelf ERP alone won't cover it.",
     solution:
       "Modeling domain-specific inventory and compliance workflows on ERPNext and shipping custom Frappe apps for supplier onboarding and payments.",
     outcome:
@@ -65,7 +65,7 @@ const projects: Project[] = [
       "PostgreSQL",
     ],
     challenge:
-      "Enterprises ran procurement across scattered spreadsheets, SAP modules, and email — no unified view, slow RFQ cycles, weak supplier scoring.",
+      "Enterprises ran procurement across scattered spreadsheets, SAP modules, and email - no unified view, slow RFQ cycles, weak supplier scoring.",
     solution:
       "Built a multi-tenant FastAPI backend with a React operator console, SAP BTP integration for SAP HANA master data, and LLM-assisted supplier matching and RFQ scoring.",
     outcome:
@@ -98,7 +98,7 @@ const projects: Project[] = [
     imageWidth: 1440,
     imageHeight: 616,
     description:
-      "A shared procurement toolkit — supplier, catalog, RFQ, contract, and approval services — reused across enterprise client engagements.",
+      "A shared procurement toolkit - supplier, catalog, RFQ, contract, and approval services - reused across enterprise client engagements.",
     tech: ["Python", "FastAPI", "PostgreSQL", "Docker", "AWS"],
     challenge:
       "Each new enterprise engagement rebuilt the same procurement primitives from scratch, blowing up timelines and cost.",
@@ -121,7 +121,7 @@ export function Projects() {
             </h2>
           </div>
           <p className="max-w-md text-muted-foreground">
-            A selection of the platforms I've architected, built, and shipped —
+            A selection of the platforms I've architected, built, and shipped -
             spanning procurement, travel, and healthcare.
           </p>
         </div>

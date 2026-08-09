@@ -236,7 +236,7 @@ export function SiteNav() {
           <a
             href="#home"
             className="group flex items-center gap-2 rounded-lg"
-            aria-label="Engineering Lab — back to top"
+            aria-label="Bramhananda K L — back to top"
           >
             <img
               src={bkLogo}
@@ -246,7 +246,7 @@ export function SiteNav() {
               className="h-8 w-8 shrink-0 rounded-lg object-cover"
             />
             <span className="font-semibold tracking-tight text-foreground whitespace-nowrap">
-              Engineering <span className="text-muted-foreground">Lab</span>
+              Bramha<span className="text-muted-foreground">nanda K L</span>
             </span>
           </a>
 

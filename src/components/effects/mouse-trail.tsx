@@ -9,9 +9,7 @@ interface Particle {
   life: number;
   decay: number;
   size: number;
-  r: number;
-  g: number;
-  b: number;
+  fill: string;
 }
 
 /** Hard cap so the pool stays tiny even during fast flicks. */
@@ -20,9 +18,47 @@ const MAX_PARTICLES = 280;
 const LERP = 0.3;
 /** Minimum cursor travel (px) between spawns. */
 const SPAWN_DIST = 3;
+/**
+ * Idle window before the render loop pauses. The loop is the only continuous
+ * requestAnimationFrame in the app; pausing it when the pointer is still and
+ * the trail has settled stops a full-screen canvas repainting at 60fps for no
+ * visible benefit, which frees the compositor for scrolling and interaction.
+ */
+const IDLE_PAUSE_MS = 160;
+/** Radius of the cached soft glow sprite (matches the previous radial fill). */
+const GLOW_RADIUS = 18;
 
-const CYAN = [34, 211, 238];
-const BLUE = [59, 130, 246];
+const CYAN_FILL = "rgb(34, 211, 238)";
+const BLUE_FILL = "rgb(59, 130, 246)";
+const WHITE_FILL = "rgb(255, 255, 255)";
+
+/**
+ * Pre-render the pointer's soft halo once. Creating a RadialGradient and
+ * calling addColorStop is expensive; caching it as a sprite lets every frame
+ * be a single cheap drawImage instead.
+ */
+function makeGlowSprite(radius = GLOW_RADIUS): HTMLCanvasElement {
+  const size = Math.max(1, Math.round(radius * 2));
+  const sprite = document.createElement("canvas");
+  sprite.width = size;
+  sprite.height = size;
+  const g = sprite.getContext("2d");
+  if (g) {
+    const grad = g.createRadialGradient(
+      size / 2,
+      size / 2,
+      0,
+      size / 2,
+      size / 2,
+      radius,
+    );
+    grad.addColorStop(0, "rgba(34, 211, 238, 0.4)");
+    grad.addColorStop(1, "rgba(34, 211, 238, 0)");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+  }
+  return sprite;
+}
 
 function matchMediaSafe(query: string) {
   if (typeof window === "undefined") return false;
@@ -63,13 +99,17 @@ export function MouseTrail() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const glow = makeGlowSprite();
+
     let raf = 0;
+    let running = false;
     let width = 0;
     let height = 0;
     let originX = 0;
     let originY = 0;
     let moved = false;
-    let lastTime = performance.now();
+    let lastMoveAt = 0;
+    let lastTime = 0;
 
     // "pointer" is the real cursor (viewport coords, converted into the
     // canvas's own CSS-pixel space). "cursor" eases toward it and seeds the
@@ -109,7 +149,7 @@ export function MouseTrail() {
     ) => {
       if (particles.length >= MAX_PARTICLES) particles.shift();
       const drift = Math.min(speed * 0.16, 2.2);
-      const palette = Math.random() < 0.78 ? CYAN : BLUE;
+      const fill = Math.random() < 0.78 ? CYAN_FILL : BLUE_FILL;
       particles.push({
         x,
         y,
@@ -118,33 +158,23 @@ export function MouseTrail() {
         life: 1,
         decay: 0.01 + Math.random() * 0.014,
         size: 2.2 + Math.random() * 2.8,
-        r: palette[0],
-        g: palette[1],
-        b: palette[2],
+        fill,
       });
     };
 
-    const onPointerMove = (e: PointerEvent) => {
-      // Real touch is the only excluded input — mouse and pen both animate.
-      if (e.pointerType === "touch") return;
-      // Convert viewport coords into the canvas coordinate system. For this
-      // full-viewport fixed canvas the origin is (0, 0), but subtracting the
-      // bounding-rect origin keeps the mapping exact even if a containing
-      // block ever applies a transform.
-      pointer.x = e.clientX - originX;
-      pointer.y = e.clientY - originY;
-      if (!moved) {
-        moved = true;
-        cursor.x = pointer.x;
-        cursor.y = pointer.y;
-        lastPointerX = pointer.x;
-        lastPointerY = pointer.y;
-        lastSpawnX = pointer.x;
-        lastSpawnY = pointer.y;
-      }
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
     };
 
     const frame = (now: number) => {
+      // Pause once the pointer is idle AND the trail has fully settled. With
+      // nothing left to draw, keeping the loop alive would repaint an empty
+      // full-viewport canvas forever, stealing GPU time from scroll paint.
+      if (particles.length === 0 && now - lastMoveAt > IDLE_PAUSE_MS) {
+        running = false;
+        return;
+      }
       raf = requestAnimationFrame(frame);
       const dt = Math.min((now - lastTime) / 16.666, 2);
       lastTime = now;
@@ -187,29 +217,21 @@ export function MouseTrail() {
 
       // Leading point: a compact bright core exactly at the real pointer
       // hotspot with a tight, soft halo so it reads as a signal rather than
-      // a big glow. Drawn only after the pointer has actually moved.
+      // a big glow. The halo is the cached sprite; the core is two small
+      // rects. Drawn only after the pointer has actually moved.
       if (moved) {
-        const glow = ctx.createRadialGradient(
-          pointer.x,
-          pointer.y,
-          0,
-          pointer.x,
-          pointer.y,
-          18,
-        );
-        glow.addColorStop(0, `rgba(${CYAN[0]}, ${CYAN[1]}, ${CYAN[2]}, 0.4)`);
-        glow.addColorStop(1, `rgba(${CYAN[0]}, ${CYAN[1]}, ${CYAN[2]}, 0)`);
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(pointer.x, pointer.y, 18, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.drawImage(glow, pointer.x - GLOW_RADIUS, pointer.y - GLOW_RADIUS);
 
-        ctx.fillStyle = `rgba(${CYAN[0]}, ${CYAN[1]}, ${CYAN[2]}, 1)`;
+        ctx.fillStyle = CYAN_FILL;
         ctx.fillRect(pointer.x - 3, pointer.y - 3, 6, 6);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.globalAlpha = 0.95;
+        ctx.fillStyle = WHITE_FILL;
         ctx.fillRect(pointer.x - 1.5, pointer.y - 1.5, 3, 3);
       }
 
+      // Particles use globalAlpha + a single precomputed fill string instead
+      // of building a fresh rgba() template string per particle per frame.
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx * dt;
@@ -221,18 +243,48 @@ export function MouseTrail() {
         }
         const alpha = p.life * p.life * 0.95;
         const size = p.size * (0.3 + 0.7 * p.life);
-        ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${alpha})`;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.fill;
         ctx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
       }
+      ctx.globalAlpha = 1;
+    };
+
+    const start = () => {
+      if (running) return;
+      running = true;
+      lastTime = performance.now();
+      raf = requestAnimationFrame(frame);
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      // Real touch is the only excluded input — mouse and pen both animate.
+      if (e.pointerType === "touch") return;
+      // Convert viewport coords into the canvas coordinate system. For this
+      // full-viewport fixed canvas the origin is (0, 0), but subtracting the
+      // bounding-rect origin keeps the mapping exact even if a containing
+      // block ever applies a transform.
+      pointer.x = e.clientX - originX;
+      pointer.y = e.clientY - originY;
+      lastMoveAt = performance.now();
+      if (!moved) {
+        moved = true;
+        cursor.x = pointer.x;
+        cursor.y = pointer.y;
+        lastPointerX = pointer.x;
+        lastPointerY = pointer.y;
+        lastSpawnX = pointer.x;
+        lastSpawnY = pointer.y;
+      }
+      if (!running) start();
     };
 
     measure();
     window.addEventListener("resize", measure);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    raf = requestAnimationFrame(frame);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       window.removeEventListener("resize", measure);
       window.removeEventListener("pointermove", onPointerMove);
     };

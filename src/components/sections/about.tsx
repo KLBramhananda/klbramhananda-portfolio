@@ -3,20 +3,48 @@ import { motion } from "framer-motion";
 import {
   Boxes,
   Bot,
+  Cloud,
   Compass,
   FolderGit2,
   Layout,
   ListChecks,
   MapPin,
   Server,
+  Webhook,
   type LucideIcon,
 } from "lucide-react";
 
-const interests = [
-  { icon: Layout, label: "Frontend", desc: "React, TypeScript, Tailwind" },
-  { icon: Server, label: "Backend", desc: "Python, Frappe, REST APIs, ERPNext" },
-  { icon: Bot, label: "AI", desc: "Agents, automation, MCP, LLM systems" },
-  { icon: Boxes, label: "Enterprise", desc: "ERPNext, SAP BTP, integration" },
+const focusAreas = [
+  {
+    icon: Layout,
+    label: "Full Stack Engineering",
+    desc: "React.js, JavaScript, Python, FastAPI, Java, Spring Boot",
+  },
+  {
+    icon: Boxes,
+    label: "Enterprise Applications",
+    desc: "Microservices, Kafka, event-driven systems, AWS",
+  },
+  {
+    icon: Bot,
+    label: "AI & LLM Integrations",
+    desc: "AI-powered application features and LLM integrations",
+  },
+  {
+    icon: Server,
+    label: "ERPNext / Frappe",
+    desc: "ERPNext, enterprise business workflows",
+  },
+  {
+    icon: Cloud,
+    label: "SAP BTP",
+    desc: "SAP Build Apps, HANA Cloud, BAS, Intigration Suite, Joule",
+  },
+  {
+    icon: Webhook,
+    label: "API & Integration Engineering",
+    desc: "REST APIs, MongoDB, MySQL, CI/CD, Git/GitHub",
+  },
 ];
 
 type ExperienceProject = {
@@ -39,7 +67,7 @@ const experience: Experience[] = [
   {
     role: "Software Engineer",
     company: "HG Infotech",
-    period: "Feb 2025 — Present",
+    period: "Feb 2025 - Present",
     location: "Bengaluru South, India",
     focus: [
       "Full Stack Engineering",
@@ -68,12 +96,15 @@ const experience: Experience[] = [
       "Develop enterprise workflows, integrations, backend services and data-driven applications.",
       "Work across ERPNext, SAP BTP, AI integrations, cloud platforms and enterprise systems.",
       "Design, integrate, test, debug and support production software systems.",
+      "Integrated Third-Party APIs for real-time availability of flights, hotels, tours, and bus services.",
+      "Implemented API Gateway to enhance inter-service communication, security, and performance.",
+      "Designed a modular LLM integration architecture supporting local AI models through Ollama and enabling future integration with OpenAI, Claude, and Gemini providers."
     ],
   },
   {
     role: "Junior Software Engineer",
     company: "HG Infotech",
-    period: "Aug 2024 — Jan 2025",
+    period: "Aug 2024 - Jan 2025",
     focus: [
       "Full Stack Engineering",
       "Java",
@@ -86,6 +117,8 @@ const experience: Experience[] = [
       "Contributed to full-stack enterprise applications using Java, Spring Boot, MongoDB and JavaScript.",
       "Developed internal business workflows for Sales, HR and Finance operations.",
       "Contributed to process automation and AI-assisted business workflows.",
+      "Reduced manual coordination efforts by 35% through process automation.",
+      "Assisted in developing AI-assisted candidate matching and recruitment workflow features to improve hiring efficiency."
     ],
   },
 ];
@@ -105,88 +138,175 @@ export function About() {
           Engineering enterprise software with clarity, speed, and depth.
         </h2>
 
-        <div className="mt-14 grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-start">
-          <div className="relative">
-            <div className="glass-strong rounded-3xl p-3">
-              {/* 3/2 frame matches the source photo, no cropping */}
-              <div className="relative aspect-[3/2] overflow-hidden rounded-2xl">
-                <img
-                  src={workspace}
-                  alt="Bramhananda K L's engineering workspace"
-                  width={750}
-                  height={500}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-              </div>
+        <div className="mt-14 grid lg:grid-cols-[0.82fr_1fr] gap-10 lg:gap-14">
+          <div className="relative flex flex-col">
+            {/* Faint engineering network behind the image card */}
+            <svg
+              aria-hidden
+              className="pointer-events-none absolute inset-0 h-full w-full hidden lg:block text-cyan-accent"
+              viewBox="0 0 400 700"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <g
+                stroke="currentColor"
+                strokeOpacity="0.13"
+                strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
+              >
+                <line x1="200" y1="210" x2="90" y2="120" />
+                <line x1="200" y1="210" x2="310" y2="90" />
+                <line x1="200" y1="210" x2="320" y2="330" />
+                <line x1="200" y1="210" x2="80" y2="330" />
+                <line x1="200" y1="210" x2="200" y2="470" />
+                <line x1="200" y1="210" x2="120" y2="560" />
+                <line x1="200" y1="210" x2="290" y2="540" />
+                <g stroke="white" strokeOpacity="0.08">
+                  <line x1="90" y1="120" x2="310" y2="90" />
+                  <line x1="80" y1="330" x2="320" y2="330" />
+                  <line x1="120" y1="560" x2="290" y2="540" />
+                </g>
+              </g>
+              <g fill="currentColor" fillOpacity="0.4">
+                <circle cx="200" cy="210" r="3" />
+                <circle cx="90" cy="120" r="2" />
+                <circle cx="310" cy="90" r="2" />
+                <circle cx="320" cy="330" r="2" />
+                <circle cx="80" cy="330" r="2" />
+                <circle cx="200" cy="470" r="2" />
+                <circle cx="120" cy="560" r="2" />
+                <circle cx="290" cy="540" r="2" />
+              </g>
+            </svg>
+
+            {/* Faint technical annotations */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 hidden lg:block font-mono text-[10px] uppercase tracking-[0.2em]"
+            >
+              <span className="absolute left-[22%] top-[56%] text-cyan-accent/40">
+                REST APIs
+              </span>
+              <span className="absolute left-[52%] top-[70%] text-cyan-accent/35">
+                WORKFLOWS
+              </span>
+              <span className="absolute left-[14%] top-[84%] text-cyan-accent/30">
+                AI / LLM
+              </span>
             </div>
-            <div className="absolute -bottom-6 -right-6 glass-strong rounded-2xl px-5 py-4 hidden lg:block">
-              <div className="text-xs text-muted-foreground">Focus</div>
-              <div className="text-base font-semibold">Full Stack · ERP · AI · BTP</div>
+
+            {/* Image card */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-70px" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="relative"
+            >
+              <div className="glass-strong rounded-3xl p-3 glow-cyan">
+                {/* 3/2 frame matches the source photo, no cropping */}
+                <div className="relative aspect-[3/2] overflow-hidden rounded-2xl">
+                  <img
+                    src={workspace}
+                    alt="Bramhananda K L's engineering workspace"
+                    width={750}
+                    height={500}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Focus indicator pinned to the bottom of the column */}
+            <div className="relative mt-auto hidden lg:flex items-center gap-3 glass-strong rounded-2xl px-5 py-4 w-full">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
+                <Compass className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs text-muted-foreground">Engineering focus</div>
+                <div className="text-sm font-semibold text-foreground">
+                  Full Stack · ERP · AI · SAP BTP
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-70px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
+            className="space-y-8"
+          >
             <div>
               <h3 className="text-sm uppercase tracking-widest text-muted-foreground">
                 Professional summary
               </h3>
               <p className="mt-3 text-lg leading-relaxed text-foreground/90">
-                I'm a full-stack software engineer focused on building
-                enterprise systems that actually ship — ERP implementations,
-                AI-powered procurement platforms, SAP BTP integrations, and
-                services that scale. I work end-to-end across frontend,
-                backend, product, architecture, and delivery.
+                Full Stack Software Engineer focused on building scalable
+                enterprise applications across frontend, backend, AI
+                integrations, ERPNext, and SAP BTP. I work end-to-end across
+                application development, APIs, integrations, business
+                workflows, and production systems.
               </p>
             </div>
 
             <div>
               <h3 className="text-sm uppercase tracking-widest text-muted-foreground">
-                Mission
-              </h3>
-              <p className="mt-3 text-foreground/85 leading-relaxed">
-                Turn complex business processes into calm, reliable software
-                — the kind operators trust every day.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-sm uppercase tracking-widest text-muted-foreground">
-                Engineering philosophy
-              </h3>
-              <p className="mt-3 text-foreground/85 leading-relaxed">
-                Clear domain models, sharp interfaces, honest observability.
-                Ship small, measure real impact, iterate with the users who
-                depend on it.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-sm uppercase tracking-widest text-muted-foreground">
-                Capabilities
+                Engineering focus
               </h3>
               <div className="mt-4 grid sm:grid-cols-2 gap-3">
-                {interests.map((i) => (
-                  <div
-                    key={i.label}
+                {focusAreas.map((f, index) => (
+                  <motion.div
+                    key={f.label}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{
+                      duration: 0.35,
+                      ease: [0.22, 1, 0.36, 1],
+                      delay: 0.04 * index,
+                    }}
                     className="glass rounded-2xl p-4 flex items-start gap-3 transition-colors hover:bg-white/[0.06]"
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
-                      <i.icon className="h-5 w-5" />
+                      <f.icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="font-medium text-foreground">{i.label}</div>
+                      <div className="font-medium text-foreground">{f.label}</div>
                       <div className="text-sm text-muted-foreground">
-                        {i.desc}
+                        {f.desc}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
-          </div>
+
+            <div>
+              <h3 className="text-sm uppercase tracking-widest text-muted-foreground">
+                Engineering approach
+              </h3>
+              <p className="mt-3 text-foreground/85 leading-relaxed">
+                End-to-end development with emphasis on scalable architecture,
+                clean integrations, reliable business workflows and
+                production-ready software.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-sm uppercase tracking-widest text-muted-foreground">
+                Current work
+              </h3>
+              <p className="mt-3 text-foreground/85 leading-relaxed">
+                Currently working on KeeMeds, an ERPNext-based healthcare
+                commerce and enterprise platform.
+              </p>
+            </div>
+          </motion.div>
         </div>
       </div>
 
@@ -197,7 +317,7 @@ export function About() {
           Experience that shaped how I build.
         </h2>
         <p className="mt-4 max-w-2xl text-muted-foreground">
-          The roles, projects, and responsibilities behind my engineering —
+          The roles, projects, and responsibilities behind my engineering -
           from business automation to enterprise platforms.
         </p>
 

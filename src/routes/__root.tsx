@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { MouseTrail } from "@/components/mouse-trail";
-import { ScrollProgress } from "@/components/scroll-progress";
-import { SiteNav } from "@/components/site-nav";
+import { MouseTrail } from "@/components/effects/mouse-trail";
+import { ScrollProgress } from "@/components/effects/scroll-progress";
+import { SiteNav } from "@/components/layout/site-nav";
 
 export const Route = createRootRoute({
   component: () => (
