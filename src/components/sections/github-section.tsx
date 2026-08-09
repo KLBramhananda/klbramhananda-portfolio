@@ -100,9 +100,9 @@ export function GithubSection() {
         {/* Profile + stats */}
         <div className="mt-12 glass-strong rounded-3xl p-6">
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
+            viewport={{ once: true, margin: "-48px" }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-wrap items-center justify-between gap-4"
           >
@@ -131,9 +131,9 @@ export function GithubSection() {
             {stats.map((s, i) => (
               <motion.div
                 key={s.label}
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
+                viewport={{ once: true, margin: "-32px" }}
                 transition={{
                   duration: 0.35,
                   ease: [0.22, 1, 0.36, 1],
@@ -160,9 +160,9 @@ export function GithubSection() {
 
           {/* Selected engineering work */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 13 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
+            viewport={{ once: true, margin: "-32px" }}
             transition={{
               duration: 0.45,
               ease: [0.22, 1, 0.36, 1],
@@ -177,9 +177,9 @@ export function GithubSection() {
               {selectedWork.map((w, i) => (
                 <motion.li
                   key={w.title}
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 6 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
+                  viewport={{ once: true, margin: "-32px" }}
                   transition={{
                     duration: 0.3,
                     ease: [0.22, 1, 0.36, 1],
@@ -233,11 +233,11 @@ export function GithubSection() {
                 <div className="relative mt-3 flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{c.year}</span>
                   {c.upcoming ? (
-                    <span className="rounded-full bg-emerald-500/15 text-emerald-300 px-2 py-0.5 text-[11px]">
+                    <span className="rounded-full bg-emerald-500/15 text-emerald-300 px-2 py-0.5 text-[0.6875rem]">
                       Upcoming
                     </span>
                   ) : (
-                    <span className="rounded-full bg-white/5 text-foreground/70 px-2 py-0.5 text-[11px]">
+                    <span className="rounded-full bg-white/5 text-foreground/70 px-2 py-0.5 text-[0.6875rem]">
                       Verified
                     </span>
                   )}
@@ -270,11 +270,11 @@ function RepoCard({ repo: r, index }: { repo: FeaturedRepo; index: number }) {
 
       <div className="mt-3">
         {isCompany ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[0.6875rem] font-medium text-emerald-300">
             Company contribution
           </span>
         ) : (
-          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[11px] text-muted-foreground">
+          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[0.6875rem] text-muted-foreground">
             Personal repository
           </span>
         )}
@@ -289,7 +289,7 @@ function RepoCard({ repo: r, index }: { repo: FeaturedRepo; index: number }) {
           {r.tech.map((t) => (
             <span
               key={t}
-              className="repo-card__pill rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-foreground/80"
+              className="repo-card__pill rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[0.6875rem] text-foreground/80"
             >
               {t}
             </span>
@@ -305,9 +305,9 @@ function RepoCard({ repo: r, index }: { repo: FeaturedRepo; index: number }) {
   );
 
   const motionProps = {
-    initial: { opacity: 0, y: 16 },
+    initial: { opacity: 0, y: 13 },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-40px" },
+    viewport: { once: true, margin: "-32px" },
     transition: {
       duration: 0.4,
       ease: [0.22, 1, 0.36, 1],

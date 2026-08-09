@@ -125,10 +125,10 @@ function TerminalPanel() {
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
         <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-        <span className="ml-2 truncate font-mono text-[10px] text-muted-foreground">
+        <span className="ml-2 truncate font-mono text-[0.625rem] text-muted-foreground">
           ~ — enterprise
         </span>
-        <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[9px] text-emerald-300">
+        <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[0.5625rem] text-emerald-300">
           <span
             className={`h-1 w-1 rounded-full bg-emerald-400 ${
               done ? "" : "animate-pulse"
@@ -137,7 +137,7 @@ function TerminalPanel() {
           {done ? "online" : "syncing"}
         </span>
       </div>
-      <div className="px-3 py-2.5 font-mono text-[10px] leading-relaxed">
+      <div className="px-3 py-2.5 font-mono text-[0.625rem] leading-relaxed">
         {rendered.map((line, i) => (
           <div
             key={i}
@@ -162,9 +162,9 @@ export function Hero() {
     >
       {/* Ambient blobs — static, composited once (no continuous animation) */}
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
-        <div className="absolute top-20 left-[10%] h-80 w-80 rounded-full bg-cyan-accent/20 blur-[110px]" />
-        <div className="absolute bottom-10 right-[8%] h-96 w-96 rounded-full bg-blue-accent/20 blur-[130px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-cyan-accent/5 blur-[100px]" />
+        <div className="absolute top-20 left-[10%] h-80 w-80 rounded-full bg-cyan-accent/20 blur-[6.875rem]" />
+        <div className="absolute bottom-10 right-[8%] h-96 w-96 rounded-full bg-blue-accent/20 blur-[8.125rem]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[31.25rem] w-[31.25rem] rounded-full bg-cyan-accent/5 blur-[6.25rem]" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4">

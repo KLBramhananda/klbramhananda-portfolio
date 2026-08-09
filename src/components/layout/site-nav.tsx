@@ -58,7 +58,9 @@ export function SiteNav() {
   // top padding as an empty gap. Keeping the programmatic scroll as the only
   // scroll operation guarantees every heading lands at the same offset.
   useEffect(() => {
-    const HEADING_BREATHING = 56;
+    // Scaled with the design system (56px at a 16px root ≈ 45px at 12.8px)
+    // so anchored sections land at the same visual offset under the navbar.
+    const HEADING_BREATHING = 45;
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -138,8 +140,8 @@ export function SiteNav() {
       // Activation line sits just under the fixed header: a section becomes
       // active as soon as its top edge clears the navbar.
       const header = document.querySelector("header");
-      const headerH = header?.getBoundingClientRect().height ?? 72;
-      return Math.max(headerH, 64);
+      const headerH = header?.getBoundingClientRect().height ?? 58;
+      return Math.max(headerH, 51);
     };
 
     const inBand = (el: HTMLElement) => {

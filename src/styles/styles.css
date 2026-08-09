@@ -7,13 +7,15 @@
   --font-sans: "Inter", "Geist", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Inter", "Geist", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* Radius steps participate in the global rem scale so they shrink in step
+     with everything else (matches the ~80% zoom reference density). */
+  --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+  --radius-2xl: calc(var(--radius) + 0.5rem);
+  --radius-3xl: calc(var(--radius) + 0.75rem);
+  --radius-4xl: calc(var(--radius) + 1rem);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -111,6 +113,12 @@
 
 @layer base {
   html {
+    /* Global visual scale: every `rem`-based size (typography, spacing, gaps,
+       radii, container widths) renders at ~80% of a 16px root, matching the
+       density the site had at 80% browser zoom — without zooming or scaling
+       the layout. Fixed `px` decorations are converted to `rem` throughout so
+       they scale in step. */
+    font-size: 12.8px;
     /* Smooth anchor scrolling with offset for the fixed header */
     scroll-behavior: smooth;
     scroll-padding-top: 6rem;
@@ -179,7 +187,7 @@
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(0.875rem); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -358,8 +366,8 @@
 
 .network-core__ring {
   position: absolute;
-  inset: -8px;
-  border-radius: calc(1rem + 8px);
+  inset: -0.5rem;
+  border-radius: calc(1rem + 0.5rem);
   border: 1px solid color-mix(in oklab, var(--cyan-accent) 28%, transparent);
   animation: core-ring 4.6s ease-in-out infinite;
   pointer-events: none;
@@ -433,7 +441,7 @@
 .skill-insight {
   position: fixed;
   z-index: 55;
-  width: min(360px, calc(100vw - 2rem));
+  width: min(22.5rem, calc(100vw - 2rem));
   animation: skill-insight-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform, opacity;
   box-shadow:
@@ -443,7 +451,7 @@
 }
 
 @keyframes skill-insight-in {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(0.375rem); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -458,7 +466,7 @@
 }
 
 @keyframes status-in {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(0.75rem); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -568,9 +576,9 @@
   position: absolute;
   top: 50%;
   left: 0;
-  height: 6px;
-  width: 6px;
-  margin-top: -3px;
+  height: 0.375rem;
+  width: 0.375rem;
+  margin-top: -0.1875rem;
   border-radius: 9999px;
   background: var(--cyan-accent);
   opacity: 0;
@@ -585,9 +593,9 @@
   position: absolute;
   right: 100%;
   top: 50%;
-  height: 2px;
-  width: 9px;
-  margin-top: -1px;
+  height: 0.125rem;
+  width: 0.5625rem;
+  margin-top: -0.0625rem;
   border-radius: 9999px;
   background: linear-gradient(
     to left,
@@ -611,11 +619,11 @@
 }
 
 @keyframes flow-particle {
-  0%   { opacity: 0; transform: translateX(-6px); }
-  4%   { opacity: 1; transform: translateX(-4px); }
-  13%  { opacity: 1; transform: translateX(20px); }
-  17%  { opacity: 0; transform: translateX(23px); }
-  100% { opacity: 0; transform: translateX(23px); }
+  0%   { opacity: 0; transform: translateX(-0.375rem); }
+  4%   { opacity: 1; transform: translateX(-0.25rem); }
+  13%  { opacity: 1; transform: translateX(1.25rem); }
+  17%  { opacity: 0; transform: translateX(1.4375rem); }
+  100% { opacity: 0; transform: translateX(1.4375rem); }
 }
 
 @keyframes flow-node-hit {
@@ -658,7 +666,7 @@
 }
 
 .skill-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-0.1875rem);
   border-color: color-mix(in oklab, var(--cyan-accent) 38%, transparent);
   box-shadow:
     0 16px 40px -20px rgba(2, 6, 23, 0.7),
@@ -699,7 +707,7 @@
 }
 
 .repo-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-0.3125rem);
   border-color: color-mix(in oklab, var(--cyan-accent) 38%, transparent);
   box-shadow:
     0 16px 40px -20px rgba(2, 6, 23, 0.7),
@@ -865,7 +873,7 @@
 
 .social-btn:hover,
 .social-btn:focus-visible {
-  transform: translateY(-2px);
+  transform: translateY(-0.125rem);
   border-color: color-mix(in oklab, var(--cyan-accent) 35%, transparent);
   background-color: color-mix(in oklab, white 8%, transparent);
 }

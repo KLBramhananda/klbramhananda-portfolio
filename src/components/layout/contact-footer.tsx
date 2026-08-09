@@ -135,7 +135,7 @@ export function Contact() {
         <div className="relative overflow-hidden glass-strong rounded-3xl p-8 sm:p-12 lg:p-16">
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[100px]"
+            className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[6.25rem]"
           />
 
           <div className="relative max-w-2xl">
@@ -379,7 +379,7 @@ function SubmissionStatus({
   const fadeUp = reduceMotion
     ? { initial: { opacity: 1 }, animate: { opacity: 1 } }
     : {
-        initial: { opacity: 0, y: 10 },
+        initial: { opacity: 0, y: 8 },
         animate: { opacity: 1, y: 0 },
       };
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -389,7 +389,7 @@ function SubmissionStatus({
       ref={panelRef}
       role={isSuccess ? "status" : "alert"}
       tabIndex={-1}
-      className="flex min-h-[320px] flex-1 flex-col items-center justify-center px-2 py-10 text-center outline-none"
+      className="flex min-h-[20rem] flex-1 flex-col items-center justify-center px-2 py-10 text-center outline-none"
     >
       <motion.div
         {...popIn}
@@ -458,7 +458,7 @@ const engineeringLinks = [
 ];
 
 const footerReveal = {
-  initial: { opacity: 0, y: 16 },
+  initial: { opacity: 0, y: 13 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: "0px 0px 0px 0px" },
 } as const;

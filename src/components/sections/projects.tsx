@@ -183,7 +183,7 @@ function ProjectCard({
             {p.tech.map((t) => (
               <span
                 key={t}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-foreground/85"
+                className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[0.6875rem] text-foreground/85"
               >
                 {t}
               </span>

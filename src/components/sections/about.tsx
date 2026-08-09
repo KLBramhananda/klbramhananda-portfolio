@@ -124,9 +124,9 @@ const experience: Experience[] = [
 ];
 
 const reveal = {
-  initial: { opacity: 0, y: 24 },
+  initial: { opacity: 0, y: 19 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-70px" },
+  viewport: { once: true, margin: "-56px" },
 } as const;
 
 export function About() {
@@ -182,7 +182,7 @@ export function About() {
             {/* Faint technical annotations */}
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 hidden lg:block font-mono text-[10px] uppercase tracking-[0.2em]"
+              className="pointer-events-none absolute inset-0 hidden lg:block font-mono text-[0.625rem] uppercase tracking-[0.2em]"
             >
               <span className="absolute left-[22%] top-[56%] text-cyan-accent/40">
                 REST APIs
@@ -197,9 +197,9 @@ export function About() {
 
             {/* Image card */}
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 19 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-70px" }}
+              viewport={{ once: true, margin: "-56px" }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="relative"
             >
@@ -235,9 +235,9 @@ export function About() {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 19 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-70px" }}
+            viewport={{ once: true, margin: "-56px" }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
             className="space-y-8"
           >
@@ -262,9 +262,9 @@ export function About() {
                 {focusAreas.map((f, index) => (
                   <motion.div
                     key={f.label}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
+                    viewport={{ once: true, margin: "-32px" }}
                     transition={{
                       duration: 0.35,
                       ease: [0.22, 1, 0.36, 1],
@@ -355,7 +355,7 @@ export function About() {
                     {/* Mobile: dot pinned to the left line */}
                     <span
                       aria-hidden
-                      className="absolute left-4 top-[26px] -translate-x-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-cyan-accent to-blue-accent shadow-[0_0_20px_rgba(6,182,212,0.55)] ring-4 ring-background/60 lg:hidden"
+                      className="absolute left-4 top-[1.625rem] -translate-x-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-cyan-accent to-blue-accent shadow-[0_0_20px_rgba(6,182,212,0.55)] ring-4 ring-background/60 lg:hidden"
                     />
                     <div className="lg:hidden mb-3 text-xs font-medium text-muted-foreground">
                       {e.period}
@@ -380,7 +380,7 @@ export function About() {
                           {e.focus.map((f) => (
                             <span
                               key={f}
-                              className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-foreground/80"
+                              className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[0.6875rem] text-foreground/80"
                             >
                               {f}
                             </span>
@@ -417,7 +417,7 @@ export function About() {
                         <ul className="space-y-1.5 text-sm text-foreground/85">
                           {e.responsibilities.map((r) => (
                             <li key={r} className="flex gap-2 items-start">
-                              <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-cyan-accent/70" />
+                              <span className="mt-[0.4375rem] h-1 w-1 shrink-0 rounded-full bg-cyan-accent/70" />
                               <span>{r}</span>
                             </li>
                           ))}
@@ -431,14 +431,14 @@ export function About() {
                     <motion.span
                       initial={{ scale: 0.3, opacity: 0 }}
                       whileInView={{ scale: 1, opacity: 1 }}
-                      viewport={{ once: true, margin: "-70px" }}
+                      viewport={{ once: true, margin: "-56px" }}
                       transition={{
                         type: "spring",
                         stiffness: 300,
                         damping: 18,
                       }}
                       aria-hidden
-                      className="mt-[30px] flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-cyan-accent to-blue-accent shadow-[0_0_20px_rgba(6,182,212,0.55)] ring-4 ring-background/60"
+                      className="mt-[1.875rem] flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-cyan-accent to-blue-accent shadow-[0_0_20px_rgba(6,182,212,0.55)] ring-4 ring-background/60"
                     />
                   </div>
 
@@ -450,7 +450,7 @@ export function About() {
                       ease: [0.22, 1, 0.36, 1],
                       delay: 0.2,
                     }}
-                    className={`hidden lg:block lg:row-start-1 lg:pt-[30px] text-sm font-medium text-muted-foreground ${
+                    className={`hidden lg:block lg:row-start-1 lg:pt-[1.875rem] text-sm font-medium text-muted-foreground ${
                       cardLeft
                         ? "lg:col-start-3 lg:text-left"
                         : "lg:col-start-1 lg:text-right"
@@ -495,9 +495,9 @@ function Row({
 export function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 11 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={{ once: true, margin: "-64px" }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground"
     >
