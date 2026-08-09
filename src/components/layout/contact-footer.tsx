@@ -15,9 +15,9 @@ import {
   TriangleAlert,
 } from "lucide-react";
 
-const EMAILJS_SERVICE_ID = "service_qr820ew";
-const EMAILJS_TEMPLATE_ID = "template_utu7ay8";
-const EMAILJS_PUBLIC_KEY = "Do3-w2LKSBN27y8sY";
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const channels = [
   { icon: Mail, label: "Email", value: "bramhanandakl2030@gmail.com", href: "mailto:bramhanandakl2030@gmail.com", external: false },
