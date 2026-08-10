@@ -7,7 +7,7 @@ import { Skills } from "@/components/sections/skills";
 import { Architecture } from "@/components/sections/architecture";
 import { GithubSection } from "@/components/sections/github-section";
 import { Contact, Footer } from "@/components/layout/contact-footer";
-import { SystemActivityBackground } from "@/components/effects/system-activity-background";
+import { VideoBackground } from "@/components/effects/video-background";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,14 +46,10 @@ function Index() {
         Skip to content
       </a>
 
-      {/* Fixed ambient gradient layer (composited once — no per-frame repaint) */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10 bg-ambience"
-      />
-
-      {/* Faint technical network behind all content (CSS-animated, no JS loop) */}
-      <SystemActivityBackground />
+      {/* Fixed ambient human-AI video behind all content (muted, looping,
+          cover-fit) with a dark-navy overlay so the footage stays a subtle,
+          readable backdrop and never competes with the interface. */}
+      <VideoBackground />
 
       <main id="main">
         <CurrentlyBuilding />

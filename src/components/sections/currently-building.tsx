@@ -3,9 +3,10 @@ import { ArrowRight } from "lucide-react";
 export function CurrentlyBuilding() {
   return (
     <div className="relative z-10 mx-auto max-w-7xl px-4 pt-[7rem] -mb-[5.5rem] lg:pt-[7.5rem] lg:-mb-[7.5rem]">
-      <aside
-        aria-label="Current status"
-        className="relative animate-status-in glass rounded-2xl px-5 py-4 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.7)] sm:px-6"
+      <a
+        href="#contact"
+        aria-label="Current status — see what I'm building and get in touch"
+        className="group relative block animate-status-in glass rounded-2xl px-5 py-4 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.7)] transition-colors duration-300 hover:border-cyan-accent/30 hover:bg-white/[0.05] sm:px-6"
       >
         <div
           aria-hidden
@@ -28,22 +29,12 @@ export function CurrentlyBuilding() {
             working on?
           </p>
 
-          <a
-            href="#contact"
-            className="group relative inline-flex w-max shrink-0 items-center gap-1.5 self-start rounded-lg text-sm font-semibold text-cyan-accent transition-colors hover:text-cyan-accent sm:self-auto"
-          >
-            Let's talk
-            <ArrowRight
-              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-              aria-hidden
-            />
-            <span
-              aria-hidden
-              className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-cyan-accent/70 transition-transform duration-200 group-hover:scale-x-100"
-            />
-          </a>
+          <ArrowRight
+            aria-hidden
+            className="h-4 w-4 shrink-0 self-start text-cyan-accent opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100 sm:self-auto"
+          />
         </div>
-      </aside>
+      </a>
     </div>
   );
 }

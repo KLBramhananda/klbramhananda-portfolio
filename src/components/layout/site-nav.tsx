@@ -7,8 +7,9 @@ const links = [
   { label: "About", href: "#about" },
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
+  { label: "Skills", href: "#skills" },
   { label: "Tech Stack", href: "#tech" },
-  { label: "Let's Talk", href: "#contact" },
+  { label: "Architecture", href: "#architecture" },
 ];
 
 // Fallback length for holding a clicked nav tag active while the browser
@@ -231,7 +232,7 @@ export function SiteNav() {
       <div className="mx-auto max-w-7xl px-4">
         <nav
           aria-label="Primary"
-          className={`glass-strong flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow duration-300 ${
+          className={`glass-nav flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow duration-300 ${
             scrolled ? "shadow-[0_10px_40px_-12px_rgba(0,0,0,0.5)]" : ""
           }`}
         >
@@ -275,6 +276,16 @@ export function SiteNav() {
 
           <div className="flex items-center gap-2">
             <a
+              href="#contact"
+              className="group hidden sm:inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-cyan-accent transition-all duration-300 hover:border-cyan-accent/40 hover:bg-cyan-accent/5 hover:shadow-[0_0_24px_-6px_rgba(6,182,212,0.55)]"
+            >
+              <span
+                aria-hidden
+                className="status-pulse h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-accent"
+              />
+              Let's Talk
+            </a>
+            <a
               href="/resume/Bramhananda-K-L-Resume.pdf"
               download
               className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-foreground/95 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground"
@@ -298,7 +309,7 @@ export function SiteNav() {
         {open && (
           <div
             id="mobile-menu"
-            className="mt-2 glass-strong rounded-2xl p-2 animate-fade-up lg:hidden"
+            className="mt-2 glass-nav rounded-2xl p-2 animate-fade-up lg:hidden"
           >
             <ul className="flex flex-col">
               {links.map((l) => {
@@ -320,6 +331,15 @@ export function SiteNav() {
                   </li>
                 );
               })}
+              <li>
+                <a
+                  href="#contact"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-lg px-4 py-3 text-sm transition-colors text-cyan-accent hover:bg-white/5"
+                >
+                  Let's Talk
+                </a>
+              </li>
             </ul>
           </div>
         )}

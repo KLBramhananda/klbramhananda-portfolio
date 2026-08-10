@@ -160,18 +160,87 @@
     radial-gradient(ellipse 70% 50% at 100% 20%, color-mix(in oklab, var(--blue-accent) 14%, transparent), transparent 60%);
 }
 
-/* Cheap glass: modest blur, no saturate filter (expensive to repaint). */
+/* ── Ambient Human-AI Background Video ────────────────────────────
+   Fixed, full-viewport layer behind the whole portfolio. The wrapper keeps
+   the previous ambient gradient (via .bg-ambience) as a static poster /
+   fallback: it shows while the video buffers, if playback is blocked, and
+   whenever the user prefers reduced motion. The overlay is a strong dark-navy
+   wash so the human-and-robot interaction remains a recognizable but subtle
+   backdrop and the content above stays highly readable.
+
+   Compositor-friendly: the video decodes off the main thread, the media is
+   GPU-composited with a static transform, and the overlay paints once — no
+   per-frame repaints, no scroll work. */
+.video-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.video-bg__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-bg__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    oklch(0.13 0.035 258 / 0.78),
+    oklch(0.1 0.035 258 / 0.9)
+  );
+}
+
+/* Small screens: skip the full-viewport video entirely and fall back to the
+   static gradient poster. Decoding and painting a full-screen video on phones
+   drains the battery, spends mobile data, and competes with the compositor
+   during scroll and tap — the ambient gradient keeps the same dark backdrop
+   for free. The overlay is hidden too, so the poster reads exactly like the
+   pre-video ambient layer (it only exists to dim the footage). */
+@media (max-width: 767px) {
+  .video-bg__media,
+  .video-bg__overlay {
+    display: none;
+  }
+}
+
+/* Cheap glass: modest blur, no saturate filter (expensive to repaint).
+   A semi-opaque dark-navy base (instead of a near-transparent white wash)
+   keeps the glassy look while letting the full-viewport background video
+   only faintly tint card surfaces — content stays readable and the moving
+   footage never visibly shows through panels. */
 @utility glass {
-  background: color-mix(in oklab, white 5%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: color-mix(in oklab, oklch(0.22 0.03 258) 72%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid color-mix(in oklab, white 8%, transparent);
 }
 
 @utility glass-strong {
-  background: color-mix(in oklab, white 7%, transparent);
+  background: color-mix(in oklab, oklch(0.26 0.03 258) 88%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in oklab, white 10%, transparent);
+}
+
+/* Near-opaque dark navy surface for the fixed navbar. Keeps the glass /
+   enterprise look (subtle top-light gradient, blur, hairline border) but is
+   opaque enough that particles, lines, and floating tech tags can't visually
+   bleed through into the navigation. */
+@utility glass-nav {
+  background: linear-gradient(
+    180deg,
+    oklch(0.22 0.035 258 / 0.96),
+    oklch(0.14 0.035 258 / 0.96)
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid color-mix(in oklab, white 10%, transparent);
 }
 
@@ -437,11 +506,15 @@
   }
 }
 
-/* Skill Insight card — fixed, viewport-clamped by the component, subtle fade+rise. */
+/* Skill Insight card — fixed, viewport-clamped by the component, subtle fade+rise.
+   Opaque dark navy surface so background effects, floating tech tags, particles,
+   and connecting lines can never show through. Border, glow, shadow, and cyan
+   accents come from the existing box-shadow + .glass-strong hairline border. */
 .skill-insight {
   position: fixed;
   z-index: 55;
   width: min(22.5rem, calc(100vw - 2rem));
+  background: oklch(0.14 0.035 258 / 0.99);
   animation: skill-insight-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform, opacity;
   box-shadow:
@@ -863,6 +936,22 @@
   }
 }
 
+/* Hero scroll hint — gentle downward bob, compositor-friendly. */
+.hero-scroll-hint {
+  animation: hero-scroll-hint 2.4s ease-in-out infinite;
+}
+
+@keyframes hero-scroll-hint {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+}
+
 /* Social / action buttons — gentle lift with accent on hover. */
 .social-btn {
   transition:
@@ -882,6 +971,15 @@
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  /* Background video: swap to the static gradient poster for reduced motion.
+     The component also pauses playback, so this is a belt-and-suspenders
+     guarantee that no video layer paints. The overlay only darkens footage,
+     so it is dropped as well to keep the poster exactly as designed. */
+  .video-bg__media,
+  .video-bg__overlay {
+    display: none;
   }
 
   *,
@@ -999,5 +1097,23 @@
 
   .sys-node {
     opacity: 0.13;
+  }
+}
+
+/* Hover feedback on card surfaces must keep them opaque: the layered utility
+   hovers (hover:bg-white/[0.06], hover:bg-white/10, .social-btn:hover, …) are
+   near-transparent white washes that would let the background video flash
+   through mid-hover. These unlayered rules outrank the layered utilities and
+   instead nudge the navy base slightly brighter, keeping the lift/glow hover
+   language while the surface never drops below readable opacity. */
+@media (hover: hover) {
+  .glass:hover,
+  .glass:focus-visible {
+    background: color-mix(in oklab, oklch(0.24 0.03 258) 78%, transparent);
+  }
+
+  .glass-strong:hover,
+  .glass-strong:focus-visible {
+    background: color-mix(in oklab, oklch(0.29 0.03 258) 94%, transparent);
   }
 }

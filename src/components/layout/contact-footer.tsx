@@ -443,18 +443,10 @@ function SubmissionStatus({
   );
 }
 
-const exploreLinks = [
-  { label: "About", href: "#about" },
-  { label: "Experience", href: "#experience" },
-  { label: "Projects", href: "#projects" },
-  { label: "Let's Talk", href: "#contact" },
-];
-
-const engineeringLinks = [
+const developerLinks = [
   { label: "Architecture", href: "#architecture" },
-  { label: "Skills", href: "#skills" },
-  { label: "Certifications", href: "#certifications" },
   { label: "Open Source", href: "#github" },
+  { label: "Certifications", href: "#certifications" },
 ];
 
 const footerReveal = {
@@ -467,7 +459,7 @@ export function Footer() {
   return (
     <footer className="relative border-t border-white/5 pt-14 pb-8 mt-10">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_auto] lg:gap-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
           {/* Identity */}
           <motion.div
             {...footerReveal}
@@ -493,8 +485,27 @@ export function Footer() {
             </div>
           </motion.div>
 
-          <FooterGroup title="Explore" links={exploreLinks} delay={0.08} />
-          <FooterGroup title="Engineering" links={engineeringLinks} delay={0.14} />
+          {/* Developer links — centered */}
+          <motion.nav
+            aria-label="Developer links"
+            {...footerReveal}
+            transition={{
+              duration: 0.45,
+              ease: [0.22, 1, 0.36, 1],
+              delay: 0.08,
+            }}
+            className="flex items-center justify-center"
+          >
+            <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+              {developerLinks.map((l) => (
+                <li key={l.label}>
+                  <a href={l.href} className="footer-link text-sm">
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.nav>
 
           {/* Social / actions */}
           <motion.div
@@ -504,11 +515,8 @@ export function Footer() {
               ease: [0.22, 1, 0.36, 1],
               delay: 0.2,
             }}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 lg:items-end"
           >
-            <h3 className="text-xs uppercase tracking-widest text-muted-foreground">
-              Connect
-            </h3>
             <div className="flex items-center gap-3">
               <a
                 href="https://github.com/KLBramhananda"
@@ -556,41 +564,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function FooterGroup({
-  title,
-  links,
-  delay,
-}: {
-  title: string;
-  links: { label: string; href: string }[];
-  delay: number;
-}) {
-  return (
-    <motion.nav
-      aria-label={title}
-      {...footerReveal}
-      transition={{
-        duration: 0.45,
-        ease: [0.22, 1, 0.36, 1],
-        delay,
-      }}
-      className="flex flex-col gap-4"
-    >
-      <h3 className="text-xs uppercase tracking-widest text-muted-foreground">
-        {title}
-      </h3>
-      <ul className="flex flex-col gap-2.5">
-        {links.map((l) => (
-          <li key={l.label}>
-            <a href={l.href} className="footer-link text-sm">
-              {l.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </motion.nav>
   );
 }

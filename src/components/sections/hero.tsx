@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Download, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronDown, Download, Sparkles } from "lucide-react";
 import profileImg from "@/assets/images/profile.jpeg";
 
 const stats = [
   { value: "2+", label: "Years Experience" },
   { value: "3", label: "Enterprise Projects" },
   { value: "10+", label: "Technologies" },
-  { value: "Full Stack · AI · ERP", label: "Focus Areas" },
 ];
 
 const terminalLines = [
@@ -205,14 +204,16 @@ export function Hero() {
             </div>
 
             {/* Quick stats */}
-            <dl className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <dl className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="glass rounded-2xl p-4 transition-colors hover:bg-white/[0.06]"
+                  className="glass flex h-full min-w-0 flex-col rounded-2xl p-4 transition-colors hover:bg-white/[0.06]"
                 >
-                  <dt className="text-xs text-muted-foreground">{s.label}</dt>
-                  <dd className="mt-1 text-lg font-semibold text-foreground">
+                  <dt className="text-xs leading-snug text-muted-foreground">
+                    {s.label}
+                  </dt>
+                  <dd className="mt-2 min-h-[3.1rem] text-lg font-semibold leading-tight text-balance text-foreground">
                     {s.value}
                   </dd>
                 </div>
@@ -273,6 +274,27 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      {/* Scroll hint — gently scrolls to the footer */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
+        <button
+          type="button"
+          onClick={scrollToFooter}
+          aria-label="Scroll to footer"
+          className="hero-scroll-hint flex h-10 w-10 items-center justify-center rounded-full glass text-muted-foreground transition-colors duration-200 hover:text-cyan-accent"
+        >
+          <ChevronDown className="h-4 w-4" />
+        </button>
+      </div>
     </section>
   );
+}
+
+function scrollToFooter() {
+  const footer = document.querySelector("footer");
+  if (!footer) return;
+  const reduced = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  footer.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
 }
