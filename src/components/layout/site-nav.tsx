@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
 
 const links = [
@@ -284,14 +284,6 @@ export function SiteNav() {
                 className="status-pulse h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-accent"
               />
               Let's Talk
-            </a>
-            <a
-              href="/resume/Bramhananda-K-L-Resume.pdf"
-              download
-              className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-foreground/95 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground"
-            >
-              <Download className="h-4 w-4" />
-              Resume
             </a>
             <button
               type="button"

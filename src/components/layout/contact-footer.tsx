@@ -7,7 +7,6 @@ import bkLogo from "@/assets/branding/bk-logo.jpeg";
 import {
   Mail,
   Phone,
-  Download,
   Send,
   ArrowUp,
   Loader2,
@@ -172,24 +171,6 @@ export function Contact() {
                   </div>
                 </a>
               ))}
-
-              <a
-                id="resume"
-                href="/resume/Bramhananda-K-L-Resume.pdf"
-                download
-                className="flex flex-1 items-center justify-between glass rounded-2xl px-4 py-3.5 transition-colors hover:bg-white/[0.07]"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent to-blue-accent text-background">
-                    <Download className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Download Resume</div>
-                    <div className="text-xs text-muted-foreground">PDF</div>
-                  </div>
-                </div>
-                <span className="text-sm text-cyan-accent">Get it →</span>
-              </a>
             </div>
 
             {/* Form */}

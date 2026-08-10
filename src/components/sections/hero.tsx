@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronDown, Download, Sparkles } from "lucide-react";
+import { ArrowRight, Briefcase, ChevronDown, Sparkles } from "lucide-react";
 import profileImg from "@/assets/images/profile.jpeg";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 
@@ -11,7 +11,7 @@ const stats = [
 
 const terminalLines = [
   { text: "$ bench start", tone: "muted" },
-  { text: "✓ bench ready · frappe v15", tone: "ok" },
+  { text: "✓ bench ready · frappe v16", tone: "ok" },
   { text: "SAP BTP · HANA connected", tone: "accent" },
   { text: "▶ deploying s2p-matrix …", tone: "muted" },
   { text: "✓ RFQ service online", tone: "ok" },
@@ -197,12 +197,11 @@ export function Hero() {
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
               <a
-                href="/resume/Bramhananda-K-L-Resume.pdf"
-                download
+                href="#experience"
                 className="inline-flex items-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-white/10"
               >
-                <Download className="h-4 w-4" />
-                Download Resume
+                <Briefcase className="h-4 w-4" />
+                Experience
               </a>
             </div>
 
