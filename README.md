@@ -1,77 +1,92 @@
-# React + TypeScript + Vite
+# Bramhananda K L - Software Engineer Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <strong>Software Engineer · Full Stack · AI · ERPNext · SAP BTP</strong>
+</p>
 
-Currently, two official plugins are available:
+<p align="center">
+  <a href="https://klbramhananda-portfolio.vercel.app/">
+    <img src="https://img.shields.io/badge/Portfolio-Visit%20Website-0F172A?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio">
+  </a>
+  <a href="https://www.linkedin.com/in/bramhanandakl">
+    <img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+  </a>
+  <a href="https://github.com/KLBramhananda">
+    <img src="https://img.shields.io/badge/GitHub-Profile-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+  </a>
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## About
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+I'm **Bramhananda K L**, a Software Engineer focused on building scalable,
+reliable, and practical enterprise software.
 
-Note: This will impact Vite dev & build performances.
+My engineering work spans:
 
-## Expanding the ESLint configuration
+- Full Stack Application Development
+- Enterprise Applications
+- ERPNext & Frappe
+- AI / LLM Integrations
+- REST APIs & Backend Engineering
+- SAP BTP
+- Business Process Automation
+- System & Application Architecture
+- Cloud, DevOps & Production Engineering
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+I enjoy working across the complete software lifecycle — from understanding
+business requirements and designing systems to implementing APIs,
+integrations, workflows, testing, debugging, deployment, and production
+support.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Engineering Focus
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Backend & Systems
+Python · Java · Spring Boot · FastAPI · REST APIs · Kafka
 
-```
+### Frontend Engineering
+React · JavaScript · TypeScript · Tailwind CSS · HTML · CSS
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### AI & Automation
+AI / LLM · AI Agents · MCP · RAG · Vector Search · AI-powered Workflows
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Enterprise & ERP
+ERPNext · Frappe · SAP BTP · SAP HANA · Enterprise Integration
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### DevOps & Delivery
+Docker · Git · CI/CD · Microservices
 
-```
+### Cloud & Data
+AWS · MongoDB · PostgreSQL · MySQL · SAP BTP
+
+---
+
+## What This Portfolio Demonstrates
+
+This portfolio is more than a collection of projects.
+
+It documents how I approach software engineering across different layers:
+
+```text
+Business Requirements
+        ↓
+System Design
+        ↓
+Architecture
+        ↓
+Backend Services
+        ↓
+APIs & Integrations
+        ↓
+Frontend Applications
+        ↓
+Data & Workflows
+        ↓
+Testing & Debugging
+        ↓
+Deployment
+        ↓
+Production Support
