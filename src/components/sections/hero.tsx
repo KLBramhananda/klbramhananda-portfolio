@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Download, Sparkles } from "lucide-react";
 import profileImg from "@/assets/images/profile.jpeg";
+import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const stats = [
   { value: "2+", label: "Years Experience" },
@@ -154,9 +155,11 @@ function TerminalPanel() {
 }
 
 export function Hero() {
+  const heroRef = usePauseAnimations<HTMLElement>();
   return (
     <section
       id="home"
+      ref={heroRef}
       className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28"
     >
       {/* Ambient blobs — static, composited once (no continuous animation) */}

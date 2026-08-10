@@ -9,6 +9,7 @@ import {
   MoveRight,
   type LucideIcon,
 } from "lucide-react";
+import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const diagrams = [
   {
@@ -50,6 +51,7 @@ const diagrams = [
 ];
 
 export function Architecture() {
+  const diagramsRef = usePauseAnimations<HTMLDivElement>();
   return (
     <section id="architecture" className="relative py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4">
@@ -62,7 +64,7 @@ export function Architecture() {
           procurement, ERP, and event-driven systems.
         </p>
 
-        <div className="mt-14 grid md:grid-cols-2 gap-6">
+        <div ref={diagramsRef} className="mt-14 grid md:grid-cols-2 gap-6">
           {diagrams.map((d, i) => (
             <Diagram key={d.title} {...d} phase={i * 0.45} />
           ))}

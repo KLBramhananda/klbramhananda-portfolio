@@ -27,6 +27,11 @@ const SPAWN_DIST = 3;
 const IDLE_PAUSE_MS = 160;
 /** Radius of the cached soft glow sprite (matches the previous radial fill). */
 const GLOW_RADIUS = 18;
+/**
+ * Extra padding around the cleared region so the trail never leaves a smeared
+ * 1px edge as the bounding box shifts between frames.
+ */
+const CLEAR_PAD = 3;
 
 const CYAN_FILL = "rgb(34, 211, 238)";
 const BLUE_FILL = "rgb(59, 130, 246)";
@@ -110,6 +115,14 @@ export function MouseTrail() {
     let moved = false;
     let lastMoveAt = 0;
     let lastTime = 0;
+    // Bounding box of the previous frame's drawing. Only this small patch is
+    // cleared each frame instead of the whole full-viewport canvas, which on
+    // high-DPI screens was clearing millions of pixels at 60fps.
+    let hasLastBounds = false;
+    let lastMinX = 0;
+    let lastMinY = 0;
+    let lastMaxX = 0;
+    let lastMaxY = 0;
 
     // "pointer" is the real cursor (viewport coords, converted into the
     // canvas's own CSS-pixel space). "cursor" eases toward it and seeds the
@@ -125,7 +138,10 @@ export function MouseTrail() {
     const particles: Particle[] = [];
 
     const measure = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // DPR capped at 1.5: the glow is soft and the particles are tiny, so the
+      // sharper 2× backing store is invisible — but 2× on a retina screen
+      // quadruples the pixels this canvas clears and repaints per frame.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const rect = canvas.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
@@ -134,6 +150,8 @@ export function MouseTrail() {
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Resizing wipes the canvas, so there is nothing to clear next frame.
+      hasLastBounds = false;
     };
 
     // dirX/dirY = normalized cursor travel direction; speed = px/frame. The
@@ -213,13 +231,35 @@ export function MouseTrail() {
         lastSpawnY = cursor.y;
       }
 
-      ctx.clearRect(0, 0, width, height);
+      // Clear only the region drawn last frame. The trail always lives in a
+      // small patch around the pointer, so this repaints a few hundred pixels
+      // instead of the entire viewport-sized canvas.
+      if (hasLastBounds) {
+        ctx.clearRect(
+          Math.floor(lastMinX - CLEAR_PAD),
+          Math.floor(lastMinY - CLEAR_PAD),
+          Math.ceil(lastMaxX - lastMinX + CLEAR_PAD * 2),
+          Math.ceil(lastMaxY - lastMinY + CLEAR_PAD * 2),
+        );
+      }
+
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+      const include = (x: number, y: number, r: number) => {
+        if (x - r < minX) minX = x - r;
+        if (y - r < minY) minY = y - r;
+        if (x + r > maxX) maxX = x + r;
+        if (y + r > maxY) maxY = y + r;
+      };
 
       // Leading point: a compact bright core exactly at the real pointer
       // hotspot with a tight, soft halo so it reads as a signal rather than
       // a big glow. The halo is the cached sprite; the core is two small
       // rects. Drawn only after the pointer has actually moved.
       if (moved) {
+        include(pointer.x, pointer.y, GLOW_RADIUS);
         ctx.globalAlpha = 1;
         ctx.drawImage(glow, pointer.x - GLOW_RADIUS, pointer.y - GLOW_RADIUS);
 
@@ -243,11 +283,20 @@ export function MouseTrail() {
         }
         const alpha = p.life * p.life * 0.95;
         const size = p.size * (0.3 + 0.7 * p.life);
+        include(p.x, p.y, size / 2 + 1);
         ctx.globalAlpha = alpha;
         ctx.fillStyle = p.fill;
         ctx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
       }
       ctx.globalAlpha = 1;
+
+      if (minX < maxX && minY < maxY) {
+        lastMinX = minX;
+        lastMinY = minY;
+        lastMaxX = maxX;
+        lastMaxY = maxY;
+        hasLastBounds = true;
+      }
     };
 
     const start = () => {

@@ -11,6 +11,7 @@ import { skills } from "@/data/skills";
 import { SectionEyebrow } from "./about";
 import { SkillInsight } from "../ui/skill-insight";
 import { TechConstellation } from "../effects/tech-constellation";
+import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const capabilities = [
   {
@@ -61,6 +62,7 @@ const CLOSE_DELAY = 150;
 const POPUP_ID = "skill-insight-popup";
 
 export function Skills() {
+  const techBlockRef = usePauseAnimations<HTMLDivElement>();
   const [active, setActive] = useState<{ key: string; el: HTMLElement } | null>(
     null,
   );
@@ -194,7 +196,11 @@ export function Skills() {
       </div>
 
       {/* Tech Stack — Engineering Tech Constellation */}
-      <div id="tech" className="mx-auto max-w-7xl px-4 mt-24 lg:mt-32">
+      <div
+        id="tech"
+        ref={techBlockRef}
+        className="mx-auto max-w-7xl px-4 mt-24 lg:mt-32"
+      >
         <SectionEyebrow>Tech Stack</SectionEyebrow>
         <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
           The stack behind the work.
