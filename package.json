@@ -14,12 +14,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@tanstack/react-router": "^1.170.21",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.29.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "tw-animate-css": "^1.3.4"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

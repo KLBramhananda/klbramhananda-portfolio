@@ -1,6 +1,5 @@
 @import "tailwindcss" source(none);
 @source "../";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -8,13 +7,15 @@
   --font-sans: "Inter", "Geist", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Inter", "Geist", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* Radius steps participate in the global rem scale so they shrink in step
+     with everything else (matches the ~80% zoom reference density). */
+  --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+  --radius-2xl: calc(var(--radius) + 0.5rem);
+  --radius-3xl: calc(var(--radius) + 0.75rem);
+  --radius-4xl: calc(var(--radius) + 1rem);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -112,12 +113,26 @@
 
 @layer base {
   html {
+    /* Global visual scale: every `rem`-based size (typography, spacing, gaps,
+       radii, container widths) renders at ~80% of a 16px root, matching the
+       density the site had at 80% browser zoom — without zooming or scaling
+       the layout. Fixed `px` decorations are converted to `rem` throughout so
+       they scale in step. */
+    font-size: 12.8px;
+    /* Smooth anchor scrolling with offset for the fixed header */
     scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
     color-scheme: dark;
   }
 
   * {
     border-color: var(--color-border);
+  }
+
+  /* Accessible, visible focus ring */
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--cyan-accent) 70%, transparent);
+    outline-offset: 2px;
   }
 
   body {
@@ -126,10 +141,6 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 15% -10%, color-mix(in oklab, var(--cyan-accent) 18%, transparent), transparent 60%),
-      radial-gradient(ellipse 70% 50% at 100% 20%, color-mix(in oklab, var(--blue-accent) 14%, transparent), transparent 60%);
-    background-attachment: fixed;
   }
 
   ::selection {
@@ -138,17 +149,98 @@
   }
 }
 
+/*
+  Fixed ambient gradient layer.
+  Uses a fixed, composited layer instead of `background-attachment: fixed`,
+  which forced full-page repaints on scroll and caused the noticeable jank.
+*/
+@utility bg-ambience {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 15% -10%, color-mix(in oklab, var(--cyan-accent) 18%, transparent), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 100% 20%, color-mix(in oklab, var(--blue-accent) 14%, transparent), transparent 60%);
+}
+
+/* ── Ambient Human-AI Background Video ────────────────────────────
+   Fixed, full-viewport layer behind the whole portfolio. The wrapper keeps
+   the previous ambient gradient (via .bg-ambience) as a static poster /
+   fallback: it shows while the video buffers, if playback is blocked, and
+   whenever the user prefers reduced motion. The overlay is a strong dark-navy
+   wash so the human-and-robot interaction remains a recognizable but subtle
+   backdrop and the content above stays highly readable.
+
+   Compositor-friendly: the video decodes off the main thread, the media is
+   GPU-composited with a static transform, and the overlay paints once — no
+   per-frame repaints, no scroll work. */
+.video-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.video-bg__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-bg__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    oklch(0.13 0.035 258 / 0.78),
+    oklch(0.1 0.035 258 / 0.9)
+  );
+}
+
+/* Small screens: skip the full-viewport video entirely and fall back to the
+   static gradient poster. Decoding and painting a full-screen video on phones
+   drains the battery, spends mobile data, and competes with the compositor
+   during scroll and tap — the ambient gradient keeps the same dark backdrop
+   for free. The overlay is hidden too, so the poster reads exactly like the
+   pre-video ambient layer (it only exists to dim the footage). */
+@media (max-width: 767px) {
+  .video-bg__media,
+  .video-bg__overlay {
+    display: none;
+  }
+}
+
+/* Cheap glass: modest blur, no saturate filter (expensive to repaint).
+   A semi-opaque dark-navy base (instead of a near-transparent white wash)
+   keeps the glassy look while letting the full-viewport background video
+   only faintly tint card surfaces — content stays readable and the moving
+   footage never visibly shows through panels. */
 @utility glass {
-  background: color-mix(in oklab, white 4%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background: color-mix(in oklab, oklch(0.22 0.03 258) 72%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid color-mix(in oklab, white 8%, transparent);
 }
 
 @utility glass-strong {
-  background: color-mix(in oklab, white 6%, transparent);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: color-mix(in oklab, oklch(0.26 0.03 258) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in oklab, white 10%, transparent);
+}
+
+/* Near-opaque dark navy surface for the fixed navbar. Keeps the glass /
+   enterprise look (subtle top-light gradient, blur, hairline border) but is
+   opaque enough that particles, lines, and floating tech tags can't visually
+   bleed through into the navigation. */
+@utility glass-nav {
+  background: linear-gradient(
+    180deg,
+    oklch(0.22 0.035 258 / 0.96),
+    oklch(0.14 0.035 258 / 0.96)
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid color-mix(in oklab, white 10%, transparent);
 }
 
@@ -163,28 +255,865 @@
   box-shadow: 0 0 40px -8px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
 }
 
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-24px) translateX(10px); }
-}
-@keyframes float-slower {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(20px) translateX(-14px); }
-}
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.06); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(0.875rem); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@utility animate-float-slow { animation: float-slow 9s ease-in-out infinite; }
-@utility animate-float-slower { animation: float-slower 12s ease-in-out infinite; }
-@utility animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
-@utility animate-fade-up { animation: fade-up 0.7s ease-out both; }
+@utility animate-fade-up { animation: fade-up 0.6s ease-out both; }
+
+/* Blinking terminal caret (compositor-friendly: opacity only). */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@utility animate-caret { animation: caret-blink 1.1s steps(1, end) infinite; }
+
+/* ── Engineering Tech Constellation ────────────────────────────────────
+   Static, symmetrical network. All motion is slow, subtle, and driven by
+   compositor-friendly transform/opacity where possible. No rotation, no
+   random movement, no per-frame JS. */
+.tech-network {
+  position: relative;
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+  aspect-ratio: 10 / 6;
+}
+
+.tech-network__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tech-network__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+/* Connection lines: base line + slow flowing overlay. */
+.tech-link {
+  stroke: oklch(0.72 0.03 255);
+  stroke-opacity: 0.22;
+  stroke-width: 1;
+  transition:
+    stroke-opacity 0.35s ease,
+    stroke-width 0.35s ease;
+}
+
+.tech-link.is-active {
+  stroke: var(--cyan-accent);
+  stroke-opacity: 0.85;
+  stroke-width: 1.6;
+}
+
+.tech-link.is-related {
+  stroke-opacity: 0.45;
+}
+
+.tech-link.is-dimmed {
+  stroke-opacity: 0.07;
+}
+
+.tech-link-flow {
+  stroke: var(--cyan-accent);
+  stroke-opacity: 0.35;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 14;
+  animation: link-flow 24s linear infinite;
+}
+
+.tech-link-flow.is-active {
+  stroke-opacity: 0.8;
+}
+
+.tech-link-flow.is-related {
+  stroke-opacity: 0.5;
+}
+
+.tech-link-flow.is-dimmed {
+  stroke-opacity: 0.04;
+}
+
+@keyframes link-flow {
+  to { stroke-dashoffset: -41; }
+}
+
+/* Small data particle traveling along a selected link. */
+.node-particle {
+  fill: var(--cyan-accent);
+  opacity: 0;
+  animation: particle-travel 9s ease-in-out infinite;
+}
+
+@keyframes particle-travel {
+  0% { offset-distance: 0%; opacity: 0; }
+  14% { opacity: 0.9; }
+  84% { opacity: 0.9; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+/* Technology node — premium enterprise chip. */
+.network-node {
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    opacity 0.35s ease,
+    background 0.35s ease;
+}
+
+.network-node:hover,
+.network-node:focus-visible {
+  transform: translate(-50%, -50%) scale(1.06);
+  border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent);
+}
+
+.network-node.is-active {
+  transform: translate(-50%, -50%) scale(1.07);
+  border-color: color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--cyan-accent) 14%, rgba(255, 255, 255, 0.06)),
+    color-mix(in oklab, var(--cyan-accent) 5%, rgba(255, 255, 255, 0.02))
+  );
+  box-shadow: 0 0 26px -10px color-mix(in oklab, var(--cyan-accent) 60%, transparent);
+}
+
+.network-node.is-related {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.network-node.is-dimmed {
+  opacity: 0.38;
+}
+
+/* Central "Enterprise Engineering" node. */
+.network-core {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  padding: 0.9rem 1.5rem;
+  border: 1px solid color-mix(in oklab, var(--cyan-accent) 40%, transparent);
+  border-radius: 1rem;
+  background:
+    radial-gradient(120% 170% at 0% 0%, color-mix(in oklab, var(--cyan-accent) 18%, transparent), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 44px -12px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.network-core__ring {
+  position: absolute;
+  inset: -0.5rem;
+  border-radius: calc(1rem + 0.5rem);
+  border: 1px solid color-mix(in oklab, var(--cyan-accent) 28%, transparent);
+  animation: core-ring 4.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes core-ring {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.12; transform: scale(1.05); }
+}
+
+/* Colored status dot on each node — subtle heartbeat. */
+.network-node__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: node-dot 3.8s ease-in-out infinite;
+}
+
+@keyframes node-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Mobile compact network chips. */
+.tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.tech-chip:hover,
+.tech-chip.is-active {
+  border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent);
+}
+
+.tech-chip.is-active {
+  box-shadow: 0 0 20px -10px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+}
+
+.tech-chip.is-related {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.tech-chip.is-dimmed {
+  opacity: 0.4;
+}
+
+/* Tablet: tighten spacing while keeping the network structure. */
+@media (max-width: 1023px) {
+  .network-node {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8125rem;
+    gap: 0.4rem;
+  }
+}
+
+/* Skill Insight card — fixed, viewport-clamped by the component, subtle fade+rise.
+   Opaque dark navy surface so background effects, floating tech tags, particles,
+   and connecting lines can never show through. Border, glow, shadow, and cyan
+   accents come from the existing box-shadow + .glass-strong hairline border. */
+.skill-insight {
+  position: fixed;
+  z-index: 55;
+  width: min(22.5rem, calc(100vw - 2rem));
+  background: oklch(0.14 0.035 258 / 0.99);
+  animation: skill-insight-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+  box-shadow:
+    0 24px 60px -24px rgba(2, 6, 23, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 44px -14px color-mix(in oklab, var(--cyan-accent) 32%, transparent);
+}
+
+@keyframes skill-insight-in {
+  from { opacity: 0; transform: translateY(0.375rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Currently Building status strip */
+.status-dot {
+  animation: status-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes status-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+
+@keyframes status-in {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-status-in { animation: status-in 0.35s ease-out both; }
+
+/* ── Ambient System Activity Background ─────────────────────────────
+   Sparse, faint technical network behind the interface. Pure SVG + CSS
+   keyframes (transform/opacity/offset-path only) — no JS loop, no event
+   listeners, so it can never intercept clicks, selection, or hover, and
+   adds no React re-renders. */
+.sys-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sys-cluster {
+  position: absolute;
+  animation: sys-drift 34s ease-in-out infinite alternate;
+}
+
+/* Staggered drift so each section's network moves at its own tempo. */
+.sys-cluster--b { animation-duration: 46s; animation-delay: -14s; }
+.sys-cluster--c { animation-duration: 40s; animation-delay: -6s; }
+.sys-cluster--d { animation-duration: 52s; animation-delay: -22s; }
+
+.sys-cluster svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.sys-link {
+  stroke: oklch(0.78 0.15 210);
+  stroke-width: 1;
+  stroke-opacity: 0.1;
+}
+
+.sys-link--blue {
+  stroke: oklch(0.65 0.19 258);
+  stroke-opacity: 0.13;
+}
+
+/* One subtle flowing dash per cluster — very slow, low opacity. */
+.sys-link-flow {
+  stroke-dasharray: 2 14;
+  stroke-opacity: 0.17;
+  animation: sys-flow 18s linear infinite;
+}
+
+.sys-node {
+  fill: var(--cyan-accent);
+  animation: sys-breathe 8s ease-in-out infinite;
+}
+
+.sys-node--blue { fill: var(--blue-accent); }
+
+/* Tiny dot traveling along a connection. */
+.sys-particle {
+  fill: var(--cyan-accent);
+  opacity: 0;
+  animation: sys-travel 16s ease-in-out infinite;
+}
+
+@keyframes sys-drift {
+  from { transform: translate(-6px, -4px); }
+  to { transform: translate(8px, 6px); }
+}
+
+@keyframes sys-breathe {
+  0%, 100% { opacity: 0.18; }
+  50% { opacity: 0.32; }
+}
+
+@keyframes sys-flow {
+  to { stroke-dashoffset: -48; }
+}
+
+@keyframes sys-travel {
+  0% { offset-distance: 0%; opacity: 0; }
+  14% { opacity: 0.6; }
+  84% { opacity: 0.6; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+/* ── Architecture Flow Diagrams ──────────────────────────────────────
+   Each diagram is a miniature live system: a small cyan signal travels
+   along every arrow segment and the node it reaches lights up briefly.
+   Pure CSS keyframes (transform/opacity/border-color/box-shadow only),
+   staggered per element with negative animation-delays so every segment
+   starts mid-cycle, loops continuously, and never animates in lock-step.
+   No JS loops, no event listeners, no React re-renders. */
+
+/* Arrow segment: hosts the traveling signal without changing layout. */
+.flow-segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The traveling data/request pulse. */
+.flow-particle {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 0.375rem;
+  width: 0.375rem;
+  margin-top: -0.1875rem;
+  border-radius: 9999px;
+  background: var(--cyan-accent);
+  opacity: 0;
+  box-shadow: 0 0 8px 0 color-mix(in oklab, var(--cyan-accent) 60%, transparent);
+  will-change: transform, opacity;
+  animation: flow-particle 7.2s linear infinite;
+}
+
+/* Faint trailing tail so the signal reads as motion, not a blinking dot. */
+.flow-particle::after {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  height: 0.125rem;
+  width: 0.5625rem;
+  margin-top: -0.0625rem;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to left,
+    color-mix(in oklab, var(--cyan-accent) 50%, transparent),
+    transparent
+  );
+}
+
+/* Node: brief border + glow when the signal arrives, then back to base. */
+.flow-node {
+  animation: flow-node-hit 7.2s linear infinite;
+}
+
+/* Card hover: gently lift arrow tint and pulse glow. Layout untouched. */
+.architecture-card:hover .flow-arrow {
+  color: color-mix(in oklab, var(--cyan-accent) 85%, transparent);
+}
+
+.architecture-card:hover .flow-particle {
+  box-shadow: 0 0 12px 1px color-mix(in oklab, var(--cyan-accent) 80%, transparent);
+}
+
+@keyframes flow-particle {
+  0%   { opacity: 0; transform: translateX(-0.375rem); }
+  4%   { opacity: 1; transform: translateX(-0.25rem); }
+  13%  { opacity: 1; transform: translateX(1.25rem); }
+  17%  { opacity: 0; transform: translateX(1.4375rem); }
+  100% { opacity: 0; transform: translateX(1.4375rem); }
+}
+
+@keyframes flow-node-hit {
+  0%   { border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+  5%   { border-color: color-mix(in oklab, var(--cyan-accent) 75%, transparent); box-shadow: 0 0 12px -4px color-mix(in oklab, var(--cyan-accent) 55%, transparent); }
+  12%  { border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent); box-shadow: 0 0 10px -5px color-mix(in oklab, var(--cyan-accent) 35%, transparent); }
+  20%  { border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+  100% { border-color: rgba(255, 255, 255, 0.1); box-shadow: none; }
+}
+
+/* ── Skill Capability Cards ──────────────────────────────────────────
+   Subtle, secondary hover: gentle lift, brighter border, icon glow, pill
+   emphasis, and a faint light sweep. Pure CSS transforms/transitions — no
+   JS, no re-renders, compositor-friendly. */
+.skill-card {
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0);
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* Faint light/gradient sweep that passes across the card once on hover. */
+.skill-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    color-mix(in oklab, var(--cyan-accent) 10%, transparent) 48%,
+    transparent 78%
+  );
+  transform: translateX(-110%);
+  transition: transform 0.5s ease;
+}
+
+.skill-card:hover {
+  transform: translateY(-0.1875rem);
+  border-color: color-mix(in oklab, var(--cyan-accent) 38%, transparent);
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.7),
+    0 0 24px -12px color-mix(in oklab, var(--cyan-accent) 42%, transparent);
+}
+
+.skill-card:hover::before {
+  transform: translateX(110%);
+}
+
+/* Icon: subtle glow on hover. */
+.skill-card__icon {
+  transition: box-shadow 0.2s ease;
+}
+
+.skill-card:hover .skill-card__icon {
+  box-shadow: 0 0 18px -4px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+}
+
+/* Pills: slight border/text emphasis on hover. */
+.skill-card:hover .skill-card__pill {
+  border-color: color-mix(in oklab, var(--cyan-accent) 30%, transparent);
+  color: var(--foreground);
+}
+
+/* ── GitHub Repository Cards ────────────────────────────────────────
+   Secondary hover: gentle lift, brighter border/glow, subtle link and
+   pill emphasis. Pure CSS transforms/transitions — no JS, compositor-
+   friendly, matches the skill-card hover language. */
+.repo-card {
+  position: relative;
+  transform: translateY(0);
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.repo-card:hover {
+  transform: translateY(-0.3125rem);
+  border-color: color-mix(in oklab, var(--cyan-accent) 38%, transparent);
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.7),
+    0 0 24px -12px color-mix(in oklab, var(--cyan-accent) 42%, transparent);
+}
+
+/* GitHub link icon: subtle emphasis on hover. */
+.repo-card__link {
+  transition: color 0.2s ease;
+}
+
+.repo-card:hover .repo-card__link {
+  color: var(--cyan-accent);
+}
+
+/* Tech pills: very small emphasis on hover. */
+.repo-card__pill {
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.repo-card:hover .repo-card__pill {
+  border-color: color-mix(in oklab, var(--cyan-accent) 30%, transparent);
+  color: var(--foreground);
+}
+
+/* ── Footer Navigation Links ───────────────────────────────────────
+   Subtle accent transition + thin underline on hover. Pure CSS color /
+   transform transitions, compositor-friendly, no JS. */
+.footer-link {
+  position: relative;
+  display: inline-block;
+  color: var(--muted-foreground);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: color-mix(in oklab, var(--cyan-accent) 70%, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  color: var(--cyan-accent);
+  transform: translateX(3px);
+}
+
+.footer-link:hover::after,
+.footer-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Availability status dot — very subtle breathing glow every few seconds. */
+.status-pulse {
+  animation: status-pulse 4s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--cyan-accent) 0%, transparent);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 6px 1px color-mix(in oklab, var(--cyan-accent) 30%, transparent);
+  }
+}
+
+/* ── "Currently Building" badge — live system-activity effect ─────────
+   A gentle cyan status-dot pulse and a faint light sweep that glides
+   left-to-right in a continuous, steady rhythm with a soft ambient bloom
+   trailing each pass. Compositor-friendly: only transform + opacity are
+   animated. The dot reuses .status-pulse to breathe with the footer. */
+.building-fx {
+  z-index: 0;
+}
+
+.building-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    color-mix(in oklab, var(--cyan-accent) 5%, transparent) 35%,
+    color-mix(in oklab, white 9%, transparent) 50%,
+    color-mix(in oklab, var(--blue-accent) 5%, transparent) 65%,
+    transparent 100%
+  );
+  transform: skewX(-16deg);
+  animation: building-sweep 1.4s linear infinite;
+}
+
+@keyframes building-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-16deg);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  82% {
+    transform: translateX(420%) skewX(-16deg);
+    opacity: 1;
+  }
+  90%, 100% {
+    transform: translateX(420%) skewX(-16deg);
+    opacity: 0;
+  }
+}
+
+.building-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    130% 130% at 28% 50%,
+    color-mix(in oklab, var(--cyan-accent) 10%, transparent) 0%,
+    color-mix(in oklab, var(--blue-accent) 6%, transparent) 40%,
+    transparent 65%
+  );
+  animation: building-glow 1.4s linear infinite;
+}
+
+@keyframes building-glow {
+  0%, 100% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0;
+  }
+}
+
+/* Hero scroll hint — gentle downward bob, compositor-friendly. */
+.hero-scroll-hint {
+  animation: hero-scroll-hint 2.4s ease-in-out infinite;
+}
+
+@keyframes hero-scroll-hint {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+}
+
+/* Social / action buttons — gentle lift with accent on hover. */
+.social-btn {
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.social-btn:hover,
+.social-btn:focus-visible {
+  transform: translateY(-0.125rem);
+  border-color: color-mix(in oklab, var(--cyan-accent) 35%, transparent);
+  background-color: color-mix(in oklab, white 8%, transparent);
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Background video: swap to the static gradient poster for reduced motion.
+     The component also pauses playback, so this is a belt-and-suspenders
+     guarantee that no video layer paints. The overlay only darkens footage,
+     so it is dropped as well to keep the poster exactly as designed. */
+  .video-bg__media,
+  .video-bg__overlay {
+    display: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Constellation: strip continuous motion, keep the network interactive. */
+  .tech-link-flow,
+  .node-particle,
+  .network-core__ring {
+    display: none;
+  }
+
+  .network-node__dot {
+    animation: none;
+  }
+
+  /* System background: freeze to a static, faint network. */
+  .sys-cluster,
+  .sys-node,
+  .sys-link-flow {
+    animation: none;
+  }
+
+  .sys-link-flow,
+  .sys-particle {
+    display: none;
+  }
+
+  .sys-node {
+    opacity: 0.13;
+  }
+
+  /* Architecture flows: freeze to a static diagram. */
+  .flow-particle,
+  .flow-node {
+    animation: none;
+  }
+
+  .flow-particle {
+    display: none;
+  }
+
+  /* Skill cards: no lift or sweep for reduced-motion users. */
+  .skill-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .skill-card::before {
+    display: none;
+  }
+
+  /* Repository cards: no lift or glow for reduced-motion users. */
+  .repo-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Footer links: no underline animation for reduced-motion users. */
+  .footer-link::after {
+    transform: none;
+  }
+
+  /* Footer status dot: static for reduced-motion users. */
+  .status-pulse {
+    animation: none;
+    box-shadow: none;
+  }
+
+  /* Currently Building badge: freeze sweep and ambient glow. */
+  .building-sweep,
+  .building-glow {
+    display: none;
+  }
+
+  /* Social buttons: no lift for reduced-motion users. */
+  .social-btn:hover,
+  .social-btn:focus-visible {
+    transform: none;
+  }
+}
+
+/*
+  Low-power / small-screen ambient reduction.
+  Phones render a far smaller, less useful version of the background network
+  and constellation flow. Freezing the decorative loops keeps the same
+  aesthetic (static faint links + dots) while the compositor saves the cycles
+  for scrolling, reveals, and interaction. Mirrors the reduced-motion handling
+  so no element jumps to an unwanted brightness when its animation is off.
+*/
+@media (max-width: 767px) {
+  .sys-cluster,
+  .sys-node,
+  .sys-link-flow,
+  .sys-particle,
+  .tech-link-flow,
+  .node-particle,
+  .network-core__ring,
+  .network-node__dot {
+    animation: none;
+  }
+
+  .sys-link-flow,
+  .sys-particle,
+  .tech-link-flow,
+  .node-particle,
+  .network-core__ring {
+    display: none;
+  }
+
+  .sys-node {
+    opacity: 0.13;
+  }
+}
+
+/* Hover feedback on card surfaces must keep them opaque: the layered utility
+   hovers (hover:bg-white/[0.06], hover:bg-white/10, .social-btn:hover, …) are
+   near-transparent white washes that would let the background video flash
+   through mid-hover. These unlayered rules outrank the layered utilities and
+   instead nudge the navy base slightly brighter, keeping the lift/glow hover
+   language while the surface never drops below readable opacity. */
+@media (hover: hover) {
+  .glass:hover,
+  .glass:focus-visible {
+    background: color-mix(in oklab, oklch(0.24 0.03 258) 78%, transparent);
+  }
+
+  .glass-strong:hover,
+  .glass-strong:focus-visible {
+    background: color-mix(in oklab, oklch(0.29 0.03 258) 94%, transparent);
+  }
+}
