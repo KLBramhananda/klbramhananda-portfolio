@@ -197,19 +197,6 @@
   );
 }
 
-/* Small screens: skip the full-viewport video entirely and fall back to the
-   static gradient poster. Decoding and painting a full-screen video on phones
-   drains the battery, spends mobile data, and competes with the compositor
-   during scroll and tap — the ambient gradient keeps the same dark backdrop
-   for free. The overlay is hidden too, so the poster reads exactly like the
-   pre-video ambient layer (it only exists to dim the footage). */
-@media (max-width: 767px) {
-  .video-bg__media,
-  .video-bg__overlay {
-    display: none;
-  }
-}
-
 /* Glass surfaces: a near-opaque dark-navy base with a hairline border and the
    same top-light gradient language as the navbar. No backdrop-filter — with a
    full-viewport video behind every card, backdrop blur would re-sample the

@@ -10,15 +10,13 @@ import videoSrc from "@/assets/animation-videos/working-with-wi.mp4";
  * behind the portfolio content.
  *
  * The wrapper keeps the previous ambient gradient as a static poster/fallback:
- * it shows while the video buffers, if playback is blocked, whenever the user
- * prefers reduced motion, and on small screens. Decoding a full-screen video on
- * a phone would drain the battery, spend mobile data, and fight the compositor
- * during scroll and tap, so on small screens the media element is not rendered
- * at all and the static gradient carries the backdrop.
+ * it shows while the video buffers, if playback is blocked, or whenever the
+ * user prefers reduced motion. The backdrop stays intact on every screen size
+ * while the video decodes off the main thread and stays GPU-composited.
  *
  * When playback is unwanted the `<video>` element is unmounted entirely, which
- * stops decoding, painting, and (via preload) network transfer until a larger
- * viewport or a motion preference change actually needs it.
+ * stops decoding, painting, and (via preload) network transfer until a motion
+ * preference change actually needs it.
  */
 export function VideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,13 +24,6 @@ export function VideoBackground() {
     () =>
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-  // Mirrors the `@media (max-width: 767px)` video rules in styles.css so the
-  // CSS fallback and the actual playback state can never drift apart.
-  const [smallScreen, setSmallScreen] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 767px)").matches,
   );
 
   // Stay in sync if the OS motion preference changes while the page is open.
@@ -43,18 +34,10 @@ export function VideoBackground() {
     return () => mq.removeEventListener("change", onMotionPrefChange);
   }, []);
 
-  // Keep the small-screen flag in sync across rotations / resizes.
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const onSizeChange = () => setSmallScreen(mq.matches);
-    mq.addEventListener("change", onSizeChange);
-    return () => mq.removeEventListener("change", onSizeChange);
-  }, []);
+  const paused = reducedMotion;
 
-  const paused = reducedMotion || smallScreen;
-
-  // Pause when playback is unwanted (reduced motion or small screens),
-  // otherwise (re)start playback after the element has a source.
+  // Pause when playback is unwanted (reduced motion), otherwise (re)start
+  // playback after the element has a source.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
