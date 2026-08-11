@@ -440,12 +440,12 @@ export function Footer() {
   return (
     <footer className="relative border-t border-white/5 pt-14 pb-8 mt-10">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
           {/* Identity */}
           <motion.div
             {...footerReveal}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col"
+            className="flex flex-col items-center text-center md:items-start md:text-left"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg overflow-hidden">
@@ -496,7 +496,7 @@ export function Footer() {
               ease: [0.22, 1, 0.36, 1],
               delay: 0.2,
             }}
-            className="flex flex-col gap-4 lg:items-end"
+            className="flex flex-col items-center gap-4 md:items-start lg:items-end"
           >
             <div className="flex items-center gap-3">
               <a
@@ -529,7 +529,7 @@ export function Footer() {
         </div>
 
         {/* Footer meta row */}
-        <div className="mt-10 border-t border-white/5 pt-6">
+        <div className="mt-8 border-t border-white/5 pt-6 md:mt-10">
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <span
