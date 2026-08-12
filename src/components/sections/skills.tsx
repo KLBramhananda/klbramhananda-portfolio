@@ -184,7 +184,7 @@ export function Skills() {
                 {g.items.map((it) => (
                   <span
                     key={it}
-                    className="skill-card__pill rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-foreground/90 transition-colors"
+                    className="skill-card__pill rounded-lg border border-slate-900/10 bg-slate-900/[0.04] px-3 py-1.5 text-xs text-foreground/90 transition-colors dark:border-white/10 dark:bg-white/[0.03]"
                   >
                     {it}
                   </span>

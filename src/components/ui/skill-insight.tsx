@@ -144,7 +144,7 @@ export function SkillInsight({
             return (
               <span
                 key={r}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/75"
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-900/10 bg-slate-900/[0.05] px-2.5 py-1 text-[0.6875rem] text-foreground/75 dark:border-white/10 dark:bg-white/[0.04]"
               >
                 {relatedSkill && (
                   <span
@@ -163,7 +163,7 @@ export function SkillInsight({
       <a
         href="#experience"
         onClick={onClose}
-        className="mt-4 inline-flex items-center gap-1.5 border-t border-white/5 pt-3 text-xs font-medium text-cyan-accent transition-colors hover:text-cyan-accent/80"
+        className="mt-4 inline-flex items-center gap-1.5 border-t border-slate-900/10 pt-3 text-xs font-medium text-cyan-accent transition-colors hover:text-cyan-accent/80 dark:border-white/5"
       >
         View engineering context
         <ArrowRight className="h-3.5 w-3.5" aria-hidden />

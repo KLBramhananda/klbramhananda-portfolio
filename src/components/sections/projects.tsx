@@ -146,7 +146,7 @@ function ProjectCard({
 }) {
   const isCurrent = p.status === "Currently Working On";
   return (
-    <article className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-white/[0.06]">
+    <article className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]">
       <div
         className={`grid lg:grid-cols-[1fr_1.05fr] gap-6 lg:gap-8 items-center ${
           flip ? "lg:[&>*:first-child]:order-2" : ""
@@ -164,8 +164,8 @@ function ProjectCard({
             <span
               className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
                 isCurrent
-                  ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/20"
-                  : "bg-white/10 text-white/85 border border-white/15"
+                  ? "bg-emerald-500/15 text-emerald-700 border border-emerald-500/20 dark:text-emerald-300"
+                  : "bg-slate-900/10 text-slate-900/85 border border-slate-900/15 dark:bg-white/10 dark:text-white/85 dark:border-white/15"
               }`}
             >
               {isCurrent && (
@@ -183,7 +183,7 @@ function ProjectCard({
             {p.tech.map((t) => (
               <span
                 key={t}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[0.6875rem] text-foreground/85"
+                className="rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/85 dark:border-white/10 dark:bg-white/[0.03]"
               >
                 {t}
               </span>
@@ -208,7 +208,7 @@ function ProjectCard({
         </div>
 
         {/* Screenshot — full screenshot always visible, never cropped */}
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 aspect-[16/10] lg:aspect-[7/3]">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 aspect-[16/10] lg:aspect-[7/3]">
           <img
             src={p.image}
             alt={`${p.name} — ${p.tagline} screenshot`}
@@ -241,7 +241,7 @@ function Detail({
         className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
           highlight
             ? "bg-gradient-to-br from-cyan-accent/25 to-blue-accent/25 text-cyan-accent"
-            : "bg-white/5 text-muted-foreground"
+            : "bg-slate-900/5 text-muted-foreground dark:bg-white/5"
         }`}
       >
         <Icon className="h-4 w-4" />

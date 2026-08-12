@@ -187,7 +187,7 @@ export function GithubSection() {
                   }}
                   className="flex gap-3"
                 >
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/5 text-cyan-accent">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-900/5 text-cyan-accent dark:bg-white/5">
                     <FolderGit2 className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -221,7 +221,7 @@ export function GithubSection() {
                   aria-hidden
                   className={`absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br ${c.accent} opacity-25 blur-2xl`}
                 />
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-white/5">
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900/5 dark:bg-white/5">
                   <Award className="h-6 w-6 text-cyan-accent" />
                 </div>
                 <div className="relative mt-4 text-lg font-semibold">
@@ -233,11 +233,11 @@ export function GithubSection() {
                 <div className="relative mt-3 flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{c.year}</span>
                   {c.upcoming ? (
-                    <span className="rounded-full bg-emerald-500/15 text-emerald-300 px-2 py-0.5 text-[0.6875rem]">
+                    <span className="rounded-full bg-emerald-500/15 text-emerald-700 px-2 py-0.5 text-[0.6875rem] dark:text-emerald-300">
                       Upcoming
                     </span>
                   ) : (
-                    <span className="rounded-full bg-white/5 text-foreground/70 px-2 py-0.5 text-[0.6875rem]">
+                    <span className="rounded-full bg-slate-900/5 text-foreground/70 px-2 py-0.5 text-[0.6875rem] dark:bg-white/5">
                       Verified
                     </span>
                   )}
@@ -270,11 +270,11 @@ function RepoCard({ repo: r, index }: { repo: FeaturedRepo; index: number }) {
 
       <div className="mt-3">
         {isCompany ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[0.6875rem] font-medium text-emerald-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[0.6875rem] font-medium text-emerald-700 dark:text-emerald-300">
             Company contribution
           </span>
         ) : (
-          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[0.6875rem] text-muted-foreground">
+          <span className="rounded-full border border-slate-900/10 bg-slate-900/[0.05] px-2.5 py-0.5 text-[0.6875rem] text-muted-foreground dark:border-white/10 dark:bg-white/[0.04]">
             Personal repository
           </span>
         )}
@@ -289,7 +289,7 @@ function RepoCard({ repo: r, index }: { repo: FeaturedRepo; index: number }) {
           {r.tech.map((t) => (
             <span
               key={t}
-              className="repo-card__pill rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[0.6875rem] text-foreground/80"
+              className="repo-card__pill rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/80 dark:border-white/10 dark:bg-white/[0.03]"
             >
               {t}
             </span>

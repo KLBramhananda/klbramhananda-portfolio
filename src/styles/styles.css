@@ -45,40 +45,54 @@
 
 :root {
   --radius: 0.875rem;
+  --flow-node-border: oklch(0.2 0.02 258 / 12%);
 
-  /* Dark, premium palette */
-  --background: oklch(0.19 0.03 258);       /* #0F172A */
-  --foreground: oklch(0.985 0 0);            /* #FFFFFF */
+  /* Light, premium enterprise palette — same cyan/blue identity as dark,
+     adapted to a light slate backdrop. The `.dark` class re-applies the
+     original dark palette exactly. */
+  --background: oklch(0.971 0.006 258);      /* #F2F4F7 */
+  --foreground: oklch(0.15 0.02 258);        /* #0F172A */
 
-  --card: oklch(0.27 0.03 258);              /* #1E293B */
-  --card-foreground: oklch(0.985 0 0);
+  --card: oklch(0.995 0 0);
+  --card-foreground: oklch(0.15 0.02 258);
 
-  --popover: oklch(0.27 0.03 258);
-  --popover-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.995 0 0);
+  --popover-foreground: oklch(0.15 0.02 258);
 
   --primary: oklch(0.78 0.15 210);           /* cyan #06B6D4 */
   --primary-foreground: oklch(0.15 0.02 258);
 
-  --secondary: oklch(0.29 0.03 258);
-  --secondary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.94 0.008 258);
+  --secondary-foreground: oklch(0.2 0.02 258);
 
-  --muted: oklch(0.27 0.03 258);
-  --muted-foreground: oklch(0.72 0.03 255);  /* #94A3B8 */
+  --muted: oklch(0.94 0.008 258);
+  --muted-foreground: oklch(0.42 0.02 258);  /* slate-700 ~#3F4A5C — ~7:1 on the
+                                                 light backdrop so eyebrows,
+                                                 labels, and descriptions stay
+                                                 clearly readable in Light Mode */
 
   --accent: oklch(0.65 0.19 258);            /* blue #3B82F6 */
   --accent-foreground: oklch(0.985 0 0);
 
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: oklch(0.62 0.2 26);
   --destructive-foreground: oklch(0.985 0 0);
 
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.78 0.15 210 / 60%);
+  --border: oklch(0.2 0.02 258 / 12%);
+  --input: oklch(0.2 0.02 258 / 14%);
+  --ring: oklch(0.78 0.15 210 / 55%);
 
-  --cyan-accent: #06B6D4;
+  --cyan-accent: #0E7490;      /* cyan-700 — ~4.5:1 on the light backdrop so
+                                  every cyan accent (taglines, links, pills,
+                                  dots) stays clearly readable in Light Mode */
   --blue-accent: #3B82F6;
-  --glass: oklch(1 0 0 / 4%);
-  --glass-border: oklch(1 0 0 / 8%);
+  --glass: oklch(0.2 0.02 258 / 4%);
+  --glass-border: oklch(0.2 0.02 258 / 12%);
+
+  /* Drop shadows — softer, lighter in Light Mode; the real dark-mode values
+     live in `.dark` so Dark Mode keeps the exact heavy shadow language. */
+  --shadow-nav: 0 10px 40px -12px rgba(2, 6, 23, 0.16);
+  --shadow-strip: 0 16px 48px -20px rgba(2, 6, 23, 0.18);
+  --shadow-terminal: 0 14px 36px -20px rgba(2, 6, 23, 0.2);
 
   --chart-1: oklch(0.78 0.15 210);
   --chart-2: oklch(0.65 0.19 258);
@@ -86,7 +100,7 @@
   --chart-4: oklch(0.75 0.18 300);
   --chart-5: oklch(0.7 0.19 30);
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .dark {
@@ -109,6 +123,17 @@
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 10%);
   --ring: oklch(0.78 0.15 210 / 60%);
+  --flow-node-border: rgba(255, 255, 255, 0.1);
+  --glass: oklch(1 0 0 / 4%);
+  --glass-border: oklch(1 0 0 / 8%);
+  --cyan-accent: #06B6D4;
+  --blue-accent: #3B82F6;
+
+  --shadow-nav: 0 10px 40px -12px rgba(0, 0, 0, 0.5);
+  --shadow-strip: 0 16px 48px -20px rgba(0, 0, 0, 0.7);
+  --shadow-terminal: 0 14px 36px -20px rgba(0, 0, 0, 0.55);
+
+  color-scheme: dark;
 }
 
 @layer base {
@@ -122,7 +147,6 @@
     /* Smooth anchor scrolling with offset for the fixed header */
     scroll-behavior: smooth;
     scroll-padding-top: 6rem;
-    color-scheme: dark;
   }
 
   * {
@@ -716,11 +740,11 @@
 }
 
 @keyframes flow-node-hit {
-  0%   { border-color: rgba(255, 255, 255, 0.1); }
+  0%   { border-color: var(--flow-node-border); }
   5%   { border-color: color-mix(in oklab, var(--cyan-accent) 75%, transparent); }
   12%  { border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent); }
-  20%  { border-color: rgba(255, 255, 255, 0.1); }
-  100% { border-color: rgba(255, 255, 255, 0.1); }
+  20%  { border-color: var(--flow-node-border); }
+  100% { border-color: var(--flow-node-border); }
 }
 
 /* ── Skill Capability Cards ──────────────────────────────────────────
@@ -1193,5 +1217,205 @@
       color-mix(in oklab, oklch(0.29 0.03 258) 97%, transparent),
       color-mix(in oklab, oklch(0.26 0.03 258) 97%, transparent)
     );
+  }
+}
+
+/* ── Light theme surface re-tint ────────────────────────────────────────
+   The palette above flips via `.dark`/`:root` variables; the surfaces below
+   are hardcoded dark gradients in their base rules, so this unlayered block
+   re-tints ONLY the light theme (`.dark` never matches, leaving the original
+   dark styling byte-for-byte intact). Unlayered author CSS also outranks the
+   layered Tailwind utilities (`.glass`, `.glass-strong`, `.glass-nav`). */
+html:not(.dark) {
+  color-scheme: light;
+}
+
+/* Ambient human-AI video: swap the strong dark navy wash for a light wash so
+   the footage stays a subtle backdrop on the light palette. */
+html:not(.dark) .video-bg__overlay {
+  background: linear-gradient(
+    180deg,
+    oklch(0.971 0.006 258 / 0.8),
+    oklch(0.947 0.008 258 / 0.92)
+  );
+}
+
+/* Glass surfaces: near-white fills with the same top-light gradient language,
+   now with dark-on-light hairlines and a subtle darken-on-hover. */
+html:not(.dark) .glass {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, oklch(1 0 0) 92%, transparent),
+    color-mix(in oklab, oklch(0.958 0.008 258) 92%, transparent)
+  );
+  border: 1px solid oklch(0.2 0.02 258 / 12%);
+}
+
+html:not(.dark) .glass-strong {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, oklch(1 0 0) 95%, transparent),
+    color-mix(in oklab, oklch(0.962 0.009 258) 95%, transparent)
+  );
+  border: 1px solid oklch(0.2 0.02 258 / 14%);
+}
+
+html:not(.dark) .glass-nav {
+  background: linear-gradient(
+    180deg,
+    oklch(0.99 0.004 258 / 0.96),
+    oklch(0.955 0.012 258 / 0.96)
+  );
+  border: 1px solid oklch(0.2 0.02 258 / 12%);
+}
+
+@media (hover: hover) {
+  html:not(.dark) .glass:hover,
+  html:not(.dark) .glass:focus-visible {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, oklch(0.985 0.004 258) 95%, transparent),
+      color-mix(in oklab, oklch(0.945 0.012 258) 95%, transparent)
+    );
+  }
+
+  html:not(.dark) .glass-strong:hover,
+  html:not(.dark) .glass-strong:focus-visible {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, oklch(0.988 0.005 258) 97%, transparent),
+      color-mix(in oklab, oklch(0.95 0.01 258) 97%, transparent)
+    );
+  }
+}
+
+/* Skill insight card: opaque light surface, lighter scroll shadow. */
+html:not(.dark) .skill-insight {
+  background: oklch(0.99 0.004 258 / 0.99);
+  box-shadow:
+    0 24px 60px -28px rgba(2, 6, 23, 0.35),
+    0 0 0 1px rgba(2, 6, 23, 0.06),
+    0 0 44px -14px color-mix(in oklab, var(--cyan-accent) 30%, transparent);
+}
+
+/* Technology constellation nodes / chips: dark-on-light chips. */
+html:not(.dark) .network-node {
+  border: 1px solid oklch(0.2 0.02 258 / 12%);
+  background: linear-gradient(
+    180deg,
+    oklch(0.2 0.02 258 / 0.06),
+    oklch(0.2 0.02 258 / 0.02)
+  );
+}
+
+html:not(.dark) .tech-chip {
+  border: 1px solid oklch(0.2 0.02 258 / 12%);
+  background: linear-gradient(
+    180deg,
+    oklch(0.2 0.02 258 / 0.05),
+    oklch(0.2 0.02 258 / 0.02)
+  );
+}
+
+html:not(.dark) .network-node.is-related,
+html:not(.dark) .tech-chip.is-related {
+  border-color: oklch(0.2 0.02 258 / 20%);
+}
+
+html:not(.dark) .network-node.is-active,
+html:not(.dark) .tech-chip.is-active {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--cyan-accent) 14%, oklch(0.2 0.02 258 / 0.06)),
+    color-mix(in oklab, var(--cyan-accent) 5%, oklch(0.2 0.02 258 / 0.02))
+  );
+}
+
+html:not(.dark) .network-core {
+  background:
+    radial-gradient(
+      120% 170% at 0% 0%,
+      color-mix(in oklab, var(--cyan-accent) 16%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(180deg, oklch(0.2 0.02 258 / 0.08), oklch(0.2 0.02 258 / 0.03));
+  box-shadow:
+    inset 0 1px 0 oklch(0.2 0.02 258 / 0.06),
+    0 0 44px -12px color-mix(in oklab, var(--cyan-accent) 45%, transparent);
+}
+
+/* Section headings: bold navy → azure → cyan gradient with every stop at
+   ≥4.5:1 on the light palette — clearly visible, premium, and never
+   white/transparent against the light backdrop. `.dark` never matches this
+   block, so the original white-slate gradient is untouched in Dark Mode.
+
+   IMPORTANT: only `background-image` is overridden and `background-clip: text`
+   is re-asserted. Using the `background` shorthand here would RESET
+   `background-clip` to `border-box` (the shorthand's initial value), turning
+   the transparent-glyph text invisible in Light Mode. */
+html:not(.dark) .text-gradient {
+  background-image: linear-gradient(
+    135deg,
+    oklch(0.29 0.065 258) 0%,
+    oklch(0.47 0.11 250) 52%,
+    var(--cyan-accent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Card lift / glow: soften the heavy black drop shadows for light surfaces. */
+html:not(.dark) .skill-card:hover,
+html:not(.dark) .repo-card:hover {
+  box-shadow:
+    0 16px 40px -24px rgba(2, 6, 23, 0.35),
+    0 0 24px -12px color-mix(in oklab, var(--cyan-accent) 32%, transparent);
+}
+
+/* Constellation + system-activity networks: the base rules use faint light
+   slate/cyan strokes tuned for the dark palette. On the light backdrop they
+   re-tint to darker strokes at slightly higher opacity so the engineering
+   networks stay clearly visible without losing the subtle, decorative feel. */
+html:not(.dark) .tech-link {
+  stroke: oklch(0.42 0.03 258);
+  stroke-opacity: 0.3;
+}
+
+html:not(.dark) .tech-link.is-related {
+  stroke-opacity: 0.5;
+}
+
+html:not(.dark) .tech-link.is-dimmed {
+  stroke-opacity: 0.08;
+}
+
+html:not(.dark) .sys-link {
+  stroke: oklch(0.5 0.1 220);
+  stroke-opacity: 0.16;
+}
+
+html:not(.dark) .sys-link--blue {
+  stroke: oklch(0.48 0.15 258);
+  stroke-opacity: 0.18;
+}
+
+/* ── Theme toggle ───────────────────────────────────────────────────────
+   Compact navbar button: a subtle one-shot icon swap when the theme changes
+   (opacity + slight rotation/scale), plus a gentle hover state. No loops,
+   no glow — the icon re-mounts (React `key`) so the keyframe replays each
+   switch. Reduced-motion is neutralized by the global rules above. */
+.theme-toggle__icon {
+  display: inline-flex;
+  animation: theme-toggle-icon-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes theme-toggle-icon-in {
+  from {
+    opacity: 0;
+    transform: rotate(-16deg) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
   }
 }

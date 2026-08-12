@@ -1,6 +1,27 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Sun, Moon, X } from "lucide-react";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
+
+const THEME_KEY = "theme";
+
+const THEME_COLORS = { dark: "#0F172A", light: "#F2F4F7" } as const;
+
+/** Applies the theme to the document root + browser chrome meta. */
+function applyTheme(dark: boolean) {
+  const root = document.documentElement;
+  root.classList.toggle("dark", dark);
+  root.style.colorScheme = dark ? "dark" : "light";
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (meta) meta.content = THEME_COLORS[dark ? "dark" : "light"];
+}
+
+/** Reads the theme already resolved by the pre-paint script in index.html. */
+function initialTheme(): boolean {
+  return (
+    typeof document !== "undefined" &&
+    document.documentElement.classList.contains("dark")
+  );
+}
 
 const links = [
   { label: "Home", href: "#home" },
@@ -25,6 +46,38 @@ export function SiteNav() {
   const navLockedRef = useRef(false);
   const navLockTimerRef = useRef<number | null>(null);
   const releaseNavRef = useRef<(() => void) | null>(null);
+  const [dark, setDark] = useState<boolean>(initialTheme);
+
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    applyTheme(next);
+    try {
+      localStorage.setItem(THEME_KEY, next ? "dark" : "light");
+    } catch {
+      // Persistence unavailable (private mode, storage disabled) — the in-memory
+      // theme still applies for this session.
+    }
+  };
+
+  // Follow the OS color preference live only when the user hasn't explicitly
+  // chosen a theme; an explicit toggle saves the preference and takes over.
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = (e: MediaQueryListEvent) => {
+      let saved: string | null = null;
+      try {
+        saved = localStorage.getItem(THEME_KEY);
+      } catch {
+        // ignore storage errors
+      }
+      if (saved !== null) return;
+      applyTheme(e.matches);
+      setDark(e.matches);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   // Track whether the page has scrolled past the top (rAF-throttled,
   // guarded boolean so React only re-renders when the value actually flips).
@@ -233,7 +286,7 @@ export function SiteNav() {
         <nav
           aria-label="Primary"
           className={`glass-nav flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow duration-300 ${
-            scrolled ? "shadow-[0_10px_40px_-12px_rgba(0,0,0,0.5)]" : ""
+            scrolled ? "shadow-[var(--shadow-nav)]" : ""
           }`}
         >
           <a
@@ -263,8 +316,8 @@ export function SiteNav() {
                     aria-current={isActive ? "true" : undefined}
                     className={`rounded-lg px-3 py-2 text-sm transition-colors ${
                       isActive
-                        ? "bg-white/5 text-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                        ? "bg-slate-900/5 text-foreground dark:bg-white/5"
+                        : "text-muted-foreground hover:text-foreground hover:bg-slate-900/5 dark:hover:bg-white/5"
                     }`}
                   >
                     {l.label}
@@ -275,9 +328,31 @@ export function SiteNav() {
           </ul>
 
           <div className="flex items-center gap-2">
+            {/* Theme toggle — compact, sits beside "Let's Talk". The icon shows
+                the ACTION (Sun = switch to light on a dark site, Moon = switch
+                to dark on a light site), never just the current theme. */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+              title={dark ? "Switch to light mode" : "Switch to dark mode"}
+              className="theme-toggle inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-900/10 bg-slate-900/[0.04] text-muted-foreground transition-colors duration-300 hover:border-cyan-accent/40 hover:bg-slate-900/[0.06] hover:text-foreground dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+            >
+              <span
+                key={dark ? "sun" : "moon"}
+                className="theme-toggle__icon"
+                aria-hidden="true"
+              >
+                {dark ? (
+                  <Sun className="h-[1.125rem] w-[1.125rem]" />
+                ) : (
+                  <Moon className="h-[1.125rem] w-[1.125rem]" />
+                )}
+              </span>
+            </button>
             <a
               href="#contact"
-              className="group hidden sm:inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-cyan-accent transition-all duration-300 hover:border-cyan-accent/40 hover:bg-cyan-accent/5 hover:shadow-[0_0_24px_-6px_rgba(6,182,212,0.55)]"
+              className="group hidden sm:inline-flex items-center gap-2 rounded-lg border border-slate-900/10 bg-slate-900/[0.04] px-4 py-2 text-sm font-medium text-cyan-accent transition-all duration-300 hover:border-cyan-accent/40 hover:bg-cyan-accent/5 hover:shadow-[0_0_24px_-6px_rgba(6,182,212,0.55)] dark:border-white/10 dark:bg-white/[0.03]"
             >
               <span
                 aria-hidden
@@ -314,8 +389,8 @@ export function SiteNav() {
                       aria-current={isActive ? "true" : undefined}
                       className={`block rounded-lg px-4 py-3 text-sm transition-colors ${
                         isActive
-                          ? "bg-white/5 text-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                          ? "bg-slate-900/5 text-foreground dark:bg-white/5"
+                          : "text-muted-foreground hover:text-foreground hover:bg-slate-900/5 dark:hover:bg-white/5"
                       }`}
                     >
                       {l.label}
@@ -327,7 +402,7 @@ export function SiteNav() {
                 <a
                   href="#contact"
                   onClick={() => setOpen(false)}
-                  className="block rounded-lg px-4 py-3 text-sm transition-colors text-cyan-accent hover:bg-white/5"
+                  className="block rounded-lg px-4 py-3 text-sm transition-colors text-cyan-accent hover:bg-slate-900/5 dark:hover:bg-white/5"
                 >
                   Let's Talk
                 </a>

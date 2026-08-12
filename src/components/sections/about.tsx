@@ -6,7 +6,7 @@ import {
   Cloud,
   Compass,
   FolderGit2,
-  Layout,
+  Layout, 
   ListChecks,
   MapPin,
   Server,
@@ -161,7 +161,7 @@ export function About() {
                 <line x1="200" y1="210" x2="200" y2="470" />
                 <line x1="200" y1="210" x2="120" y2="560" />
                 <line x1="200" y1="210" x2="290" y2="540" />
-                <g stroke="white" strokeOpacity="0.08">
+                <g className="stroke-foreground/10 dark:stroke-white/10">
                   <line x1="90" y1="120" x2="310" y2="90" />
                   <line x1="80" y1="330" x2="320" y2="330" />
                   <line x1="120" y1="560" x2="290" y2="540" />
@@ -184,13 +184,13 @@ export function About() {
               aria-hidden
               className="pointer-events-none absolute inset-0 hidden lg:block font-mono text-[0.625rem] uppercase tracking-[0.2em]"
             >
-              <span className="absolute left-[22%] top-[56%] text-cyan-accent/40">
+              <span className="absolute left-[22%] top-[56%] text-cyan-accent/70 dark:text-cyan-accent/40">
                 REST APIs
               </span>
-              <span className="absolute left-[52%] top-[70%] text-cyan-accent/35">
+              <span className="absolute left-[52%] top-[70%] text-cyan-accent/60 dark:text-cyan-accent/35">
                 WORKFLOWS
               </span>
-              <span className="absolute left-[14%] top-[84%] text-cyan-accent/30">
+              <span className="absolute left-[14%] top-[84%] text-cyan-accent/55 dark:text-cyan-accent/30">
                 AI / LLM
               </span>
             </div>
@@ -270,7 +270,7 @@ export function About() {
                       ease: [0.22, 1, 0.36, 1],
                       delay: 0.04 * index,
                     }}
-                    className="glass rounded-2xl p-4 flex items-start gap-3 transition-colors hover:bg-white/[0.06]"
+                    className="glass rounded-2xl p-4 flex items-start gap-3 transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
                       <f.icon className="h-5 w-5" />
@@ -327,7 +327,7 @@ export function About() {
               Mobile: fixed at left-4. */}
           <div
             aria-hidden
-            className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent lg:left-1/2 lg:-translate-x-1/2"
+            className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-slate-900/15 to-transparent lg:left-1/2 lg:-translate-x-1/2 dark:via-white/15"
           />
 
           <ol className="relative space-y-10 lg:space-y-12">
@@ -361,7 +361,7 @@ export function About() {
                       {e.period}
                     </div>
 
-                    <article className="glass-strong rounded-3xl p-6 transition-colors hover:bg-white/[0.06]">
+                    <article className="glass-strong rounded-3xl p-6 transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]">
                       <div>
                         <h3 className="text-xl font-semibold text-foreground">
                           {e.role}
@@ -380,7 +380,7 @@ export function About() {
                           {e.focus.map((f) => (
                             <span
                               key={f}
-                              className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[0.6875rem] text-foreground/80"
+                              className="rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/80 dark:border-white/10 dark:bg-white/[0.03]"
                             >
                               {f}
                             </span>
@@ -395,7 +395,7 @@ export function About() {
                               <span
                                 key={p.name}
                                 title={p.note}
-                                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300"
+                                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300"
                               >
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                                 Currently building · {p.name}
@@ -404,7 +404,7 @@ export function About() {
                               <span
                                 key={p.name}
                                 title={p.note}
-                                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-foreground/85"
+                                className="rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-3 py-1 text-xs text-foreground/85 dark:border-white/10 dark:bg-white/[0.03]"
                               >
                                 {p.name}
                               </span>
@@ -479,7 +479,7 @@ function Row({
 }) {
   return (
     <div className="mt-4 flex gap-2 items-start">
-      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/5 text-cyan-accent">
+      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-900/5 text-cyan-accent dark:bg-white/5">
         <Icon className="h-3.5 w-3.5" />
       </div>
       <div className="min-w-0 flex-1">
@@ -499,7 +499,7 @@ export function SectionEyebrow({ children }: { children: React.ReactNode }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-64px" }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground"
+      className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs uppercase tracking-widest text-foreground/85 dark:text-muted-foreground"
     >
       <span className="h-1.5 w-1.5 rounded-full bg-cyan-accent" />
       {children}

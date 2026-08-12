@@ -156,7 +156,7 @@ export function Contact() {
                   key={c.label}
                   href={c.href}
                   {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="group flex flex-1 items-center gap-3.5 glass rounded-2xl px-4 py-3.5 transition-colors hover:bg-white/[0.07]"
+                  className="group flex flex-1 items-center gap-3.5 glass rounded-2xl px-4 py-3.5 transition-colors hover:bg-slate-900/[0.07] dark:hover:bg-white/[0.07]"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
                     <c.icon className="h-4 w-4" />
@@ -228,17 +228,17 @@ export function Contact() {
                       aria-invalid={errors.message ? true : undefined}
                       aria-describedby={errors.message ? "message-error" : undefined}
                       onChange={() => clearError("message")}
-                      className={`mt-2 w-full rounded-xl border bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:bg-white/[0.05] ${
+                      className={`mt-2 w-full rounded-xl border bg-slate-900/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:bg-slate-900/[0.06] dark:bg-white/[0.03] dark:focus:bg-white/[0.05] ${
                         errors.message
                           ? "border-rose-400/60 focus:border-rose-400/60"
-                          : "border-white/10 focus:border-cyan-accent/50"
+                          : "border-slate-900/10 focus:border-cyan-accent/50 dark:border-white/10"
                       }`}
                     />
                     {errors.message && (
                       <p
                         id="message-error"
                         role="alert"
-                        className="mt-1.5 text-xs text-rose-400"
+                        className="mt-1.5 text-xs text-rose-600 dark:text-rose-400"
                       >
                         {errors.message}
                       </p>
@@ -308,17 +308,17 @@ function Field({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${name}-error` : undefined}
         onChange={onChange}
-        className={`mt-2 w-full rounded-xl border bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:bg-white/[0.05] ${
+        className={`mt-2 w-full rounded-xl border bg-slate-900/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:bg-slate-900/[0.06] dark:bg-white/[0.03] dark:focus:bg-white/[0.05] ${
           error
             ? "border-rose-400/60 focus:border-rose-400/60"
-            : "border-white/10 focus:border-cyan-accent/50"
+            : "border-slate-900/10 focus:border-cyan-accent/50 dark:border-white/10"
         }`}
       />
       {error && (
         <p
           id={`${name}-error`}
           role="alert"
-          className="mt-1.5 text-xs text-rose-400"
+          className="mt-1.5 text-xs text-rose-600 dark:text-rose-400"
         >
           {error}
         </p>
@@ -382,7 +382,7 @@ function SubmissionStatus({
         }`}
       >
         <Icon
-          className={`h-6 w-6 ${isSuccess ? "text-cyan-accent" : "text-rose-400"}`}
+          className={`h-6 w-6 ${isSuccess ? "text-cyan-accent" : "text-rose-600 dark:text-rose-400"}`}
           strokeWidth={2.25}
         />
       </motion.div>
@@ -414,7 +414,7 @@ function SubmissionStatus({
           className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 ${
             isSuccess
               ? "border border-cyan-accent/30 bg-cyan-accent/10 text-cyan-accent hover:bg-cyan-accent/20"
-              : "border border-rose-400/30 bg-rose-400/10 text-rose-300 hover:bg-rose-400/20"
+              : "border border-rose-400/30 bg-rose-400/10 text-rose-600 hover:bg-rose-400/20 dark:text-rose-300"
           }`}
         >
           {action}
@@ -438,7 +438,7 @@ const footerReveal = {
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-white/5 pt-14 pb-8 mt-10">
+    <footer className="relative border-t border-slate-900/10 pt-14 pb-8 mt-10 dark:border-white/5">
       <div className="mx-auto max-w-7xl px-4">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
           {/* Identity */}
@@ -529,7 +529,7 @@ export function Footer() {
         </div>
 
         {/* Footer meta row */}
-        <div className="mt-8 border-t border-white/5 pt-6 md:mt-10">
+        <div className="mt-8 border-t border-slate-900/10 pt-6 md:mt-10 dark:border-white/5">
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <span

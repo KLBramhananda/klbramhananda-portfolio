@@ -91,7 +91,7 @@ function Diagram({
   const step = cycle / nodes.length;
 
   return (
-    <article className="architecture-card glass-strong rounded-3xl p-6 lg:p-7 transition-colors hover:bg-white/[0.06]">
+    <article className="architecture-card glass-strong rounded-3xl p-6 lg:p-7 transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
           <Icon className="h-5 w-5" />
@@ -102,12 +102,12 @@ function Diagram({
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5 overflow-hidden">
+      <div className="mt-6 rounded-2xl border border-slate-900/10 bg-slate-900/[0.03] p-5 overflow-hidden dark:border-white/10 dark:bg-white/[0.02]">
         <div className="flex flex-wrap items-center justify-center gap-y-4">
           {nodes.map((n, i) => (
             <div key={n} className="flex items-center">
               <div
-                className="flow-node rounded-lg glass px-3 py-2 text-xs font-medium text-foreground/90 border border-white/10"
+                className="flow-node rounded-lg glass px-3 py-2 text-xs font-medium text-foreground/90 border border-slate-900/10 dark:border-white/10"
                 style={{ animationDelay: `${phase + i * step - cycle}s` }}
               >
                 {n}

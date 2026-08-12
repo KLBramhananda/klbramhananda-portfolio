@@ -110,7 +110,7 @@ function TerminalPanel() {
   const done = out === full;
   const toneCls = (tone: (typeof terminalLines)[number]["tone"]) =>
     tone === "ok"
-      ? "text-emerald-300/90"
+      ? "text-emerald-700/90 dark:text-emerald-300/90"
       : tone === "accent"
         ? "text-cyan-accent/90"
         : "text-muted-foreground";
@@ -119,16 +119,16 @@ function TerminalPanel() {
     <div
       ref={rootRef}
       aria-hidden
-      className="absolute -top-8 -left-8 z-10 hidden w-60 rounded-2xl glass-strong shadow-[0_14px_36px_-20px_rgba(0,0,0,0.55)] lg:block"
+      className="absolute -top-8 -left-8 z-10 hidden w-60 rounded-2xl glass-strong shadow-[var(--shadow-terminal)] lg:block"
     >
-      <div className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
+      <div className="flex items-center gap-1.5 border-b border-slate-900/10 px-3 py-2 dark:border-white/10">
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
         <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
         <span className="ml-2 truncate font-mono text-[0.625rem] text-muted-foreground">
           ~ — enterprise
         </span>
-        <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[0.5625rem] text-emerald-300">
+        <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[0.5625rem] text-emerald-700 dark:text-emerald-300">
           <span
             className={`h-1 w-1 rounded-full bg-emerald-400 ${
               done ? "" : "animate-pulse"
@@ -198,7 +198,7 @@ export function Hero() {
               </a>
               <a
                 href="#experience"
-                className="inline-flex items-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-slate-900/10 dark:hover:bg-white/10"
               >
                 <Briefcase className="h-4 w-4" />
                 Experience
@@ -210,7 +210,7 @@ export function Hero() {
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="glass flex h-full min-w-0 flex-col rounded-2xl p-4 transition-colors hover:bg-white/[0.06]"
+                  className="glass flex h-full min-w-0 flex-col rounded-2xl p-4 transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
                 >
                   <dt className="text-xs leading-snug text-muted-foreground">
                     {s.label}
@@ -235,7 +235,7 @@ export function Hero() {
 
             {/* Image container — 4/5 frame matches the source photo, no cropping */}
             <div className="relative aspect-[4/5] rounded-[2rem] glass-strong p-3 glow-cyan">
-              <div className="relative h-full w-full overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-slate-800 to-slate-900">
+              <div className="relative h-full w-full overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900">
                 <img
                   src={profileImg}
                   alt="Bramhananda K L — Software Engineer"

@@ -50,7 +50,7 @@ export function CurrentlyBuilding() {
       <a
         href="#contact"
         aria-label="Current status — see what I'm building and get in touch"
-        className="group relative block animate-status-in glass rounded-2xl px-5 py-2.5 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.7)] transition-colors duration-300 hover:border-cyan-accent/30 hover:bg-white/[0.05] sm:px-6"
+        className="group relative block animate-status-in glass rounded-2xl px-5 py-2.5 shadow-[var(--shadow-strip)] transition-colors duration-300 hover:border-cyan-accent/30 hover:bg-slate-900/[0.05] dark:hover:bg-white/[0.05] sm:px-6"
       >
         <div
           aria-hidden
@@ -60,7 +60,7 @@ export function CurrentlyBuilding() {
           <div className="building-sweep" />
         </div>
         <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-          <span className="inline-flex w-max shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[0.6875rem] font-medium uppercase tracking-widest text-foreground/80">
+          <span className="inline-flex w-max shrink-0 items-center gap-2 rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-3 py-1 text-[0.6875rem] font-medium uppercase tracking-widest text-foreground/80 dark:border-white/10 dark:bg-white/[0.03]">
             <span
               aria-hidden
               className="status-pulse h-2 w-2 rounded-full bg-cyan-accent"
