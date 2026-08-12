@@ -1,18 +1,32 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { MouseTrail } from "@/components/effects/mouse-trail";
 import { ScrollProgress } from "@/components/effects/scroll-progress";
 import { SiteNav } from "@/components/layout/site-nav";
 
-export const Route = createRootRoute({
-  component: () => (
+function RootComponent() {
+  // The Engineering Lab is a fully isolated, self-contained environment under
+  // `/lab` (and future `/lab/*` module routes). It ships its own top bar,
+  // "Exit Lab" navigation, and immersive layout, so the portfolio chrome
+  // (navbar + scroll progress) is intentionally skipped there. All existing
+  // components are untouched — they simply don't mount on the Lab route. The
+  // cursor trail stays as a viewport-level overlay on every page.
+  const { pathname } = useLocation();
+  const inLab = pathname.startsWith("/lab");
+
+  return (
     <>
-      {/* Global chrome, mounted once at the root layout so it persists across
-          every page. The cursor trail is a viewport-level overlay rendered
-          above all page content and interactive UI. */}
-      <ScrollProgress />
-      <SiteNav />
+      {!inLab && (
+        <>
+          <ScrollProgress />
+          <SiteNav />
+        </>
+      )}
       <MouseTrail />
       <Outlet />
     </>
-  ),
+  );
+}
+
+export const Route = createRootRoute({
+  component: RootComponent,
 });

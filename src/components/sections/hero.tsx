@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { ArrowRight, Briefcase, ChevronDown, Sparkles } from "lucide-react";
 import profileImg from "@/assets/images/profile.jpeg";
 import { usePauseAnimations } from "../effects/use-pause-animations";
@@ -204,6 +205,23 @@ export function Hero() {
                 Experience
               </a>
             </div>
+
+            <Link
+              to="/lab"
+              aria-label="Explore the BK Engineering Lab — interactive systems playground"
+              title="BK Engineering Lab"
+              className="group mt-4 inline-flex max-w-full text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-cyan-accent focus-visible:text-cyan-accent"
+            >
+              <span className="grid overflow-hidden [grid-template-areas:'stack']">
+                <span className="flex items-center gap-1 whitespace-nowrap [grid-area:stack] transition-[opacity,transform] duration-300 ease-out group-hover:-translate-y-1.5 group-hover:opacity-0 group-focus-visible:-translate-y-1.5 group-focus-visible:opacity-0">
+                  <span aria-hidden className="text-sm">⚡</span>
+                  Explore Engineering Lab
+                </span>
+                <span className="flex translate-y-1.5 items-center whitespace-nowrap [grid-area:stack] opacity-0 transition-[opacity,transform] duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+                  Interactive Systems Playground →
+                </span>
+              </span>
+            </Link>
 
             {/* Quick stats */}
             <dl className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">

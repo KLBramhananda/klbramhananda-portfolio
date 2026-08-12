@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, Sun, Moon, X } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Menu, Sun, Moon, X, FlaskConical } from "lucide-react";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
 
 const THEME_KEY = "theme";
@@ -350,6 +351,14 @@ export function SiteNav() {
                 )}
               </span>
             </button>
+            <Link
+              to="/lab"
+              aria-label="Open the BK Engineering Lab — interactive systems playground"
+              title="BK Engineering Lab"
+              className="lab-nav-shortcut inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-900/10 bg-slate-900/[0.04] text-muted-foreground transition-colors duration-300 hover:border-cyan-accent/40 hover:bg-slate-900/[0.06] hover:text-cyan-accent dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+            >
+              <FlaskConical className="h-[1.125rem] w-[1.125rem]" />
+            </Link>
             <a
               href="#contact"
               className="group hidden sm:inline-flex items-center gap-2 rounded-lg border border-slate-900/10 bg-slate-900/[0.04] px-4 py-2 text-sm font-medium text-cyan-accent transition-all duration-300 hover:border-cyan-accent/40 hover:bg-cyan-accent/5 hover:shadow-[0_0_24px_-6px_rgba(6,182,212,0.55)] dark:border-white/10 dark:bg-white/[0.03]"

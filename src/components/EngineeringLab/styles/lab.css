@@ -1,0 +1,490 @@
+/*
+  BK Engineering Lab — scoped styles.
+  This file is imported ONLY by the lazy-loaded Lab chunk, so none of these
+  rules are present when the normal portfolio is open. Every selector is
+  prefixed `.lab-` to guarantee it can never collide with portfolio styles.
+
+  Follows the portfolio's performance discipline: entrance motion and the card
+  hover language are compositor-friendly (transform/opacity only), and the few
+  decorative loops are CSS keyframes, not JS.
+*/
+
+/* Ambient wash behind the whole Lab — dark-navy premium gradient that composes
+   with the cyan/blue radial blobs rendered by the shell. */
+.lab-ambient {
+  background-image:
+    radial-gradient(ellipse 90% 70% at 20% -10%, color-mix(in oklab, var(--cyan-accent) 10%, transparent), transparent 60%),
+    radial-gradient(ellipse 70% 60% at 100% 30%, color-mix(in oklab, var(--blue-accent) 9%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in oklab, var(--cyan-accent) 4%, transparent), transparent 40%);
+}
+
+/* Faint enterprise grid — barely-there vertical/horizontal hairlines. */
+.lab-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--cyan-accent) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--cyan-accent) 5%, transparent) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 0%, transparent 75%);
+}
+
+/* Lab top bar — dense navy glass surface with a top-light gradient, mirroring
+   the portfolio navbar without importing its component. */
+.lab-topbar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, oklch(0.22 0.035 258) 95%, transparent),
+    color-mix(in oklab, oklch(0.15 0.035 258) 95%, transparent)
+  );
+  border: 1px solid color-mix(in oklab, white 10%, transparent);
+  box-shadow: 0 10px 40px -12px color-mix(in oklab, black 50%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+/* Light-theme re-tint for the Lab top bar (`.dark` never matches). */
+html:not(.dark) .lab-topbar {
+  background: linear-gradient(
+    180deg,
+    oklch(0.99 0.004 258 / 0.92),
+    oklch(0.955 0.012 258 / 0.92)
+  );
+  border: 1px solid oklch(0.2 0.02 258 / 12%);
+  box-shadow: 0 10px 40px -12px rgba(2, 6, 23, 0.14);
+}
+
+/* Module cards — the portfolio's skill-card hover language, scoped. Gentle
+   lift, cyan border/glow, and a faint light sweep on hover. */
+.lab-module-card {
+  transform: translateY(0);
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background-color 0.22s ease;
+}
+
+.lab-module-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    color-mix(in oklab, var(--cyan-accent) 8%, transparent) 48%,
+    transparent 78%
+  );
+  transform: translateX(-110%);
+  transition: transform 0.55s ease;
+}
+
+.lab-module-card:hover {
+  transform: translateY(-0.1875rem);
+  border-color: color-mix(in oklab, var(--cyan-accent) 38%, transparent);
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.7),
+    0 0 24px -12px color-mix(in oklab, var(--cyan-accent) 42%, transparent);
+}
+
+.lab-module-card:hover::before {
+  transform: translateX(110%);
+}
+
+@keyframes lab-raise {
+  from { opacity: 0; transform: translateY(0.875rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lab-raise {
+  animation: lab-raise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Disable entrance/lift/sweep for reduced-motion users. */
+@media (prefers-reduced-motion: reduce) {
+  .lab-raise {
+    animation: none;
+  }
+
+  .lab-module-card,
+  .lab-module-card:hover {
+    transform: none;
+  }
+
+  .lab-module-card::before {
+    display: none;
+  }
+}
+
+/* ── System Design Lab ───────────────────────────────────────────────
+   Interactive architecture canvas. Scoped `lab-sys-` selectors only, and kept
+   compositor-friendly: packets travel via CSS `offset-path`/`offset-distance`
+   (transform-only), and the only continuous loop is a marching dash on the
+   active edge. */
+
+/* Packet (data-flow) colors per kind — consumed via `--pkg`. */
+.lab-sys-kind-request {
+  --pkg: oklch(0.74 0.13 245);
+}
+.lab-sys-kind-response {
+  --pkg: oklch(0.78 0.15 160);
+}
+.lab-sys-kind-error {
+  --pkg: oklch(0.72 0.17 25);
+}
+.lab-sys-kind-data {
+  --pkg: oklch(0.66 0.1 258);
+}
+.lab-sys-kind-store {
+  --pkg: oklch(0.78 0.14 80);
+}
+
+/* A travelling data-flow particle. Rendered only while a packet is live; the
+   offset path (matching the visible edge) is injected inline per packet. */
+.lab-sys-packet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--pkg);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--pkg) 45%, transparent),
+    0 0 14px 3px color-mix(in oklab, var(--pkg) 55%, transparent);
+  pointer-events: none;
+  animation-name: lab-sys-travel;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  will-change: offset-distance, opacity;
+}
+
+.lab-sys-packet::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--pkg) 45%, transparent),
+    transparent 72%
+  );
+}
+
+@keyframes lab-sys-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+/* Active edge: brighter stroke + slow marching dashes. */
+.lab-sys-flowing {
+  stroke-dasharray: 5 9;
+  animation: lab-sys-dash 0.55s linear infinite;
+}
+
+@keyframes lab-sys-dash {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+/* Direction chevrons on the steady-state edges. */
+.lab-sys-chevron {
+  fill: oklch(0.66 0.06 258 / 0.55);
+}
+
+/* Degraded-state pulse (e.g. an unhealthy backend). */
+.lab-sys-pulse {
+  animation: lab-sys-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes lab-sys-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ── ERP / Procurement Lab ───────────────────────────────────────────
+   Vertical source-to-pay stepper. Connector segments sit in the row gap so the
+   rail is continuous; the active segment brightens and a single data dot rides
+   it down while the stage above completes. */
+
+.lab-erp-line {
+  background: oklch(0.6 0.05 258 / 0.32);
+}
+
+.lab-erp-line--active {
+  background: color-mix(in oklab, var(--cyan-accent) 45%, transparent);
+}
+
+/* Traveling dot that rides the connector while the stage above completes. */
+.lab-erp-flow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.lab-erp-flow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  transform: translate(-50%, 0);
+  background: var(--cyan-accent);
+  box-shadow: 0 0 8px 1px color-mix(in oklab, var(--cyan-accent) 70%, transparent);
+  animation: lab-erp-travel 0.5s linear forwards;
+}
+
+@keyframes lab-erp-travel {
+  0% {
+    transform: translate(-50%, -1px);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 40px);
+    opacity: 0;
+  }
+}
+
+/* Gentle pulse on the active stage while the visitor is on it. */
+.lab-erp-pulse {
+  animation: lab-erp-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes lab-erp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Completed-stage pop-in for the check indicator. */
+.lab-erp-pop {
+  animation: lab-erp-pop 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lab-erp-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-erp-flow::after {
+    display: none;
+  }
+
+  .lab-erp-pulse {
+    animation: none;
+    opacity: 0.9;
+  }
+
+  .lab-erp-pop {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-sys-packet,
+  .lab-sys-packet::before {
+    display: none;
+  }
+
+  .lab-sys-flowing {
+    stroke-dasharray: none;
+    animation: none;
+  }
+
+  .lab-sys-pulse {
+    animation: none;
+    opacity: 0.9;
+  }
+
+  .lab-erp-line--active {
+    background: oklch(0.6 0.05 258 / 0.4);
+  }
+}
+
+/* ── Production Incident Lab ────────────────────────────────────────
+   On-call runbook simulation. Scoped `lab-inc-` selectors only. Pulses and
+   the one-shot restore rings are transform/opacity keyframes, so they run on
+   the compositor, and every loop is disabled under reduced motion. */
+
+/* Alert core — soft expanding halo behind the incident marker. */
+.lab-inc-alert {
+  animation: lab-inc-alert 1.7s ease-in-out infinite;
+}
+
+@keyframes lab-inc-alert {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, #f43f5e 38%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in oklab, #f43f5e 0%, transparent);
+  }
+}
+
+/* Findings / verdict pop-in. */
+.lab-inc-pop {
+  animation: lab-inc-pop 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lab-inc-pop {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ready-to-apply fix: gentle breathing emerald border on the cache card. */
+.lab-inc-ready {
+  animation: lab-inc-ready 1.6s ease-in-out infinite;
+}
+
+@keyframes lab-inc-ready {
+  0%,
+  100% {
+    border-color: color-mix(in oklab, #10b981 42%, transparent);
+  }
+  50% {
+    border-color: color-mix(in oklab, #10b981 82%, transparent);
+  }
+}
+
+/* One-shot restore rings — two expanding hairlines behind SYSTEM RESTORED. */
+.lab-inc-ring {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: 7rem;
+  height: 7rem;
+  margin: -3.5rem 0 0 -3.5rem;
+  border: 1px solid color-mix(in oklab, #10b981 55%, transparent);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: lab-inc-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lab-inc-ring--two {
+  animation-delay: 0.65s;
+}
+
+@keyframes lab-inc-ring {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-inc-alert,
+  .lab-inc-ready {
+    animation: none;
+  }
+
+  .lab-inc-ring,
+  .lab-inc-ring--two {
+    display: none;
+  }
+}
+
+/* ── Lab 3D layer helpers ────────────────────────────────────────────
+   Lightweight CSS-3D used across the labs. No WebGL / texture involved:
+   `perspective()` is applied inline per stage, nodes and flows are arranged
+   on stacked `translateZ` layers, and object movement is transform-only so
+   everything stays on the compositor. Every loop is disabled under reduced
+   motion. Selectors are scoped `.lab-3d-` to avoid portfolio collisions. */
+
+/* Keeps a card/button in the 3D chain so children can hold depth (e.g. the
+   module icon floating above the card plane). */
+.lab-3d-preserve {
+  transform-style: preserve-3d;
+}
+
+/* Gentle idle bob for architecture nodes — tiny Y hop, staggered per node
+   with an inline negative animation-delay. */
+.lab-3d-float {
+  animation: lab-3d-float 6s ease-in-out infinite;
+}
+
+@keyframes lab-3d-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+/* Very slow ambient drift for the shell's blurred washes — reads like a
+   subtle camera move instead of a static backdrop. */
+.lab-3d-drift {
+  animation: lab-3d-drift 30s ease-in-out infinite;
+}
+
+.lab-3d-drift--slow {
+  animation-duration: 40s;
+  animation-direction: reverse;
+}
+
+@keyframes lab-3d-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(16px, -12px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-3d-float,
+  .lab-3d-drift,
+  .lab-3d-drift--slow {
+    animation: none;
+  }
+}
