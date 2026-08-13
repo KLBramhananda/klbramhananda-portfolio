@@ -1,0 +1,579 @@
+/*
+  BK AI Watch — minimal "watching eyes" feature.
+
+  A purely decorative, viewport-level pair of 3D eyes that track the cursor.
+  The gaze loop writes two CSS variables (--gx / --gy) plus an is-idle class
+  per frame; everything it touches is a transform/opacity-only property, so the
+  rAF pass is compositor-friendly and never forces layout. Every ambient cue
+  (idle drift, independent per-eye blinks, breathing, scan/orbit sweeps) is a
+  CSS keyframe. No canvas, no continuous 3D, no tracking data, no clicks.
+
+  The visual chrome adapts per environment:
+    portfolio  -> clean futuristic cyan eyes
+    engineer   -> mechanical amber "machine lens" eyes
+    neural     -> advanced neural/violet core eyes
+*/
+
+.bkai {
+  position: fixed;
+  right: clamp(0.9rem, 3vw, 1.6rem);
+  bottom: clamp(0.85rem, 3vh, 1.5rem);
+  z-index: 75;
+  width: 6.6rem;
+  height: 4.4rem;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Per-environment tokens (overridden below). */
+  --bk-accent: #22d3ee;
+  --bk-accent-hi: #7dd3fc;
+  --bk-base: oklch(0.16 0.05 258);
+  --bk-eye: 2.2rem;
+  --bk-eye-gap: 0.44rem;
+  --bk-eye-radius: 9999px;
+  --bk-max: 7px;
+  --bk-conv: 0.05rem;
+}
+
+/* ---- Housing ---- */
+.bkai__sock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0.5rem 0.65rem 0.7rem;
+  border-radius: 1.1rem;
+  border: 1px solid color-mix(in oklab, var(--bk-accent) 24%, transparent);
+  background:
+    radial-gradient(150% 130% at 50% -10%, color-mix(in oklab, var(--bk-accent) 9%, transparent), transparent 55%),
+    linear-gradient(180deg, color-mix(in oklab, var(--bk-base) 92%, transparent), color-mix(in oklab, var(--bk-base) 74%, transparent));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -0.55rem 1.1rem -0.6rem rgba(0, 0, 0, 0.55),
+    0 0.5rem 1.6rem -0.9rem rgba(2, 6, 18, 0.65),
+    0 0 1.7rem -0.5rem color-mix(in oklab, var(--bk-accent) 45%, transparent);
+  perspective: 340px;
+}
+
+.bkai.is-idle .bkai__sock {
+  animation: bkai-breathe 5.4s ease-in-out infinite;
+}
+
+@keyframes bkai-breathe {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* ---- Face: subtle 3D head-turn toward the cursor ---- */
+.bkai__face {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--bk-eye-gap);
+  transform-style: preserve-3d;
+  transform:
+    translateY(calc(var(--gy, 0) * 4px))
+    rotateX(calc(var(--gy, 0) * -5deg))
+    rotateY(calc(var(--gx, 0) * 7deg));
+  will-change: transform;
+}
+
+/* ---- Eye unit ---- */
+.bkai__eye {
+  position: relative;
+  width: var(--bk-eye);
+  height: var(--bk-eye);
+}
+
+.bkai__socket {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--bk-eye-radius);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 50% 26%, color-mix(in oklab, var(--bk-base) 90%, white 4%), oklch(0.1 0.04 260) 78%);
+  border: 1px solid color-mix(in oklab, var(--bk-accent) 32%, #48566b);
+  box-shadow:
+    inset 0 0.14rem 0.3rem rgba(255, 255, 255, 0.08),
+    inset 0 -0.32rem 0.7rem -0.3rem rgba(0, 0, 0, 0.72),
+    0 0.34rem 0.8rem -0.32rem rgba(2, 6, 18, 0.6),
+    0 0 1.05rem -0.3rem color-mix(in oklab, var(--bk-accent) 55%, transparent);
+}
+
+/* Eyeball (sclera) — slightly recessed inside the socket. */
+.bkai__sclera {
+  position: absolute;
+  inset: 5%;
+  border-radius: 9999px;
+  background:
+    radial-gradient(135% 135% at 42% 28%, #f6fafd 0%, #dce6f0 50%, #9fb1c5 105%);
+  box-shadow:
+    inset 0 -0.18rem 0.45rem rgba(2, 6, 18, 0.3),
+    inset 0 0.09rem 0.14rem rgba(255, 255, 255, 0.85);
+}
+
+/* Iris — moved by the gaze (with a touch of per-eye parallax + vergence). */
+.bkai__iris {
+  position: absolute;
+  inset: 13%;
+  border-radius: 9999px;
+  transform: translate(
+    calc(var(--gx, 0) * var(--bk-max)),
+    calc(var(--gy, 0) * var(--bk-max))
+  );
+  will-change: transform;
+}
+
+.bkai__eye--l .bkai__iris {
+  transform: translate(
+    calc(var(--gx, 0) * var(--bk-max) + var(--bk-conv)),
+    calc(var(--gy, 0) * var(--bk-max))
+  );
+}
+
+.bkai__eye--r .bkai__iris {
+  transform: translate(
+    calc(var(--gx, 0) * var(--bk-max) - var(--bk-conv)),
+    calc(var(--gy, 0) * var(--bk-max))
+  );
+}
+
+/* Limbal ring — the darker edge of the iris, sells the 3D sphere. */
+.bkai__limbal {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0.2rem rgba(3, 6, 14, 0.6),
+    inset 0 0.06rem 0.1rem rgba(255, 255, 255, 0.22);
+}
+
+/* Pupil — dark lens with a hint of the environment's accent. */
+.bkai__pupil {
+  position: absolute;
+  inset: 31%;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 42% 38%, #43506a 0%, #060a13 58%, #02040a 100%);
+  box-shadow:
+    inset 0 0 0.12rem rgba(255, 255, 255, 0.1),
+    0 0 0.34rem color-mix(in oklab, var(--bk-accent) 55%, transparent);
+}
+
+/* Window highlights — two soft, off-axis glints for realistic reflection. */
+.bkai__glint {
+  position: absolute;
+  top: 15%;
+  left: 19%;
+  width: 30%;
+  height: 19%;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 32% 32%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.12) 62%, transparent 78%);
+  transform: rotate(-20deg);
+  opacity: 0.88;
+  pointer-events: none;
+}
+
+.bkai__glint--soft {
+  top: 63%;
+  left: 66%;
+  width: 15%;
+  height: 11%;
+  opacity: 0.42;
+  transform: rotate(12deg);
+}
+
+/* Top-of-eye shading — soft ambient occlusion under the lid. */
+.bkai__shade {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(130% 100% at 50% 0%, rgba(8, 12, 26, 0.42), transparent 64%);
+  pointer-events: none;
+}
+
+/* Eyelid blink — pure CSS keyframes, independent per eye. */
+.bkai__lid {
+  position: absolute;
+  inset: -3%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, #0a0f1c 0%, #243149 55%, #0a0f1c 100%);
+  box-shadow: 0 0.1rem 0.55rem rgba(2, 6, 18, 0.65);
+  transform: scaleY(0);
+  transform-origin: 50% 0%;
+  opacity: 0;
+  animation: bkai-blink 5.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.bkai__eye--r .bkai__lid {
+  animation-delay: 0.65s;
+}
+
+@keyframes bkai-blink {
+  0%, 87%, 100% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  91% {
+    transform: scaleY(0.22);
+    opacity: 0.4;
+  }
+  94% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  97% {
+    transform: scaleY(0.04);
+    opacity: 0.65;
+  }
+}
+
+/* Micro instrument tag under each eye. */
+.bkai__tag {
+  position: absolute;
+  left: 50%;
+  bottom: -0.7rem;
+  transform: translateX(-50%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.36rem;
+  font-weight: 650;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: color-mix(in oklab, var(--bk-accent) 78%, transparent);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+/* ---- Idle state: gaze drifts on its own, the pair watches softly. ---- */
+.bkai.is-idle .bkai__iris {
+  animation: bkai-idle 6.5s ease-in-out infinite alternate;
+}
+
+@keyframes bkai-idle {
+  from {
+    transform: translate(0px, 0px);
+  }
+  to {
+    transform: translate(2.6px, 1.4px);
+  }
+}
+
+/* ============================================================
+   Environment: Main Portfolio — clean futuristic
+   ============================================================ */
+.bkai--portfolio {
+  --bk-accent: #22d3ee;
+  --bk-accent-hi: #7dd3fc;
+  --bk-base: oklch(0.16 0.05 258);
+}
+
+.bkai--portfolio .bkai__sclera {
+  background:
+    radial-gradient(135% 135% at 42% 28%, #f8fbfe 0%, #e2ebf4 48%, #b3c4d6 100%);
+}
+
+.bkai--portfolio .bkai__iris {
+  background:
+    radial-gradient(circle at 46% 42%,
+      #eafcff 0 20%,
+      color-mix(in oklab, #22d3ee 55%, #bae6fd) 34%,
+      color-mix(in oklab, #0e7490 58%, #164e63) 56%,
+      color-mix(in oklab, #0e7490 82%, #083344) 74%,
+      #052e3f 88%,
+      #03202c 97%);
+}
+
+.bkai--portfolio .bkai__pupil {
+  background: radial-gradient(circle at 42% 38%, #67e8f9 0%, #0b7285 52%, #05222b 100%);
+  box-shadow:
+    inset 0 0 0.12rem rgba(255, 255, 255, 0.18),
+    0 0 0.42rem rgba(34, 211, 238, 0.65);
+}
+
+.bkai--portfolio .bkai__sock {
+  border-color: color-mix(in oklab, var(--bk-accent) 30%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -0.55rem 1.1rem -0.6rem rgba(0, 0, 0, 0.55),
+    0 0.5rem 1.6rem -0.9rem rgba(2, 6, 18, 0.65),
+    0 0 1.8rem -0.4rem rgba(34, 211, 238, 0.5);
+}
+
+.bkai--portfolio .bkai__socket {
+  border-color: color-mix(in oklab, var(--bk-accent) 42%, #7c96a8);
+}
+
+/* ============================================================
+   Environment: Engineering Lab — mechanical "machine lens"
+   ============================================================ */
+.bkai--engineer {
+  --bk-accent: #f59e0b;
+  --bk-accent-hi: #fbbf24;
+  --bk-base: oklch(0.2 0.02 250);
+  --bk-eye: 2.05rem;
+  --bk-eye-radius: 0.62rem;
+}
+
+.bkai--engineer .bkai__sclera {
+  background:
+    radial-gradient(135% 135% at 42% 28%, #f4f6f9 0%, #d9dde4 52%, #a8b0bd 105%);
+}
+
+.bkai--engineer .bkai__iris {
+  background:
+    radial-gradient(circle at 46% 42%,
+      #fff7e0 0 20%,
+      color-mix(in oklab, #f59e0b 58%, #fde68a) 36%,
+      color-mix(in oklab, #b45309 55%, #78350f) 58%,
+      color-mix(in oklab, #92400e 82%, #451a03) 76%,
+      #2a1304 90%,
+      #170a02 97%);
+}
+
+.bkai--engineer .bkai__pupil {
+  background: radial-gradient(circle at 42% 38%, #fcd34d 0%, #b45309 55%, #451a03 100%);
+  box-shadow:
+    inset 0 0 0.12rem rgba(255, 255, 255, 0.16),
+    0 0 0.4rem rgba(245, 158, 11, 0.7);
+}
+
+/* Machine lens frame — chamfered corners + amber status tick. */
+.bkai--engineer .bkai__socket {
+  border-color: color-mix(in oklab, var(--bk-accent) 42%, #4a4f57);
+}
+
+.bkai--engineer .bkai__socket::before,
+.bkai--engineer .bkai__socket::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: 0.34rem;
+  height: 0.06rem;
+  border-radius: 9999px;
+  background: var(--bk-accent);
+  box-shadow: 0 0 6px var(--bk-accent);
+}
+
+.bkai--engineer .bkai__socket::before {
+  top: 0.3rem;
+  left: 0.3rem;
+}
+
+.bkai--engineer .bkai__socket::after {
+  bottom: 0.3rem;
+  right: 0.3rem;
+}
+
+/* Scanline sweep across the lens — repeating but subtle. */
+.bkai--engineer .bkai__sclera::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, transparent, rgba(245, 158, 11, 0.16), transparent);
+  background-size: 100% 38%;
+  background-repeat: no-repeat;
+  opacity: 0.55;
+  animation: bkai-scan 4.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes bkai-scan {
+  0% {
+    background-position: 0% -45%;
+  }
+  60%, 100% {
+    background-position: 0% 145%;
+  }
+}
+
+.bkai--engineer .bkai__sock {
+  border-color: color-mix(in oklab, var(--bk-accent) 26%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -0.5rem 1rem -0.55rem rgba(0, 0, 0, 0.55),
+    0 0.5rem 1.5rem -0.85rem rgba(2, 6, 18, 0.65),
+    0 0 1.5rem -0.45rem rgba(245, 158, 11, 0.45);
+}
+
+/* Chassis corner ticks. */
+.bkai--engineer .bkai__sock::before,
+.bkai--engineer .bkai__sock::after {
+  content: "";
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1px solid color-mix(in oklab, var(--bk-accent) 60%, transparent);
+  opacity: 0.8;
+}
+
+.bkai--engineer .bkai__sock::before {
+  top: 0.42rem;
+  left: 0.42rem;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.bkai--engineer .bkai__sock::after {
+  right: 0.42rem;
+  bottom: 0.42rem;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* ============================================================
+   Environment: AI Research Lab — advanced neural core
+   ============================================================ */
+.bkai--neural {
+  --bk-accent: #a78bfa;
+  --bk-accent-hi: #d8b4fe;
+  --bk-base: oklch(0.17 0.06 285);
+  --bk-eye: 2.3rem;
+  --bk-eye-gap: 0.5rem;
+}
+
+.bkai--neural .bkai__sclera {
+  background:
+    radial-gradient(135% 135% at 42% 28%, #f6f4fe 0%, #e0dbf4 50%, #b3a7d8 105%);
+}
+
+.bkai--neural .bkai__iris {
+  background:
+    radial-gradient(circle at 46% 42%,
+      #f7f3ff 0 16%,
+      color-mix(in oklab, #a78bfa 60%, #e9d5ff) 32%,
+      color-mix(in oklab, #7c3aed 55%, #4c1d95) 56%,
+      color-mix(in oklab, #7c3aed 80%, #2e1065) 74%,
+      #2a0f66 88%,
+      #1a0640 97%);
+  box-shadow:
+    0 0 0.5rem color-mix(in oklab, #a78bfa 45%, transparent),
+    inset 0 0 0.14rem rgba(2, 0, 12, 0.7);
+}
+
+.bkai--neural .bkai__pupil {
+  background: radial-gradient(circle at 42% 38%, #ffffff 0%, #c4b5fd 45%, #6d28d9 100%);
+  box-shadow:
+    0 0 0.46rem #a78bfa,
+    0 0 0.9rem rgba(167, 139, 250, 0.55);
+}
+
+/* Neural orbit ring around each core. */
+.bkai--neural .bkai__eye::before {
+  content: "";
+  position: absolute;
+  inset: -0.4rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, #a78bfa 32%, transparent);
+  border-top-color: #c4b5fd;
+  border-right-color: transparent;
+  animation: bkai-orbit 6.5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes bkai-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bkai--neural .bkai__eye::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: -0.46rem;
+  left: 50%;
+  width: 0.2rem;
+  height: 0.2rem;
+  margin-left: -0.1rem;
+  border-radius: 9999px;
+  background: #d8b4fe;
+  box-shadow: 0 0 8px #a78bfa;
+  animation: bkai-node 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes bkai-node {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.75);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.bkai--neural .bkai__sock {
+  border-color: color-mix(in oklab, var(--bk-accent) 30%, transparent);
+  border-style: solid;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -0.55rem 1.1rem -0.6rem rgba(0, 0, 0, 0.55),
+    0 0.5rem 1.6rem -0.9rem rgba(2, 6, 18, 0.65),
+    0 0 1.9rem -0.4rem rgba(139, 92, 246, 0.55);
+}
+
+/* ============================================================
+   Small screens: keep the pair compact and clear of content.
+   ============================================================ */
+@media (max-width: 480px) {
+  .bkai {
+    right: 0.7rem;
+    bottom: 0.7rem;
+    width: 5.2rem;
+    height: 3.7rem;
+  }
+
+  .bkai__sock {
+    padding: 0.45rem 0.55rem 0.6rem;
+    border-radius: 0.95rem;
+  }
+
+  .bkai__eye {
+    --bk-eye: 1.8rem;
+    width: var(--bk-eye);
+    height: var(--bk-eye);
+  }
+
+  .bkai--neural .bkai__eye {
+    --bk-eye: 1.9rem;
+  }
+
+  .bkai__face {
+    gap: 0.36rem;
+  }
+
+  .bkai__tag {
+    font-size: 0.32rem;
+    bottom: -0.6rem;
+  }
+}
+
+/* ============================================================
+   Reduced motion: no ambient animation, gaze rests neutral.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .bkai__lid,
+  .bkai.is-idle .bkai__sock,
+  .bkai.is-idle .bkai__iris,
+  .bkai--engineer .bkai__sclera::after,
+  .bkai--neural .bkai__eye::before,
+  .bkai--neural .bkai__eye::after {
+    animation: none;
+  }
+
+  .bkai__face {
+    transform: none;
+  }
+
+  .bkai.is-idle .bkai__iris {
+    transform: none;
+  }
+}

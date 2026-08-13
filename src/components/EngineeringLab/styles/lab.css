@@ -51,6 +51,21 @@ html:not(.dark) .lab-topbar {
   box-shadow: 0 10px 40px -12px rgba(2, 6, 23, 0.14);
 }
 
+/* Light-theme refinements (`.dark` never matches): the module/flagship hover
+   shadows were tuned for a dark surface; on light cards the near-black 0.7
+   alpha reads as a hard blob, so soften it while keeping the cyan glow. */
+html:not(.dark) .lab-module-card:hover {
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.18),
+    0 0 24px -12px color-mix(in oklab, var(--cyan-accent) 42%, transparent);
+}
+
+html:not(.dark) .lab-ai-flagship:hover {
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.18),
+    0 0 26px -12px color-mix(in oklab, var(--cyan-accent) 46%, transparent);
+}
+
 /* Module cards — the portfolio's skill-card hover language, scoped. Gentle
    lift, cyan border/glow, and a faint light sweep on hover. */
 .lab-module-card {
@@ -87,6 +102,68 @@ html:not(.dark) .lab-topbar {
 
 .lab-module-card:hover::before {
   transform: translateX(110%);
+}
+
+/* ── AI Research Lab flagship entry ─────────────────────────────────
+   The primary AI entry on the Lab home. Shares the module-card language
+   (lift on hover, cyan border/glow, light sweep) but reads as a distinct,
+   wider showcase band with its own ambient wash, so it sits above the
+   system modules without duplicating their styling. */
+
+.lab-ai-flagship {
+  border: 1px solid color-mix(in oklab, var(--cyan-accent) 22%, transparent);
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+/* Inner ambient wash — solar cyan top-left to blue bottom-right, kept from
+   colliding with the outer border via a rounded inset. */
+.lab-ai-flagship__wash {
+  inset: 1px;
+  border-radius: 1.3rem;
+  background:
+    radial-gradient(ellipse 90% 100% at 8% -20%, color-mix(in oklab, var(--cyan-accent) 14%, transparent), transparent 62%),
+    radial-gradient(ellipse 70% 90% at 100% 110%, color-mix(in oklab, var(--blue-accent) 14%, transparent), transparent 60%);
+}
+
+.lab-ai-flagship::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    color-mix(in oklab, var(--cyan-accent) 9%, transparent) 48%,
+    transparent 78%
+  );
+  transform: translateX(-110%);
+  transition: transform 0.55s ease;
+}
+
+.lab-ai-flagship:hover {
+  transform: translateY(-0.1875rem);
+  border-color: color-mix(in oklab, var(--cyan-accent) 52%, transparent);
+  box-shadow:
+    0 16px 40px -20px rgba(2, 6, 23, 0.7),
+    0 0 26px -12px color-mix(in oklab, var(--cyan-accent) 46%, transparent);
+}
+
+.lab-ai-flagship:hover::before {
+  transform: translateX(110%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-ai-flagship,
+  .lab-ai-flagship:hover {
+    transform: none;
+  }
+
+  .lab-ai-flagship::before {
+    display: none;
+  }
 }
 
 @keyframes lab-raise {

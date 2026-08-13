@@ -24,7 +24,7 @@ export const LAB_MODULES: LabModule[] = [
     name: "System Design Lab",
     tagline: "Architecture & scaling drills",
     description:
-      "Hands-on scenario builders for designing enterprise systems — API boundaries, data models, queues, caches, and the trade-offs behind each choice.",
+      "Hands-on scenario builders for designing enterprise systems - API boundaries, data models, queues, caches, and the trade-offs behind each choice.",
     icon: Boxes,
     accent: "cyan",
     status: "live",
@@ -39,7 +39,7 @@ export const LAB_MODULES: LabModule[] = [
     name: "ERP / Procurement Lab",
     tagline: "Source-to-Pay workflows",
     description:
-      "Model ERPNext, Frappe, and source-to-pay flows — master data, RFQs, contracts, and approvals — to see how enterprise procurement behaves end to end.",
+      "Model ERPNext, Frappe, and source-to-pay flows - master data, RFQs, contracts, and approvals - to see how enterprise procurement behaves end to end.",
     icon: Workflow,
     accent: "blue",
     status: "live",
@@ -54,7 +54,7 @@ export const LAB_MODULES: LabModule[] = [
     name: "Production Incident Lab",
     tagline: "On-call runbook simulations",
     description:
-      "Simulated production incidents across services, queues, and integrations — practice triage, root-cause reasoning, and clean incident response.",
+      "Simulated production incidents across services, queues, and integrations - practice triage, root-cause reasoning, and clean incident response.",
     icon: ShieldAlert,
     accent: "cyan",
     status: "live",

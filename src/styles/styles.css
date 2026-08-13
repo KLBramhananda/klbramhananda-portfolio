@@ -1041,6 +1041,189 @@
   background-color: color-mix(in oklab, white 8%, transparent);
 }
 
+/* ── Hero Lab Entry Portals ──────────────────────────────────────────
+   Primary (Engineering World) uses the cyan→blue gradient with a soft glow;
+   secondary (AI World) is the glass surface with an indigo aura. Shared
+   language treats each as an entry portal into a different technical
+   environment: a gentle lift + scale, a thin animated accent border sweep, a
+   slow breathing glow (all gated behind `animation-play-state` so they cost
+   nothing at rest), and an arrow indicator that slides forward on hover.
+   Pseudo-layers sit behind the content via `isolation` + negative z-index, so
+   text always stays crisp. Pure CSS transforms/transitions — compositor-
+   friendly, no JS. */
+.hero-cta {
+  position: relative;
+  isolation: isolate;
+  will-change: transform;
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.hero-cta:hover,
+.hero-cta:focus-visible {
+  transform: translateY(-0.125rem) scale(1.02);
+}
+
+.hero-cta:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Thin animated accent border — swept by the flowing gradient, resting hidden
+   and only entering/animating on hover/focus so idle buttons never paint it. */
+.hero-cta::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    115deg,
+    transparent 12%,
+    var(--cta-border-1) 42%,
+    var(--cta-border-2) 58%,
+    transparent 88%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.hero-cta:hover::before,
+.hero-cta:focus-visible::before {
+  opacity: 1;
+  background-size: 230% 230%;
+  animation: hero-cta-border-sweep 2.8s linear infinite;
+}
+
+@keyframes hero-cta-border-sweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 230% 50%;
+  }
+}
+
+/* Breathing ambient aura — the "portal opening" halo around the button. */
+.hero-cta::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
+  z-index: -1;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    var(--cta-aura) 0%,
+    transparent 66%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.hero-cta:hover::after,
+.hero-cta:focus-visible::after {
+  opacity: 1;
+  animation: hero-cta-breathe 3.4s ease-in-out infinite;
+}
+
+@keyframes hero-cta-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Icon + arrow indicator: both nudge forward on hover, building the sense of
+   stepping through a gateway. */
+.hero-cta__icon,
+.hero-cta__indicator {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-cta__indicator {
+  margin-left: 0.125rem;
+  opacity: 0.85;
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease;
+}
+
+.hero-cta:hover .hero-cta__indicator,
+.hero-cta:focus-visible .hero-cta__indicator {
+  transform: translateX(0.1875rem);
+  opacity: 1;
+}
+
+/* Primary — Engineering World: the lightning chip surges forward. */
+.hero-cta--primary:hover .hero-cta__icon,
+.hero-cta--primary:focus-visible .hero-cta__icon {
+  transform: translateX(0.125rem) scale(1.15);
+}
+
+/* Secondary — AI World: the brain hums upward like a node coming online. */
+.hero-cta--secondary:hover .hero-cta__icon,
+.hero-cta--secondary:focus-visible .hero-cta__icon {
+  transform: translateY(-0.125rem) scale(1.12);
+}
+
+/* Primary — cyan/blue gradient + soft glow, uses --background for text so it
+   adapts to dark (dark text) and light (light text) automatically. */
+.hero-cta--primary {
+  --cta-border-1: color-mix(in oklab, var(--cyan-accent) 70%, transparent);
+  --cta-border-2: color-mix(in oklab, var(--blue-accent) 80%, transparent);
+  --cta-aura: color-mix(in oklab, var(--cyan-accent) 40%, transparent);
+  background-image: linear-gradient(90deg, var(--cyan-accent), var(--blue-accent));
+  color: var(--background);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 22%, transparent),
+    0 10px 40px -10px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+}
+
+.hero-cta--primary:hover,
+.hero-cta--primary:focus-visible {
+  --cta-border-1: color-mix(in oklab, var(--cyan-accent) 90%, transparent);
+  --cta-border-2: #dbeafe;
+  --cta-aura: color-mix(in oklab, var(--blue-accent) 45%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 28%, transparent),
+    0 14px 52px -8px color-mix(in oklab, var(--cyan-accent) 75%, transparent);
+}
+
+/* Secondary — AI World: indigo/violet aura keeps the glass identity distinct
+   while still reading as a portal. */
+.hero-cta--secondary {
+  --cta-border-1: color-mix(in oklab, #8b5cf6 60%, transparent);
+  --cta-border-2: color-mix(in oklab, #6366f1 70%, transparent);
+  --cta-aura: color-mix(in oklab, #8b5cf6 38%, transparent);
+  box-shadow: 0 10px 40px -16px color-mix(in oklab, #8b5cf6 35%, transparent);
+}
+
+.hero-cta--secondary:hover,
+.hero-cta--secondary:focus-visible {
+  --cta-border-1: color-mix(in oklab, #a78bfa 90%, transparent);
+  --cta-border-2: color-mix(in oklab, #818cf8 90%, transparent);
+  --cta-aura: color-mix(in oklab, #8b5cf6 45%, transparent);
+  box-shadow: 0 14px 52px -12px color-mix(in oklab, #8b5cf6 50%, transparent);
+}
+
 /* ── Off-screen animation pausing ────────────────────────────────────
    `usePauseAnimations` toggles `anim-paused` on a section the moment it leaves
    the viewport (with a look-ahead margin). Decorative infinite loops — flowing
@@ -1160,6 +1343,35 @@
   /* Social buttons: no lift for reduced-motion users. */
   .social-btn:hover,
   .social-btn:focus-visible {
+    transform: none;
+  }
+
+  /* Hero CTAs: no lift/scale or glow burst for reduced-motion users. */
+  .hero-cta:hover,
+  .hero-cta:focus-visible,
+  .hero-cta:active {
+    transform: none;
+  }
+
+  .hero-cta--primary:hover,
+  .hero-cta--primary:focus-visible,
+  .hero-cta--secondary:hover,
+  .hero-cta--secondary:focus-visible {
+    box-shadow: none;
+  }
+
+  .hero-cta::before,
+  .hero-cta::after {
+    opacity: 0;
+    animation: none;
+  }
+
+  .hero-cta__icon,
+  .hero-cta__indicator,
+  .hero-cta:hover .hero-cta__icon,
+  .hero-cta:focus-visible .hero-cta__icon,
+  .hero-cta:hover .hero-cta__indicator,
+  .hero-cta:focus-visible .hero-cta__indicator {
     transform: none;
   }
 }

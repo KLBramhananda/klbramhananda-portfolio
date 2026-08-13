@@ -12,15 +12,16 @@
     <title>Bramhananda K L — Software Engineer · Full Stack · ERPNext · SAP BTP · AI</title>
     <script>
       // Resolve the theme before first paint so no wrong-theme flash shows:
-      // use the saved preference, else the OS color scheme. The `.dark` class
-      // (and color-scheme) drive every CSS variable and `dark:` utility below.
+      // use the saved preference (light/dark/system), else the OS scheme.
+      // The `.dark` class (and color-scheme) drive every CSS variable and
+      // `dark:` utility below.
       (function () {
         try {
           var saved = localStorage.getItem("theme");
-          var dark =
-            saved !== null
-              ? saved === "dark"
-              : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var dark;
+          if (saved === "dark") dark = true;
+          else if (saved === "light") dark = false;
+          else dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
           var root = document.documentElement;
           root.classList.toggle("dark", dark);
           root.style.colorScheme = dark ? "dark" : "light";

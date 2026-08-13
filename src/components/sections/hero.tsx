@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Briefcase, ChevronDown, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
 import profileImg from "@/assets/images/profile.jpeg";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 
@@ -189,39 +189,38 @@ export function Hero() {
               integrations.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#projects"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-accent to-blue-accent px-5 py-3 text-sm font-semibold text-background shadow-[0_10px_40px_-10px_rgba(6,182,212,0.6)] transition-shadow hover:shadow-[0_14px_50px_-8px_rgba(6,182,212,0.75)]"
+            {/* Lab entry portals — side-by-side on desktop, stacked on
+                mobile. Primary (Engineering World) carries the cyan/blue
+                gradient + glow; secondary (AI World) is the glass surface
+                with an indigo aura. Shared hover language: a gentle lift/
+                scale, a thin animated accent border sweep, a breathing glow,
+                and an arrow indicator that slides forward — all in `.hero-cta`. */}
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Link
+                to="/lab"
+                aria-label="Enter the BK Engineering World — interactive systems playground"
+                title="BK Engineering World"
+                className="hero-cta hero-cta--primary group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:flex-1"
               >
-                View Projects
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </a>
-              <a
-                href="#experience"
-                className="inline-flex items-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-slate-900/10 dark:hover:bg-white/10"
+                <span aria-hidden className="hero-cta__icon">⚡</span>
+                Enter Engineering World
+                <span aria-hidden className="hero-cta__indicator">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+              <Link
+                to="/lab/ai-research"
+                aria-label="Enter the BK AI World — AI, agents, enterprise systems and software architecture"
+                title="BK AI World"
+                className="hero-cta hero-cta--secondary group inline-flex w-full items-center justify-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground sm:flex-1"
               >
-                <Briefcase className="h-4 w-4" />
-                Experience
-              </a>
+                <span aria-hidden className="hero-cta__icon">🧠</span>
+                Enter AI World
+                <span aria-hidden className="hero-cta__indicator">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
             </div>
-
-            <Link
-              to="/lab"
-              aria-label="Explore the BK Engineering Lab — interactive systems playground"
-              title="BK Engineering Lab"
-              className="group mt-4 inline-flex max-w-full text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-cyan-accent focus-visible:text-cyan-accent"
-            >
-              <span className="grid overflow-hidden [grid-template-areas:'stack']">
-                <span className="flex items-center gap-1 whitespace-nowrap [grid-area:stack] transition-[opacity,transform] duration-300 ease-out group-hover:-translate-y-1.5 group-hover:opacity-0 group-focus-visible:-translate-y-1.5 group-focus-visible:opacity-0">
-                  <span aria-hidden className="text-sm">⚡</span>
-                  Explore Engineering Lab
-                </span>
-                <span className="flex translate-y-1.5 items-center whitespace-nowrap [grid-area:stack] opacity-0 transition-[opacity,transform] duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
-                  Interactive Systems Playground →
-                </span>
-              </span>
-            </Link>
 
             {/* Quick stats */}
             <dl className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">

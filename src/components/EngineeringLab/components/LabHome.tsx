@@ -1,6 +1,7 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { ArrowRight, FlaskConical } from "lucide-react";
+import { ArrowRight, BrainCircuit, FlaskConical } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { LAB_MODULES, type LabModule } from "../data/modules";
 
 const STATUS_PILL =
@@ -19,15 +20,64 @@ export function LabHome({
           <span className="h-1.5 w-1.5 rounded-full bg-cyan-accent" />
           Interactive Enterprise Systems Playground
         </p>
-        <h1 className="mt-5 text-4xl font-bold tracking-tight text-gradient sm:text-6xl lg:text-7xl">
+        <h1 className="mt-5 block max-w-full text-4xl font-bold leading-[1.25] tracking-tight text-gradient sm:text-6xl lg:text-7xl">
           BK Engineering Lab
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          A hands-on playground for the systems I build professionally — design
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          A hands-on playground for the systems I build professionally - design
           enterprise architectures, model ERP and source-to-pay workflows, and
           rehearse production incident response. Everything here is a synthetic
           sandbox: safe to break, explore, and learn from.
         </p>
+      </div>
+
+      {/* Flagship AI experience — routes to the dedicated, code-split AI
+          Research Lab at /lab/ai-research. Kept as a single primary entry
+          above the system modules. The AI Research Lab already ships its own
+          shell top bar with "Back to Engineering Lab", and because this is a
+          real TanStack Router Link, browser back/forward behaves naturally. */}
+      <div className="mt-10">
+        <Link
+          to="/lab/ai-research"
+          aria-label="Open BK AI Research Lab"
+          className="lab-ai-flagship lab-raise group relative block overflow-hidden rounded-3xl p-6 sm:p-8"
+        >
+          <div aria-hidden className="lab-ai-flagship__wash pointer-events-none absolute inset-0" />
+
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="inline-flex items-center gap-2 rounded-full border border-cyan-accent/30 bg-cyan-accent/10 px-3 py-1 font-mono text-xs uppercase tracking-widest text-cyan-accent">
+                <BrainCircuit className="h-3.5 w-3.5" />
+                Flagship AI experience
+              </p>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-gradient sm:text-4xl">
+                AI Research Lab
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                An isolated research sandbox for the AI systems I build and
+                study - reasoning cores, perception, memory, agents, tool
+                calling, digital worlds, and robot assistants.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs text-foreground/80">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  9 system modules
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-accent" />
+                  Synthetic · no external calls
+                </span>
+              </div>
+            </div>
+
+            <div className="shrink-0">
+              <span className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-accent to-blue-accent px-5 py-2.5 text-sm font-semibold text-background shadow-[0_10px_40px_-12px_rgba(6,182,212,0.6)] transition-all group-hover:-translate-y-0.5 group-hover:shadow-[0_14px_50px_-10px_rgba(6,182,212,0.75)]">
+                Enter AI Research Lab
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </div>
+          </div>
+        </Link>
       </div>
 
       {/* Foundation note */}
@@ -74,7 +124,7 @@ export function LabHome({
               Early preview
             </div>
             <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-              This is an emerging lab — the clean structure is ready to grow
+              This is an emerging lab - the clean structure is ready to grow
               module by module.
             </div>
           </div>
