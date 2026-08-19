@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
 import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
 import profileImg from "@/assets/images/profile.jpeg";
+import { usePageTransition } from "../effects/page-transition-context";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const stats = [
@@ -157,6 +158,43 @@ function TerminalPanel() {
 
 export function Hero() {
   const heroRef = usePauseAnimations<HTMLElement>();
+  const router = useRouter();
+  const transition = usePageTransition();
+  const navigatingRef = useRef(false);
+
+  // Engineering World entry — the cinematic portal. The flash/glow starts in
+  // the same event as the navigation, so there is never a frozen frame or a
+  // blank delay: the router swaps routes immediately while the overlay covers
+  // the load and then fades/zooms into the painted Lab.
+  const handleEnterEngineering = (
+    e: ReactMouseEvent<HTMLAnchorElement>,
+  ) => {
+    // Middle-click / modified clicks keep the browser's native behaviour
+    // (open in new tab), matching the untouched link semantics.
+    if (
+      e.button !== 0 ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey
+    ) {
+      return;
+    }
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    // Keyboard-activated clicks report clientX/Y = 0; burst from the button
+    // center in that case so the flash never originates from a corner.
+    transition?.enter({
+      x: e.clientX !== 0 ? e.clientX : rect.left + rect.width / 2,
+      y: e.clientY !== 0 ? e.clientY : rect.top + rect.height / 2,
+    });
+    e.preventDefault();
+    void router.navigate({ to: "/lab" }).catch(() => {
+      navigatingRef.current = false;
+    });
+  };
   return (
     <section
       id="home"
@@ -198,6 +236,8 @@ export function Hero() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Link
                 to="/lab"
+                preload="intent"
+                onClick={handleEnterEngineering}
                 aria-label="Enter the BK Engineering World — interactive systems playground"
                 title="BK Engineering World"
                 className="hero-cta hero-cta--primary group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:flex-1"

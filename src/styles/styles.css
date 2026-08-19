@@ -1631,3 +1631,213 @@ html:not(.dark) .sys-link--blue {
     transform: rotate(0deg) scale(1);
   }
 }
+
+/* ── Cinematic Engineering Lab page transition ──────────────────────────
+   Mounted by `PageTransitionProvider` when the hero's Engineering World CTA
+   starts its route change. The overlay covers the screen from the first frame
+   (opaque navy base), so the moment the router swaps the old page for the
+   lazy-loaded `/lab` chunk there is never a white/blank flash. The animation
+   is compositor-friendly (transform + opacity only) and everything below
+   (flash, rings, wash) hands off to a steady "engineering environment" glow
+   that holds while the Lab chunk loads, then the whole overlay fades as the
+   Lab surface zooms in. Under `prefers-reduced-motion` the global rules above
+   collapse the reveal to a minimal crossfade and the JS skips the flash
+   layers entirely. */
+
+.bk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  overflow: hidden;
+  pointer-events: auto;
+  contain: layout paint;
+  background: oklch(0.14 0.045 258);
+  will-change: opacity;
+}
+
+.bk-overlay--reveal {
+  animation: bk-overlay-out 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes bk-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Bright cyan/blue light burst from the click point. */
+.bk-flash {
+  position: absolute;
+  left: var(--ox);
+  top: var(--oy);
+  width: 30rem;
+  height: 30rem;
+  margin: -15rem 0 0 -15rem;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.95) 0%,
+    color-mix(in oklab, oklch(0.85 0.16 210) 90%, transparent) 30%,
+    color-mix(in oklab, var(--cyan-accent) 62%, transparent) 58%,
+    color-mix(in oklab, var(--blue-accent) 36%, transparent) 76%,
+    transparent 90%
+  );
+  transform: scale(0.2);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: bk-flash-burst 0.44s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes bk-flash-burst {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  7% {
+    opacity: 1;
+  }
+  62% {
+    transform: scale(10);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(11);
+    opacity: 0;
+  }
+}
+
+/* Staggered expanding glow rings — the "portal" pulse around the flash. */
+.bk-ring {
+  position: absolute;
+  left: var(--ox);
+  top: var(--oy);
+  width: 30rem;
+  height: 30rem;
+  margin: -15rem 0 0 -15rem;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--cyan-accent) 55%, transparent) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: bk-ring-out 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bk-ring--two {
+  animation-delay: 0.08s;
+}
+
+@keyframes bk-ring-out {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(8);
+    opacity: 0;
+  }
+}
+
+/* Steady ambient wash that holds while the Lab chunk loads — a faint cyan
+   glow at the click point over a dark navy "engineering environment" fill,
+   with a very slow breathing pulse so a slow first load reads as an alive,
+   intentional environment rather than a frozen frame. */
+.bk-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      circle at var(--ox) var(--oy),
+      color-mix(in oklab, var(--cyan-accent) 24%, transparent) 0%,
+      transparent 44%
+    ),
+    radial-gradient(
+      ellipse 90% 72% at 18% -12%,
+      color-mix(in oklab, var(--cyan-accent) 13%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 70% 62% at 100% 30%,
+      color-mix(in oklab, var(--blue-accent) 12%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(180deg, oklch(0.17 0.05 258), oklch(0.12 0.045 258));
+  will-change: opacity;
+  animation:
+    bk-wash-in 0.32s ease-out 0.05s both,
+    bk-wash-breathe 1.8s ease-in-out 0.55s infinite;
+}
+
+@keyframes bk-wash-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bk-wash-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+/* Reduced-motion: theme-tinted crossfade only — no flash, no glow, no zoom. */
+.bk-overlay--reduced {
+  background: var(--background);
+}
+
+.bk-min {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--ox) var(--oy),
+    color-mix(in oklab, var(--cyan-accent) 16%, transparent),
+    transparent 55%
+  );
+}
+
+/* The routed page surface. Only transform + opacity are animated; fixed page
+   chrome lives outside this wrapper so fixed positioning stays intact. */
+.bk-surface {
+  overflow-x: clip;
+  transform-origin: 50% 0;
+}
+
+.bk-surface--out {
+  transform: scale(1.03);
+  opacity: 0.55;
+  transition:
+    transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+.bk-surface--in {
+  transition: none;
+  will-change: transform, opacity;
+  animation: bk-surface-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bk-surface-in {
+  from {
+    transform: scale(1.03);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

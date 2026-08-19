@@ -1,4 +1,5 @@
-import { Activity, Hammer } from "lucide-react";
+import { Activity, ArrowLeft, Hammer } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { AI_RESEARCH_MODULES, type AIResearchModule } from "../data/modules";
 import { CorePanel } from "./CorePanel";
 import { PerceptionPanel } from "./PerceptionPanel";
@@ -68,6 +69,7 @@ export function AIResearchLabHome({ online = false }: { online?: boolean }) {
           probe, poke, and learn from.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-2">
+          <span className="ai-lab-chip ai-lab-chip--cyan md:hidden">AI Research</span>
           <span className="ai-lab-chip ai-lab-chip--green">
             <span className="ai-lab-dot ai-lab-dot--green" />
             {online ? "System online" : "System standby"}
@@ -78,6 +80,19 @@ export function AIResearchLabHome({ online = false }: { online?: boolean }) {
             <span className="ai-lab-dot ai-lab-dot--green" />
             No external calls
           </span>
+        </div>
+
+        {/* Mobile-only lab footer — keeps the topbar minimal and extends the
+            hero into a compact AI console: session line + leave-lab control. */}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 md:hidden">
+          <span className="ai-lab-code">SESSION · LOCAL · v0.1</span>
+          <Link
+            to="/"
+            className="group inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-900/10 bg-slate-900/[0.04] px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-slate-900/[0.06] dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+          >
+            <ArrowLeft className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
+            Exit Lab
+          </Link>
         </div>
       </div>
 

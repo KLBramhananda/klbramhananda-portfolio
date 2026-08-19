@@ -59,6 +59,10 @@ export function EngineeringLab() {
   // at its home header.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
+    // The cinematic page transition waits for this signal before revealing
+    // the Lab, so the overlay holds (never a blank flash) until the Lab has
+    // actually painted.
+    window.dispatchEvent(new CustomEvent("bk:page-ready"));
     return () => setActiveModuleId(null);
   }, []);
 
