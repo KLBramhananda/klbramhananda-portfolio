@@ -6,7 +6,6 @@ import { MemoryPanel } from "./MemoryPanel";
 import { ToolCallingPanel } from "./ToolCallingPanel";
 import { DigitalWorld } from "./DigitalWorld";
 import { ExperimentChamber } from "./ExperimentChamber";
-import { RobotAssistant } from "./RobotAssistant";
 import { VoiceChat } from "./VoiceChat";
 
 const STATS: {
@@ -114,9 +113,6 @@ export function AIResearchLabHome({ online = false }: { online?: boolean }) {
       </div>
 
       {/* 8 · Robot Assistant — the Lab's resident guide. */}
-      <div className="mt-12">
-        <RobotAssistant online={online} />
-      </div>
 
       <div className="mt-12 ai-lab-raise">
         <SectionHeading

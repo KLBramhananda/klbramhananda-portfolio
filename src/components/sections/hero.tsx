@@ -5,8 +5,8 @@ import profileImg from "@/assets/images/profile.jpeg";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const stats = [
-  { value: "2+", label: "Years Experience" },
-  { value: "3", label: "Enterprise Projects" },
+  { value: "~2+", label: "Years Experience" },
+  { value: "4", label: "Enterprise Projects" },
   { value: "10+", label: "Technologies" },
 ];
 

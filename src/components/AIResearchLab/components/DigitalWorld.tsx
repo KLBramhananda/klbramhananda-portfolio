@@ -25,6 +25,12 @@ const PITCH_MIN = -14;
 const PITCH_MAX = 52;
 const CAMERA_START = { yaw: -26, pitch: 25, zoom: 1150 };
 
+/** Zoom out a little further on small screens so the world fits the stage. */
+function getInitialZoom() {
+  if (typeof window === "undefined") return CAMERA_START.zoom;
+  return window.innerWidth < 640 ? 1500 : CAMERA_START.zoom;
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -66,7 +72,7 @@ export function DigitalWorld({ online = false }: { online?: boolean }) {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<HTMLDivElement | null>(null);
   const camRef = useRef<HTMLSpanElement | null>(null);
-  const camera = useRef({ ...CAMERA_START, auto: true });
+  const camera = useRef({ ...CAMERA_START, zoom: getInitialZoom(), auto: true });
   const drag = useRef<{
     x: number;
     y: number;
@@ -162,7 +168,7 @@ export function DigitalWorld({ online = false }: { online?: boolean }) {
   const resetView = useCallback(() => {
     camera.current.yaw = CAMERA_START.yaw;
     camera.current.pitch = CAMERA_START.pitch;
-    camera.current.zoom = CAMERA_START.zoom;
+    camera.current.zoom = getInitialZoom();
     apply();
   }, [apply]);
 

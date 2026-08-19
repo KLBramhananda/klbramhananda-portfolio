@@ -273,7 +273,23 @@ html.dark .ai-lab-dark {
   align-items: center;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 1.25rem 1rem 2rem;
+  /* Reserve a vertical zone for the absolutely-positioned core ball so it
+     never overlaps the module chips or the readout below on small screens. */
+  padding: 12.5rem 1rem 2rem;
+}
+
+.ai-lab-core-stage--compact .ai-lab-core {
+  top: 6.25rem;
+  width: 9.5rem;
+  height: 9.5rem;
+}
+
+.ai-lab-core-stage--compact .ai-lab-core-fx::before {
+  width: min(44%, 22rem);
+}
+
+.ai-lab-core-stage--compact .ai-lab-core-fx::after {
+  width: min(60%, 28rem);
 }
 
 .ai-lab-core-lines {
@@ -3935,17 +3951,11 @@ html:not(.dark) .ai-lab-boot__video-overlay {
 .ai-lab-tools-list {
   margin-top: 0.9rem;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 0.7rem;
 }
 
 @media (min-width: 640px) {
-  .ai-lab-tools-list {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1120px) {
   .ai-lab-tools-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -5135,6 +5145,12 @@ html:not(.dark) .ai-lab-boot__video-overlay {
 }
 
 @media (min-width: 640px) {
+  .ai-lab-expt-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
   .ai-lab-expt-tabs {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -7624,6 +7640,20 @@ html:not(.dark) .ai-lab-boot__video-overlay {
     transform: scale(0.88);
     transform-origin: bottom right;
   }
+
+  .ai-lab-robo-showcase .ai-lab-robo-stage {
+    min-height: 20rem;
+    padding: 1.5rem 1rem 1.25rem;
+  }
+
+  .ai-lab-robo-showcase .ai-lab-robo__bubble {
+    max-width: 15rem;
+  }
+
+  .ai-lab-robo__min {
+    width: 2rem;
+    height: 2rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -8805,4 +8835,79 @@ html:not(.dark) .ai-lab-expt-log__item--up {
 
 html:not(.dark) .ai-lab-expt-log__item--down {
   color: #93c5fd;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Responsive polish — phones & tablets.
+   Desktop styles above stay untouched; these only tighten spacing,
+   keep sections aligned and bump touch targets on smaller viewports.
+   ════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+  .ai-lab-panel-head {
+    padding: 0.9rem 1.1rem;
+  }
+
+  .ai-lab-expt-tabs {
+    padding: 0.9rem 1.1rem 0;
+  }
+
+  .ai-lab-expt-body {
+    padding: 1rem 1.1rem 1.5rem;
+  }
+
+  .ai-lab-vox-grid {
+    padding: 1rem 1.1rem 1.5rem;
+  }
+
+  .ai-lab-world-legend {
+    padding: 0.85rem 1.1rem;
+  }
+
+  .ai-lab-world-inspector__intro {
+    padding: 1.1rem 1.1rem 1.35rem;
+  }
+
+  .ai-lab-world-inspector__zone {
+    padding: 1.2rem 1.1rem 1.35rem;
+  }
+
+  .ai-lab-core-readout {
+    padding: 0.8rem 1.1rem;
+  }
+
+  .ai-lab-expt-intro p {
+    min-width: 0;
+  }
+
+  /* Touch targets — comfortable tap sizes for thumbs. */
+  .ai-lab-tools-preset {
+    padding: 0.5rem 0.8rem;
+  }
+
+  .ai-lab-expt-btn {
+    padding: 0.65rem 1.05rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .ai-lab-world-hud__top {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .ai-lab-world-hud__ctrl {
+    right: 0.85rem;
+    bottom: 0.85rem;
+    gap: 0.55rem;
+  }
+
+  .ai-lab-world-hud__readout {
+    left: 0.85rem;
+    bottom: 0.85rem;
+  }
+
+  .ai-lab-world-hud__btn {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
 }
