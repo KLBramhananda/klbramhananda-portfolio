@@ -108,6 +108,9 @@ export function BkAiAssistant() {
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerType === "touch") return;
+      // Full-screen transitions (AI lab boot overlay) pause the gaze; it
+      // resumes automatically once the overlay clears.
+      if (document.documentElement.classList.contains("bk-transition-lock")) return;
       const el = rootRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();

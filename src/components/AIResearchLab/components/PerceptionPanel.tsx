@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, Database, Eye, Plug, Radar, Server, type LucideIcon } from "lucide-react";
+import { usePauseAnimations } from "../../effects/use-pause-animations";
 
 type LabObject = {
   id: string;
@@ -22,7 +23,10 @@ const IDLE_MS = 380;
 const TICK_MS = 110;
 
 export function PerceptionPanel() {
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const visibleRef = useRef(true);
+  const rootRef = usePauseAnimations<HTMLElement>((visible) => {
+    visibleRef.current = visible;
+  });
   const lastMoveRef = useRef(0);
   const targetConfRef = useRef(CURSOR_CONFIDENCE);
   const acquiredRef = useRef(false);
@@ -38,37 +42,31 @@ export function PerceptionPanel() {
     if (!el) return;
     let px = 0;
     let py = 0;
-    let raf = 0;
 
     const onMove = (e: PointerEvent) => {
       const rect = el.getBoundingClientRect();
       px = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
       py = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
       lastMoveRef.current = performance.now();
+      setPosition({ x: Math.round(px), y: Math.round(py) });
       if (!acquiredRef.current) {
         acquiredRef.current = true;
         setAcquired(true);
       }
     };
 
-    const loop = () => {
-      setPosition({ x: Math.round(px), y: Math.round(py) });
-      raf = requestAnimationFrame(loop);
-    };
-
     el.addEventListener("pointermove", onMove);
     el.addEventListener("pointerover", onMove);
-    raf = requestAnimationFrame(loop);
 
     return () => {
-      cancelAnimationFrame(raf);
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerover", onMove);
     };
-  }, []);
+  }, [rootRef]);
 
   useEffect(() => {
     const iv = window.setInterval(() => {
+      if (!visibleRef.current) return;
       const target = targetConfRef.current;
       setConfidence((current) => {
         const delta = target - current;

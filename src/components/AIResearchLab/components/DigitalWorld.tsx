@@ -82,6 +82,7 @@ export function DigitalWorld({ online = false }: { online?: boolean }) {
   } | null>(null);
   const movedRef = useRef(false);
   const autoTimer = useRef<number | null>(null);
+  const camTextRef = useRef("");
   const reduced = useRef(false);
 
   const [selected, setSelected] = useState<string | null>(null);
@@ -97,9 +98,13 @@ export function DigitalWorld({ online = false }: { online?: boolean }) {
     }
     if (camRef.current) {
       const yaw = ((Math.round(c.yaw) % 360) + 360) % 360;
-      camRef.current.textContent = `YAW ${String(yaw).padStart(3, "0")}° · PITCH ${Math.round(
+      const text = `YAW ${String(yaw).padStart(3, "0")}° · PITCH ${Math.round(
         c.pitch,
       )}° · DOL ${Math.round((c.zoom / CAMERA_START.zoom) * 100)}%`;
+      if (text !== camTextRef.current) {
+        camTextRef.current = text;
+        camRef.current.textContent = text;
+      }
     }
   }, []);
 
@@ -206,9 +211,12 @@ export function DigitalWorld({ online = false }: { online?: boolean }) {
   }, [apply]);
 
   useEffect(() => {
+    if (reduced.current) return;
     let raf = 0;
+    let frame = 0;
     const loop = () => {
-      if (camera.current.auto && !drag.current) {
+      frame += 1;
+      if (camera.current.auto && !drag.current && frame % 2 === 0) {
         camera.current.yaw += 0.05;
         apply();
       }
@@ -235,7 +243,7 @@ export function DigitalWorld({ online = false }: { online?: boolean }) {
   const inspected = selected ? getZone(selected) : undefined;
 
   return (
-    <section className="ai-lab-raise ai-lab-panel ai-lab-panel--world mt-10">
+    <section className="ai-lab-panel ai-lab-panel--world mt-10">
       <div className="ai-lab-panel-head">
         <div className="flex min-w-0 items-center gap-3">
           <span className="ai-lab-label">AI Digital World</span>

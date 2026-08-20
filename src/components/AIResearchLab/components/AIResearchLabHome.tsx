@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Activity, Hammer } from "lucide-react";
 import { AI_RESEARCH_MODULES, type AIResearchModule } from "../data/modules";
 import { CorePanel } from "./CorePanel";
@@ -27,6 +28,18 @@ function SectionHeading({ label, sub }: { label: string; sub: string }) {
     <div className="flex flex-wrap items-end justify-between gap-2">
       <h2 className="ai-lab-label">{label}</h2>
       <span className="text-xs text-muted-foreground">{sub}</span>
+    </div>
+  );
+}
+
+/** Cascades each major block in after the wake reveal instead of popping at once. */
+function Staggered({ index, children }: { index: number; children: ReactNode }) {
+  return (
+    <div
+      className="ai-lab-raise"
+      style={{ animationDelay: `${index * 0.12}s` }}
+    >
+      {children}
     </div>
   );
 }
@@ -83,52 +96,69 @@ export function AIResearchLabHome({ online = false }: { online?: boolean }) {
       </div>
 
       {/* 1 · AI Digital World — the immersive 3D sandbox opens the Lab. */}
-      <DigitalWorld online={online} />
+      <Staggered index={0}>
+        <DigitalWorld online={online} />
+      </Staggered>
 
       {/* 2 · Talk to AI — voice + text interaction with the Lab. */}
-      <div className="mt-12">
-        <VoiceChat online={online} />
-      </div>
+      <Staggered index={1}>
+        <div className="mt-12">
+          <VoiceChat online={online} />
+        </div>
+      </Staggered>
 
       {/* 3 · Central AI Core — the synthesis hub the modules hang off. */}
-      <CorePanel online={online} />
+      <Staggered index={2}>
+        <CorePanel online={online} />
+      </Staggered>
 
       {/* 4 · AI Perception — synthetic pointer vision. */}
-      <div className="mt-12 ai-lab-raise">
-        <PerceptionPanel />
-      </div>
+      <Staggered index={3}>
+        <div className="mt-12">
+          <PerceptionPanel />
+        </div>
+      </Staggered>
 
       {/* 5 · AI Memory — short-term & long-term recall. */}
-      <div className="mt-12 ai-lab-raise">
-        <MemoryPanel />
-      </div>
+      <Staggered index={4}>
+        <div className="mt-12">
+          <MemoryPanel />
+        </div>
+      </Staggered>
 
       {/* 6 · AI Tool Calling — structured tool invocation. */}
-      <div className="mt-12 ai-lab-raise">
-        <ToolCallingPanel />
-      </div>
+      <Staggered index={5}>
+        <div className="mt-12">
+          <ToolCallingPanel />
+        </div>
+      </Staggered>
 
       {/* 7 · AI Experiment Chamber — controlled simulations. */}
-      <div className="mt-12">
-        <ExperimentChamber online={online} />
-      </div>
+      <Staggered index={6}>
+        <div className="mt-12">
+          <ExperimentChamber online={online} />
+        </div>
+      </Staggered>
 
       {/* 8 · Robot Assistant — the Lab's resident guide. */}
 
-      <div className="mt-12 ai-lab-raise">
-        <SectionHeading
-          label="System Modules"
-          sub="Surrounding the AI core — foundation scaffolding"
-        />
-        <div className="mt-5 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {AI_RESEARCH_MODULES.map((module, i) => (
-            <ModuleTile key={module.id} module={module} index={i} />
-          ))}
+      <Staggered index={7}>
+        <div className="mt-12">
+          <SectionHeading
+            label="System Modules"
+            sub="Surrounding the AI core — foundation scaffolding"
+          />
+          <div className="mt-5 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {AI_RESEARCH_MODULES.map((module, i) => (
+              <ModuleTile key={module.id} module={module} index={i} />
+            ))}
+          </div>
         </div>
-      </div>
+      </Staggered>
 
-      <div className="mt-12 ai-lab-raise">
-        <SectionHeading label="Telemetry / Status" sub="Synthetic system readouts" />
+      <Staggered index={8}>
+        <div className="mt-12">
+          <SectionHeading label="Telemetry / Status" sub="Synthetic system readouts" />
         <div className="ai-lab-telemetry-grid mt-5">
           {stats.map((stat) => (
             <div key={stat.label} className={`ai-lab-stat ai-lab-stat--${stat.tone}`}>
@@ -154,7 +184,8 @@ export function AIResearchLabHome({ online = false }: { online?: boolean }) {
           </span>
           <span className="hidden sm:inline">Local · Synthetic · v0.1</span>
         </div>
-      </div>
+        </div>
+      </Staggered>
       </section>
     </>
   );

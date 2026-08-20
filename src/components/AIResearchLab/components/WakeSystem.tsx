@@ -96,9 +96,11 @@ function BootCore({ phase }: { phase: LabPhase }) {
 export function WakeSystem({
   phase,
   onWake,
+  onEntered,
 }: {
   phase: LabPhase;
   onWake: () => void;
+  onEntered?: () => void;
 }) {
   const [item, setItem] = useState(0);
   const [hidden, setHidden] = useState(false);
@@ -109,6 +111,9 @@ export function WakeSystem({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playTimerRef = useRef<number | null>(null);
+  const enterTimerRef = useRef<number | null>(null);
+  const startedPlaybackRef = useRef(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -116,6 +121,24 @@ export function WakeSystem({
     mq.addEventListener("change", onMotionPrefChange);
     return () => mq.removeEventListener("change", onMotionPrefChange);
   }, []);
+
+  useEffect(
+    () => () => {
+      if (playTimerRef.current !== null) window.clearTimeout(playTimerRef.current);
+      if (enterTimerRef.current !== null) window.clearTimeout(enterTimerRef.current);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = document.documentElement;
+    if (hidden) {
+      el.classList.remove("bk-transition-lock");
+      return;
+    }
+    el.classList.add("bk-transition-lock");
+    return () => el.classList.remove("bk-transition-lock");
+  }, [hidden]);
 
   const videoActive = !hidden && !reducedMotion;
 
@@ -126,12 +149,17 @@ export function WakeSystem({
       video.pause();
       return;
     }
-    const playPromise = video.play();
-    if (playPromise) {
-      playPromise.catch(() => {
-        // Autoplay blocked while buffering — the static gradient below stays.
-      });
-    }
+    if (startedPlaybackRef.current) return;
+    playTimerRef.current = window.setTimeout(() => {
+      if (reducedMotion || hidden) return;
+      startedPlaybackRef.current = true;
+      const playPromise = video.play();
+      if (playPromise) {
+        playPromise.catch(() => {
+          // Autoplay blocked while buffering — the static gradient below stays.
+        });
+      }
+    }, 500);
   }, [videoActive, reducedMotion, hidden, phase]);
 
   useEffect(() => {
@@ -162,7 +190,15 @@ export function WakeSystem({
     if (phase !== "online" || entering) return;
     setEntering(true);
     playEnterSound();
-    window.setTimeout(() => setHidden(true), ENTER_MS);
+    enterTimerRef.current = window.setTimeout(() => {
+      // Release focus before the overlay becomes aria-hidden — React throws if
+      // an element inside an aria-hidden subtree still holds focus.
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      setHidden(true);
+      onEntered?.();
+    }, ENTER_MS);
   };
 
   return (

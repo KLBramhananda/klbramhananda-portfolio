@@ -185,7 +185,17 @@ export function MouseTrail() {
       cancelAnimationFrame(raf);
     };
 
+    const locked = () =>
+      typeof document !== "undefined" &&
+      document.documentElement.classList.contains("bk-transition-lock");
+
     const frame = (now: number) => {
+      // Halt entirely while a full-screen transition (e.g. the AI lab boot
+      // overlay) owns the viewport — the trail is invisible behind it.
+      if (locked()) {
+        running = false;
+        return;
+      }
       // Pause once the pointer is idle AND the trail has fully settled. With
       // nothing left to draw, keeping the loop alive would repaint an empty
       // full-viewport canvas forever, stealing GPU time from scroll paint.
@@ -309,6 +319,7 @@ export function MouseTrail() {
     const onPointerMove = (e: PointerEvent) => {
       // Real touch is the only excluded input — mouse and pen both animate.
       if (e.pointerType === "touch") return;
+      if (locked()) return;
       // Convert viewport coords into the canvas coordinate system. For this
       // full-viewport fixed canvas the origin is (0, 0), but subtracting the
       // bounding-rect origin keeps the mapping exact even if a containing

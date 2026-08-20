@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { AI_RESEARCH_MODULES } from "../data/modules";
+import { usePauseAnimations } from "../../effects/use-pause-animations";
 
 type Point = { x: number; y: number };
 
@@ -16,6 +17,10 @@ function layout(width: number, height: number): Point[] {
 }
 
 export function CorePanel({ online = false }: { online?: boolean }) {
+  const visibleRef = useRef(true);
+  const rootRef = usePauseAnimations<HTMLElement>((visible) => {
+    visibleRef.current = visible;
+  });
   const stageRef = useRef<HTMLDivElement | null>(null);
   const coreRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ w: 1200, h: 620 });
@@ -49,6 +54,28 @@ export function CorePanel({ online = false }: { online?: boolean }) {
     let targetY = 0;
     let hovering = false;
 
+    const applyFrame = () => {
+      core.style.transform = `translate(-50%, -50%) rotateY(${tiltX.toFixed(3)}deg) rotateX(${tiltY.toFixed(3)}deg)`;
+      const perX = (hovering ? tiltX : 0) / MAX_TILT;
+      const perY = (hovering ? tiltY : 0) / -MAX_TILT;
+      core.style.setProperty("--per-x", perX.toFixed(3));
+      core.style.setProperty("--per-y", perY.toFixed(3));
+    };
+
+    const tick = () => {
+      raf = 0;
+      tiltX += (targetX - tiltX) * 0.07;
+      tiltY += (targetY - tiltY) * 0.07;
+      applyFrame();
+      if (visibleRef.current && (Math.abs(targetX - tiltX) > 0.005 || Math.abs(targetY - tiltY) > 0.005)) {
+        raf = requestAnimationFrame(tick);
+      }
+    };
+
+    const ensureLoop = () => {
+      if (raf === 0) raf = requestAnimationFrame(tick);
+    };
+
     const onMove = (e: PointerEvent) => {
       const rect = stage.getBoundingClientRect();
       const px = Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width) * 2 - 1));
@@ -56,23 +83,14 @@ export function CorePanel({ online = false }: { online?: boolean }) {
       targetX = px * MAX_TILT;
       targetY = py * -MAX_TILT;
       hovering = true;
+      if (visibleRef.current) ensureLoop();
     };
 
     const onLeave = () => {
       targetX = 0;
       targetY = 0;
       hovering = false;
-    };
-
-    const tick = () => {
-      tiltX += (targetX - tiltX) * 0.07;
-      tiltY += (targetY - tiltY) * 0.07;
-      core.style.transform = `translate(-50%, -50%) rotateY(${tiltX.toFixed(3)}deg) rotateX(${tiltY.toFixed(3)}deg)`;
-      const perX = (hovering ? tiltX : 0) / MAX_TILT;
-      const perY = (hovering ? tiltY : 0) / -MAX_TILT;
-      core.style.setProperty("--per-x", perX.toFixed(3));
-      core.style.setProperty("--per-y", perY.toFixed(3));
-      raf = requestAnimationFrame(tick);
+      ensureLoop();
     };
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -82,7 +100,6 @@ export function CorePanel({ online = false }: { online?: boolean }) {
 
     stage.addEventListener("pointermove", onMove);
     stage.addEventListener("pointerleave", onLeave);
-    tick();
 
     return () => {
       cancelAnimationFrame(raf);
@@ -94,7 +111,7 @@ export function CorePanel({ online = false }: { online?: boolean }) {
   const points = layout(size.w, size.h);
 
   return (
-    <section className="ai-lab-raise ai-lab-panel ai-lab-panel--core mt-10">
+    <section ref={rootRef} className="ai-lab-panel ai-lab-panel--core mt-10">
       <div className="ai-lab-panel-head">
         <div className="flex min-w-0 items-center gap-3">
           <span className="ai-lab-label">Central AI Core</span>
