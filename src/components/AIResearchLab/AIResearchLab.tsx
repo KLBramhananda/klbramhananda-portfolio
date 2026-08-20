@@ -3,7 +3,10 @@ import { AIResearchLabShell } from "./components/AIResearchLabShell";
 import { WakeSystem, type LabPhase } from "./components/WakeSystem";
 import "./styles/ai-lab.css";
 
-const preloadHome = () => import("./components/AIResearchLabHome");
+const preloadHome = () =>
+  import("./components/AIResearchLabHome").then((module) => ({
+    default: module.AIResearchLabHome,
+  }));
 const AIResearchLabHome = lazy(preloadHome);
 
 const INIT_ITEMS = 8;
