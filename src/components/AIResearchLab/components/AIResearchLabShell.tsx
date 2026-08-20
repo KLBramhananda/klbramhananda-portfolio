@@ -23,9 +23,9 @@ export function AIResearchLabShell({
 
       <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 sm:pt-4 lg:px-6">
         <div className="ai-lab-topbar mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-2xl px-3 py-2.5 sm:gap-x-4 sm:px-4 sm:py-3 md:flex-nowrap md:gap-3">
-          {/* Essential brand — logo + title, always present. On mobile the
-              "AI Research" badge leaves the navigation and lives in the hero;
-              on md+ it returns here, exactly as the desktop design. */}
+          {/* Brand — just the BK logo on mobile so the row stays minimal; the
+              title and "AI Research" badge reappear on md+ as the desktop
+              design. */}
           <Link
             to="/lab/ai-research"
             aria-label="BK AI Research Lab — home"
@@ -38,8 +38,8 @@ export function AIResearchLabShell({
               height={1254}
               className="h-8 w-8 shrink-0 rounded-lg object-cover"
             />
-            <span className="flex min-w-0 items-baseline gap-2">
-              <span className="truncate text-xs font-semibold tracking-tight text-foreground sm:text-sm">
+            <span className="hidden items-baseline gap-2 md:flex">
+              <span className="truncate text-sm font-semibold tracking-tight text-foreground">
                 AI Research Lab
               </span>
               <span className="ai-lab-chip ai-lab-chip--cyan hidden shrink-0 md:inline-flex">
@@ -48,8 +48,8 @@ export function AIResearchLabShell({
             </span>
           </Link>
 
-          {/* Essential controls — theme toggle stays reachable and the primary
-              action (Labs) remains. Status + Exit move to the hero on mobile. */}
+          {/* Controls — theme, Exit, Labs stay on all sizes; the System status
+              chip is reserved for the md+ (tablet/desktop) navbar. */}
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <SystemThemeToggle />
             <span
@@ -66,7 +66,7 @@ export function AIResearchLabShell({
             </span>
             <Link
               to="/"
-              className="group hidden shrink-0 items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] sm:px-3.5 md:inline-flex"
+              className="group inline-flex shrink-0 items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] sm:px-3.5"
             >
               <ArrowLeft className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
               <span className="hidden sm:inline">Exit Lab</span>
