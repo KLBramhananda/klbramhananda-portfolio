@@ -9,7 +9,7 @@ import { SectionEyebrow } from "./about";
 import s2p from "@/assets/images/proj-s2p.jpg";
 import fastays from "@/assets/images/proj-fastays.jpg";
 import psp from "@/assets/images/proj-psp.jpg";
-import keemeds from "@/assets/images/proj-keemeds.jpg";
+import keemeds from "@/assets/images/proj-keemeds.png";
 
 type Project = {
   name: string;
