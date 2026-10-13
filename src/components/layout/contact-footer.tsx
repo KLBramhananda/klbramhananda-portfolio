@@ -20,7 +20,7 @@ const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const channels = [
   { icon: Mail, label: "Email", value: "bramhanandakl2030@gmail.com", href: "mailto:bramhanandakl2030@gmail.com", external: false },
-  { icon: Phone, label: "Phone", value: "+91 7676068819", href: "tel:+917676088819", external: false },
+  { icon: Phone, label: "Phone", value: "+91 7676068819", href: "tel:+917676068819", external: false },
   { icon: LinkedinIcon, label: "LinkedIn", value: "in/bramhanandakl", href: "https://www.linkedin.com/in/bramhanandakl/", external: true },
   { icon: GithubIcon, label: "GitHub", value: "@KLBramhananda", href: "https://github.com/KLBramhananda", external: true },
 ];

@@ -38,7 +38,7 @@ const focusAreas = [
   {
     icon: Cloud,
     label: "SAP BTP",
-    desc: "SAP Build Apps, HANA Cloud, BAS, Intigration Suite, Joule",
+    desc: "SAP Build Apps, HANA Cloud, BAS, Integration Suite, Joule",
   },
   {
     icon: Webhook,
