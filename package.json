@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "prebuild": "npm run typecheck",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

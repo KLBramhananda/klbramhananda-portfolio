@@ -87,7 +87,7 @@ export function FailureExperiment() {
 
   const degraded = phase !== "idle" && phase !== "mitigated";
   const p99 = victim ? (degraded ? victim.peak : victim.base) : 40;
-  const errRate = degraded ? victim.rate : 0.2;
+  const errRate = degraded && victim ? victim.rate : 0.2;
 
   useEffect(() => {
     reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

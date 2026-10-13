@@ -140,7 +140,9 @@ export function PageTransitionProvider({
   // If navigation goes somewhere that never fires `bk:page-ready` (browser
   // Back during the flash, broken route, etc.), release the overlay instead
   // of trapping the visitor behind it.
-  const pathname = useRouterState((s) => s.location.pathname);
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
+  });
   const lastPathRef = useRef(pathname);
   useEffect(() => {
     const prev = lastPathRef.current;

@@ -243,7 +243,7 @@ export function MemoryPanel() {
       if (!node || !node.isConnected) return;
       const label = labelFor(node);
       const domain = label ? classify(label) : null;
-      if (!domain) return;
+      if (!label || !domain) return;
       const now = performance.now();
       if (now - lastObservedRef.current.at < 700 && lastObservedRef.current.source === label) {
         return;

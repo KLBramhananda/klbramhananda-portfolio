@@ -61,7 +61,7 @@ const ACTIONS: Action[] = [
   { id: "cache", label: "Enable Cache", subtitle: "In-memory read path fix", icon: Zap, tone: "emerald" },
 ];
 
-const FINDINGS: Record<Exclude<ActionId, "cache">, string> = {
+const FINDINGS: Partial<Record<ActionId, string>> = {
   logs: "App logs repeat thousands of identical slow SELECT reads every second — with no application exceptions. The code itself looks healthy.",
   database: "Database CPU is pinned at 92%. Nearly every query is a repeated read of the same hot rows: the in-memory cache in front of it is never being consulted.",
   queue: "Queue depth is high, but the workers are idle and fast. The backlog is a symptom of slow request handling — not its cause.",

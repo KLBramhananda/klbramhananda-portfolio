@@ -111,7 +111,7 @@ export function TrafficExperiment() {
               {
                 id: eventIdRef.current++,
                 text: `Scale out → ${off.id} (2.1s)`,
-                tone: "up",
+                tone: "up" as const,
               },
               ...prev,
             ].slice(0, 5),
@@ -133,7 +133,7 @@ export function TrafficExperiment() {
               {
                 id: eventIdRef.current++,
                 text: `Scale in ← ${target.id} (1.6s)`,
-                tone: "down",
+                tone: "down" as const,
               },
               ...prev,
             ].slice(0, 5),

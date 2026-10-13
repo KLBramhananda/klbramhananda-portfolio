@@ -164,7 +164,7 @@ function rank(query: string): ScoredChunk[] {
   })).sort((a, b) => b.score - a.score);
 }
 
-function buildAnswer(query: string, top: ScoredChunk[]): string {
+function buildAnswer(top: ScoredChunk[]): string {
   if (top.length === 0) return "No relevant knowledge was retrieved.";
   const first = top[0];
   return `Based on ${top.length} retrieved ${top.length === 1 ? "record" : "records"} — primarily "${first.chunk.title}" (${
@@ -205,7 +205,7 @@ export function RagExperiment() {
     };
 
     const ranked = rank(query);
-    const resolved = buildAnswer(query, ranked);
+    const resolved = buildAnswer(ranked);
 
     at(stepMs, () => setStep(1));
     at(stepMs * 2, () => setStep(2));
