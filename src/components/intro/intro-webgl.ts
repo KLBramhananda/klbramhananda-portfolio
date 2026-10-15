@@ -427,7 +427,7 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
     try {
       const real = now - last;
       last = now;
-      const dt = Math.min(real / 1000, 0.05);
+      const dt = Math.min(real / 1000, 0.25);
       time += dt;
       if (resizeDirty) applySize();
 

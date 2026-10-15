@@ -110,7 +110,7 @@ export function startFallback2D(opts: IntroSceneOptions): IntroScene {
     raf = requestAnimationFrame(frame);
     if (disposed) return;
     try {
-      const dt = Math.min((now - last) / 1000, 0.05);
+      const dt = Math.min((now - last) / 1000, 0.25);
       last = now;
       time += dt;
       if (resizeDirty) applySize();

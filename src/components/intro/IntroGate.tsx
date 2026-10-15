@@ -1,4 +1,5 @@
 import { Component, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { CSSProperties, ReactNode } from "react";
 
 export interface IntroScene {
@@ -458,9 +459,11 @@ export function IntroGate() {
   const [active, setActive] = useState(shouldPlay);
   const [dismiss] = useState(() => () => setActive(false));
   if (!active) return null;
-  return (
+  // Portaled to <body> so it escapes Home's stacking context and covers the site chrome.
+  return createPortal(
     <IntroBoundary onFail={dismiss}>
       <IntroOverlay onExit={dismiss} />
-    </IntroBoundary>
+    </IntroBoundary>,
+    document.body,
   );
 }
