@@ -26,7 +26,8 @@ interface NavigatorHints extends Navigator {
   connection?: { saveData?: boolean };
 }
 
-const STORAGE_KEY = "bk:intro:v2";
+/** Module-level: a full page load replays the intro; client-side returns to `/` do not. */
+let playedThisLoad = false;
 const ROLE = "SOFTWARE ENGINEER";
 const GLYPHS = "01<>/{}[]#$%&*+=?";
 const WHITE = "#F2EFE8";
@@ -43,12 +44,7 @@ function shouldPlay(): boolean {
   } catch {
     // matchMedia unavailable: treat as no preference.
   }
-  if (new URLSearchParams(window.location.search).get("intro") === "1") return true;
-  try {
-    return sessionStorage.getItem(STORAGE_KEY) !== "1";
-  } catch {
-    return true;
-  }
+  return !playedThisLoad;
 }
 
 function hasWebGL2(): boolean {
@@ -181,11 +177,7 @@ function IntroOverlay({ onExit }: { onExit: () => void }) {
     const finish = (burst: boolean) => {
       if (leaving) return;
       leaving = true;
-      try {
-        sessionStorage.setItem(STORAGE_KEY, "1");
-      } catch {
-        // Storage unavailable: the intro simply replays next visit.
-      }
+      playedThisLoad = true;
       window.clearInterval(decodeTimer);
       cancelAnimationFrame(holdRaf);
       hold.style.pointerEvents = "none";
