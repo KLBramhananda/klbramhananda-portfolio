@@ -129,7 +129,7 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="relative py-24 lg:py-32">
+    <section id="contact" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
         <div className="relative overflow-hidden glass-strong rounded-3xl p-8 sm:p-12 lg:p-16">
           <div

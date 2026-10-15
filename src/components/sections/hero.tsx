@@ -98,7 +98,7 @@ export function Hero() {
     <section
       id="home"
       ref={heroRef}
-      className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28"
+      className="relative overflow-hidden pt-32 pb-14 lg:pt-40 lg:pb-16"
     >
       {/* Ambient blobs — static, composited once (no continuous animation) */}
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>

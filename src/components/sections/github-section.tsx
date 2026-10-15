@@ -90,7 +90,7 @@ const certs = [
 
 export function GithubSection() {
   return (
-    <section id="github" className="relative py-24 lg:py-32">
+    <section id="github" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
         <SectionEyebrow>Open Source</SectionEyebrow>
         <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">

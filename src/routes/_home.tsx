@@ -8,7 +8,6 @@ import { Skills } from "@/components/sections/skills";
 import { Architecture } from "@/components/sections/architecture";
 import { GithubSection } from "@/components/sections/github-section";
 import { Contact, Footer } from "@/components/layout/contact-footer";
-import { VideoBackground } from "@/components/effects/video-background";
 import { IntroGate } from "@/components/intro/IntroGate";
 import {
   currentSectionId,
@@ -101,10 +100,7 @@ function Index() {
         Skip to content
       </a>
 
-      {/* Fixed ambient human-AI video behind all content (muted, looping,
-          cover-fit) with a dark-navy overlay so the footage stays a subtle,
-          readable backdrop and never competes with the interface. */}
-      <VideoBackground />
+      <div aria-hidden className="page-bg" />
 
       <main id="main">
         <CurrentlyBuilding />

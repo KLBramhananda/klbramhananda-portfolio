@@ -3,11 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const MESSAGES = [
-  "Building an AI-powered ERP Procurement Platform",
-  "Working on ERPNext & SAP BTP Integrations",
-  "Exploring LLMs, RAG & Enterprise AI",
-  "Designing Scalable Full-Stack Enterprise Solutions",
-  "Want a real-time view of what I'm working on?",
+  "Building KeeMeds — an ERPNext-based healthcare commerce platform",
 ];
 
 const ROTATION_MS = 3600;
@@ -28,7 +24,7 @@ export function CurrentlyBuilding() {
   const rotationPaused = paused || !inView;
 
   useEffect(() => {
-    if (rotationPaused) return;
+    if (rotationPaused || MESSAGES.length < 2) return;
     const id = setInterval(() => {
       setPrevious(index);
       setIndex((i) => (i + 1) % MESSAGES.length);
