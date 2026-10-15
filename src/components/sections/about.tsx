@@ -1,5 +1,7 @@
-import workspace from "@/assets/images/workspace.jpg";
+import profileImg from "@/assets/images/profile.jpeg";
 import { motion } from "framer-motion";
+import { usePointerTilt } from "../effects/use-pointer-tilt";
+import { ProfileCodeCard } from "../ui/profile-code-card";
 import {
   Boxes,
   Bot,
@@ -130,6 +132,7 @@ const reveal = {
 } as const;
 
 export function About() {
+  const [tiltRef, tiltStyle] = usePointerTilt<HTMLDivElement>(5);
   return (
     <section id="about" className="relative py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4">
@@ -195,43 +198,33 @@ export function About() {
               </span>
             </div>
 
-            {/* Image card */}
+            {/* Portrait card + floating profile.ts code card */}
             <motion.div
               initial={{ opacity: 0, y: 19 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-56px" }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="relative"
+              className="relative mx-auto w-full max-w-md lg:max-w-none"
             >
-              <div className="glass-strong rounded-3xl p-3 glow-cyan">
-                {/* 3/2 frame matches the source photo, no cropping */}
-                <div className="relative aspect-[3/2] overflow-hidden rounded-2xl">
-                  <img
-                    src={workspace}
-                    alt="Bramhananda K L's engineering workspace"
-                    width={750}
-                    height={500}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+              <motion.div ref={tiltRef} style={tiltStyle}>
+                <div className="glass-strong rounded-3xl p-3 glow-cyan">
+                  {/* 4/5 frame matches the source portrait, no cropping */}
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
+                    <img
+                      src={profileImg}
+                      alt="Bramhananda K L"
+                      width={900}
+                      height={1125}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+              <ProfileCodeCard className="mt-4 w-full md:absolute md:-right-6 md:-bottom-8 md:mt-0 md:w-max" />
             </motion.div>
-
-            {/* Focus indicator pinned to the bottom of the column */}
-            <div className="relative mt-auto hidden lg:flex items-center gap-3 glass-strong rounded-2xl px-5 py-4 w-full">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
-                <Compass className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs text-muted-foreground">Engineering focus</div>
-                <div className="text-sm font-semibold text-foreground">
-                  Full Stack · ERP · AI · SAP BTP
-                </div>
-              </div>
-            </div>
           </div>
 
           <motion.div

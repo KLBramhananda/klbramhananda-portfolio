@@ -1841,3 +1841,47 @@ html:not(.dark) .sys-link--blue {
     opacity: 1;
   }
 }
+
+/* ── Hero name: per-letter rise/blur entrance + chrome light sweep ─────────
+   Each letter paints its own slice of one shared gradient (--p positions the
+   slice, --n is the letter count), so the name reads as a single metallic
+   word. The sweep is a CSS-only background-position loop (~every 6s). */
+.hero-letter {
+  display: inline-block;
+  background-image:
+    linear-gradient(105deg, transparent 46%, rgba(255, 255, 255, 0.95) 50%, transparent 54%),
+    linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, var(--cyan-accent) 100%);
+  background-size: calc(var(--n) * 100%) 100%, calc(var(--n) * 100%) 100%;
+  background-repeat: no-repeat;
+  background-position: calc(var(--p) + 75%) 0, var(--p) 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation:
+    hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both,
+    hero-sweep 6s linear 1.6s infinite;
+  animation-delay: calc(var(--i) * 45ms), 1.6s;
+}
+
+html:not(.dark) .hero-letter {
+  background-image:
+    linear-gradient(105deg, transparent 46%, rgba(255, 255, 255, 0.9) 50%, transparent 54%),
+    linear-gradient(135deg, oklch(0.29 0.065 258) 0%, oklch(0.47 0.11 250) 52%, var(--cyan-accent) 100%);
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(0.9375rem); filter: blur(8px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes hero-sweep {
+  0% { background-position: calc(var(--p) + 75%) 0, var(--p) 0; }
+  22%, 100% { background-position: calc(var(--p) - 75%) 0, var(--p) 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-letter {
+    animation: none;
+    background-position: calc(var(--p) + 75%) 0, var(--p) 0;
+  }
+}
