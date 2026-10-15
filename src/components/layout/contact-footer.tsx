@@ -425,9 +425,9 @@ function SubmissionStatus({
 }
 
 const developerLinks = [
-  { label: "Architecture", href: "#architecture" },
-  { label: "Open Source", href: "#github" },
-  { label: "Certifications", href: "#certifications" },
+  { label: "Architecture", href: "/architecture" },
+  { label: "Open Source", href: "/open-source" },
+  { label: "Certifications", href: "/certifications" },
 ];
 
 const footerReveal = {
@@ -518,7 +518,7 @@ export function Footer() {
                 <LinkedinIcon className="h-4 w-4 text-muted-foreground transition-colors duration-200 group-hover:text-cyan-accent" />
               </a>
               <a
-                href="#home"
+                href="/"
                 aria-label="Back to top"
                 className="social-btn group flex h-10 w-10 items-center justify-center rounded-xl glass"
               >

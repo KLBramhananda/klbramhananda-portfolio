@@ -161,7 +161,7 @@ export function SkillInsight({
       </div>
 
       <a
-        href="#experience"
+        href="/experience"
         onClick={onClose}
         className="mt-4 inline-flex items-center gap-1.5 border-t border-slate-900/10 pt-3 text-xs font-medium text-cyan-accent transition-colors hover:text-cyan-accent/80 dark:border-white/5"
       >

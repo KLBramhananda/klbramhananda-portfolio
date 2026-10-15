@@ -48,7 +48,7 @@ export function CurrentlyBuilding() {
       className="relative z-10 mx-auto max-w-7xl px-4 pt-[7rem] -mb-[5.5rem] lg:pt-[7.5rem] lg:-mb-[7.5rem]"
     >
       <a
-        href="#contact"
+        href="/contact"
         aria-label="Current status — see what I'm building and get in touch"
         className="group relative block animate-status-in glass rounded-2xl px-5 py-2.5 shadow-[var(--shadow-strip)] transition-colors duration-300 hover:border-cyan-accent/30 hover:bg-slate-900/[0.05] dark:hover:bg-white/[0.05] sm:px-6"
       >
