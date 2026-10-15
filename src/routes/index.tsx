@@ -8,6 +8,7 @@ import { Architecture } from "@/components/sections/architecture";
 import { GithubSection } from "@/components/sections/github-section";
 import { Contact, Footer } from "@/components/layout/contact-footer";
 import { VideoBackground } from "@/components/effects/video-background";
+import { IntroGate } from "@/components/intro/IntroGate";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,6 +40,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="relative isolate min-h-screen bg-background text-foreground">
+      <IntroGate />
+
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:rounded-lg focus:bg-foreground focus:px-4 focus:py-2 focus:text-background"
