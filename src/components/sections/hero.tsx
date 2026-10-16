@@ -7,7 +7,7 @@ import { usePauseAnimations } from "../effects/use-pause-animations";
 import { HeroNetwork } from "../effects/hero-network";
 import { RoleRotator } from "../effects/role-rotator";
 import { usePointerTilt } from "../effects/use-pointer-tilt";
-import { HeroSpotlight, MagneticWrap, StatCard } from "../effects/hero-interactions";
+import { HeroSpotlight, MagneticWrap, StatStrip } from "../effects/hero-interactions";
 import { HeroCore, type CoreHandle } from "../effects/HeroCore";
 import type { CoreWorld } from "../effects/core-scene";
 
@@ -24,7 +24,7 @@ const NAME_LETTERS = NAME_WORDS.join("").length;
 function AnimatedName() {
   let index = 0;
   return (
-    <h1 className="text-[clamp(2.25rem,11vw,4.5rem)] font-bold leading-[1.05] tracking-tight">
+    <h1 className="text-[clamp(2.5rem,min(11vw,11vh),4.5rem)] font-bold leading-[1.05] tracking-tight lg:text-[clamp(2.5rem,min(4.4vw,11vh),4.4rem)]">
       <span className="sr-only">Bramhananda K L</span>
       <span aria-hidden>
         {NAME_WORDS.map((word, w) => (
@@ -121,7 +121,7 @@ export function Hero() {
     <section
       id="home"
       ref={heroRef}
-      className="relative overflow-hidden pt-32 pb-14 lg:pt-40 lg:pb-16"
+      className="relative flex min-h-screen items-center overflow-hidden pt-[5.25rem] pb-[4.5rem] supports-[height:100svh]:min-h-[100svh] lg:pt-[6rem]"
       style={{ "--hero-tint": "var(--cyan-accent)" } as CSSProperties}
     >
       {/* Ambient blobs — static, composited once (no continuous animation).
@@ -134,16 +134,16 @@ export function Hero() {
       <HeroSpotlight />
       <HeroNetwork />
 
-      <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-4 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-5 px-4 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
         <div className="order-2 text-center lg:order-1 lg:text-left">
           <motion.div ref={tiltRef} style={tiltStyle} data-network-avoid className="relative z-10">
-            <p className="mb-3 text-lg text-muted-foreground">Hi, I'm</p>
+            <p className="mb-2 text-lg text-muted-foreground [@media(max-height:760px)]:mb-1 [@media(max-height:760px)]:text-base">Hi, I'm</p>
             <AnimatedName />
-            <RoleRotator className="mt-5 text-xl font-semibold tracking-tight text-cyan-accent sm:text-2xl" />
+            <RoleRotator className="mt-4 text-xl font-semibold tracking-tight text-cyan-accent sm:text-2xl [@media(max-height:760px)]:mt-2 [@media(max-height:760px)]:text-lg" />
           </motion.div>
 
           <div className="animate-fade-up">
-            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:mx-0">
+            <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-lg lg:mx-0 [@media(max-height:760px)]:mt-3 [@media(max-height:760px)]:text-sm">
               Building scalable enterprise software across full-stack
               applications, ERPNext, AI-powered systems, and SAP BTP
               integrations.
@@ -155,7 +155,7 @@ export function Hero() {
                 with an indigo aura. Shared hover language: a gentle lift/
                 scale, a thin animated accent border sweep, a breathing glow,
                 and an arrow indicator that slides forward — all in `.hero-cta`. */}
-            <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:gap-4 lg:mx-0">
+            <div className="mx-auto mt-6 flex max-w-xl flex-col gap-3 sm:flex-row sm:gap-4 lg:mx-0 [@media(max-height:760px)]:mt-4">
               <MagneticWrap className="w-full sm:flex-1">
                 <Link
                   to="/lab"
@@ -197,12 +197,10 @@ export function Hero() {
               </MagneticWrap>
             </div>
 
-            {/* Quick stats */}
-            <dl className="mt-12 flex flex-wrap justify-center gap-3 lg:justify-start">
-              {stats.map((s) => (
-                <StatCard key={s.label} label={s.label} value={s.value} />
-              ))}
-            </dl>
+            {/* Quick stats — one compact glass strip */}
+            <div className="mt-7 [@media(max-height:760px)]:mt-5">
+              <StatStrip stats={stats} />
+            </div>
           </div>
         </div>
 
