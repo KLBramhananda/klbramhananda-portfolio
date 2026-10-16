@@ -9,13 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as HomeRouteImport } from './routes/_home'
 import { Route as LabRouteImport } from './routes/lab'
+import { Route as HomeIndexRouteImport } from './routes/_home.index'
+import { Route as HomeSectionRouteImport } from './routes/_home.$section'
 import { Route as LabAiResearchRouteImport } from './routes/lab.ai-research'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const HomeRoute = HomeRouteImport.update({
+  id: '/_home',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -25,6 +26,18 @@ const LabRoute = LabRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const HomeIndexRoute = HomeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => HomeRoute,
+} as any)
+
+const HomeSectionRoute = HomeSectionRouteImport.update({
+  id: '/$section',
+  path: '/$section',
+  getParentRoute: () => HomeRoute,
+} as any)
+
 const LabAiResearchRoute = LabAiResearchRouteImport.update({
   id: '/lab/ai-research',
   path: '/lab/ai-research',
@@ -32,42 +45,52 @@ const LabAiResearchRoute = LabAiResearchRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof HomeIndexRoute
+  '/$section': typeof HomeSectionRoute
   '/lab': typeof LabRoute
   '/lab/ai-research': typeof LabAiResearchRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof HomeIndexRoute
+  '/$section': typeof HomeSectionRoute
   '/lab': typeof LabRoute
   '/lab/ai-research': typeof LabAiResearchRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_home': typeof HomeRouteWithChildren
+  '/_home/': typeof HomeIndexRoute
+  '/_home/$section': typeof HomeSectionRoute
   '/lab': typeof LabRoute
   '/lab/ai-research': typeof LabAiResearchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/lab' | '/lab/ai-research'
+  fullPaths: '/' | '/$section' | '/lab' | '/lab/ai-research'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/lab' | '/lab/ai-research'
-  id: '__root__' | '/' | '/lab' | '/lab/ai-research'
+  to: '/' | '/$section' | '/lab' | '/lab/ai-research'
+  id:
+    | '__root__'
+    | '/_home'
+    | '/_home/'
+    | '/_home/$section'
+    | '/lab'
+    | '/lab/ai-research'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  HomeRoute: typeof HomeRouteWithChildren
   LabRoute: typeof LabRoute
   LabAiResearchRoute: typeof LabAiResearchRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_home': {
+      id: '/_home'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab': {
@@ -76,6 +99,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/lab'
       preLoaderRoute: typeof LabRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_home/': {
+      id: '/_home/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof HomeIndexRouteImport
+      parentRoute: typeof HomeRoute
+    }
+    '/_home/$section': {
+      id: '/_home/$section'
+      path: '/$section'
+      fullPath: '/$section'
+      preLoaderRoute: typeof HomeSectionRouteImport
+      parentRoute: typeof HomeRoute
     }
     '/lab/ai-research': {
       id: '/lab/ai-research'
@@ -87,8 +124,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface HomeRouteChildren {
+  HomeIndexRoute: typeof HomeIndexRoute
+  HomeSectionRoute: typeof HomeSectionRoute
+}
+
+const HomeRouteChildren: HomeRouteChildren = {
+  HomeIndexRoute: HomeIndexRoute,
+  HomeSectionRoute: HomeSectionRoute,
+}
+
+const HomeRouteWithChildren = HomeRoute._addFileChildren(HomeRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  HomeRoute: HomeRouteWithChildren,
   LabRoute: LabRoute,
   LabAiResearchRoute: LabAiResearchRoute,
 }

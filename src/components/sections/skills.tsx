@@ -11,6 +11,7 @@ import { skills } from "@/data/skills";
 import { SectionEyebrow } from "./about";
 import { SkillInsight } from "../ui/skill-insight";
 import { TechConstellation } from "../effects/tech-constellation";
+import { Reveal } from "../effects/hero-interactions";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const capabilities = [
@@ -157,17 +158,19 @@ export function Skills() {
     : null;
 
   return (
-    <section id="skills" className="relative py-24 lg:py-32">
+    <section id="skills" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <SectionEyebrow>Technical Skills</SectionEyebrow>
-        <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-          Engineering capabilities, built for production.
-        </h2>
-        <p className="mt-4 max-w-2xl text-muted-foreground">
-          The systems, platforms, and engineering practices I work across.
-        </p>
+        <Reveal>
+          <SectionEyebrow>Technical Skills</SectionEyebrow>
+          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
+            Engineering capabilities, built for production.
+          </h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            The systems, platforms, and engineering practices I work across.
+          </p>
+        </Reveal>
 
-        <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <Reveal className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {capabilities.map((g) => (
             <article
               key={g.title}
@@ -192,7 +195,7 @@ export function Skills() {
               </div>
             </article>
           ))}
-        </div>
+        </Reveal>
       </div>
 
       {/* Tech Stack — Engineering Tech Constellation */}
@@ -201,13 +204,15 @@ export function Skills() {
         ref={techBlockRef}
         className="mx-auto max-w-7xl px-4 mt-24 lg:mt-32"
       >
-        <SectionEyebrow>Tech Stack</SectionEyebrow>
-        <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-          The stack behind the work.
-        </h2>
-        <p className="mt-4 max-w-2xl text-muted-foreground">
-          The languages, frameworks, and platforms I work in day to day.
-        </p>
+        <Reveal>
+          <SectionEyebrow>Tech Stack</SectionEyebrow>
+          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
+            The stack behind the work.
+          </h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            The languages, frameworks, and platforms I work in day to day.
+          </p>
+        </Reveal>
 
         <div className="mt-12">
           <TechConstellation

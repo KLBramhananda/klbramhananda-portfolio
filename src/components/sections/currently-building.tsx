@@ -3,11 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 
 const MESSAGES = [
-  "Building an AI-powered ERP Procurement Platform",
-  "Working on ERPNext & SAP BTP Integrations",
-  "Exploring LLMs, RAG & Enterprise AI",
-  "Designing Scalable Full-Stack Enterprise Solutions",
-  "Want a real-time view of what I'm working on?",
+  "Building KeeMeds — an ERPNext-based healthcare commerce platform",
 ];
 
 const ROTATION_MS = 3600;
@@ -28,7 +24,7 @@ export function CurrentlyBuilding() {
   const rotationPaused = paused || !inView;
 
   useEffect(() => {
-    if (rotationPaused) return;
+    if (rotationPaused || MESSAGES.length < 2) return;
     const id = setInterval(() => {
       setPrevious(index);
       setIndex((i) => (i + 1) % MESSAGES.length);
@@ -48,7 +44,7 @@ export function CurrentlyBuilding() {
       className="relative z-10 mx-auto max-w-7xl px-4 pt-[7rem] -mb-[5.5rem] lg:pt-[7.5rem] lg:-mb-[7.5rem]"
     >
       <a
-        href="#contact"
+        href="/contact"
         aria-label="Current status — see what I'm building and get in touch"
         className="group relative block animate-status-in glass rounded-2xl px-5 py-2.5 shadow-[var(--shadow-strip)] transition-colors duration-300 hover:border-cyan-accent/30 hover:bg-slate-900/[0.05] dark:hover:bg-white/[0.05] sm:px-6"
       >

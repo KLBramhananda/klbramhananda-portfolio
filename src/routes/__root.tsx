@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, useLocation } from "@tanstack/react-router";
 import { BkAiAssistant } from "@/components/bk-ai/bk-ai-assistant";
 import { MouseTrail } from "@/components/effects/mouse-trail";
 import {
@@ -34,6 +34,7 @@ function RootComponent() {
 
   return (
     <ThemeProvider>
+      <HeadContent />
       <PageTransitionProvider>
         {!inLab && (
           <>

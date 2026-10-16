@@ -1,10 +1,11 @@
 import { Component, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CSSProperties, ReactNode } from "react";
+import { coreBridge, detectTier, type CoreCircle } from "./intro-bridge";
 
 export interface IntroScene {
   /** Bursts the letters toward the camera; resolves when the burst is done. */
-  enter(): Promise<void>;
+  enter(target?: CoreCircle): Promise<void>;
   dispose(): void;
 }
 
@@ -17,13 +18,6 @@ export interface IntroSceneOptions {
   startAt: number;
   /** The scene can no longer run well (context lost, low fps, error). */
   onDegrade: () => void;
-}
-
-type Tier = "high" | "mid" | "2d";
-
-interface NavigatorHints extends Navigator {
-  deviceMemory?: number;
-  connection?: { saveData?: boolean };
 }
 
 /** Module-level: a full page load replays the intro; client-side returns to `/` do not. */
@@ -45,27 +39,6 @@ function shouldPlay(): boolean {
     // matchMedia unavailable: treat as no preference.
   }
   return !playedThisLoad;
-}
-
-function hasWebGL2(): boolean {
-  try {
-    const gl = document.createElement("canvas").getContext("webgl2");
-    if (!gl) return false;
-    gl.getExtension("WEBGL_lose_context")?.loseContext();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function detectTier(): Tier {
-  if (window.innerWidth < 768 || !hasWebGL2()) return "2d";
-  const nav = navigator as NavigatorHints;
-  const high =
-    (nav.hardwareConcurrency ?? 0) >= 4 &&
-    (nav.deviceMemory === undefined || nav.deviceMemory >= 4) &&
-    !nav.connection?.saveData;
-  return high ? "high" : "mid";
 }
 
 /** Site accent (cyan). The intro is always dark, so light mode uses the dark-mode cyan. */
@@ -125,6 +98,7 @@ function IntroOverlay({ onExit }: { onExit: () => void }) {
 
     let disposed = false;
     let leaving = false;
+    let fallbackStarted = false;
     let scene: IntroScene | null = null;
     let timelineStart = 0;
     let decodeTimer = 0;
@@ -139,6 +113,7 @@ function IntroOverlay({ onExit }: { onExit: () => void }) {
       return id;
     };
 
+    coreBridge.introActive = true;
     const unlock = lockScroll();
     hold.focus({ preventScroll: true });
 
@@ -183,6 +158,7 @@ function IntroOverlay({ onExit }: { onExit: () => void }) {
       hold.style.pointerEvents = "none";
 
       const fade = () => {
+        coreBridge.introActive = false;
         unlock();
         const main = document.getElementById("main");
         if (main) {
@@ -206,18 +182,21 @@ function IntroOverlay({ onExit }: { onExit: () => void }) {
         fade();
         return;
       }
-      void scene.enter();
-      if (typeof flash.animate === "function") {
+      // Hold/Enter exits on desktop fly the particles into the hero Core when it
+      // is ready; everything else keeps the burst toward the camera.
+      const target =
+        tier !== "2d" && !fallbackStarted && window.innerWidth >= 768 ? coreBridge.circle?.() ?? undefined : undefined;
+      void scene.enter(target);
+      if (!target && typeof flash.animate === "function") {
         flash.animate([{ opacity: 0 }, { opacity: 0.6, offset: 0.4 }, { opacity: 0 }], {
           duration: 600,
           delay: 200,
         });
       }
-      later(fade, 700);
+      later(fade, target ? 800 : 700);
     };
 
     // Scene selection: WebGL tier -> lazy three.js chunk, otherwise (or on any failure) 2D.
-    let fallbackStarted = false;
     const startFallback = async () => {
       if (fallbackStarted || disposed) return;
       fallbackStarted = true;
@@ -353,6 +332,7 @@ function IntroOverlay({ onExit }: { onExit: () => void }) {
 
     return () => {
       disposed = true;
+      coreBridge.introActive = false;
       timers.forEach((id) => window.clearTimeout(id));
       window.clearInterval(decodeTimer);
       cancelAnimationFrame(holdRaf);

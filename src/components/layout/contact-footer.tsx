@@ -4,6 +4,7 @@ import emailjs from "@emailjs/browser";
 import { motion, useReducedMotion } from "framer-motion";
 import { SectionEyebrow } from "../sections/about";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
+import { Reveal } from "../effects/hero-interactions";
 import {
   Mail,
   Phone,
@@ -18,7 +19,9 @@ const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-const channels = [
+// Shared with the terminal command bar so contact details live in one place.
+// eslint-disable-next-line react-refresh/only-export-components
+export const channels = [
   { icon: Mail, label: "Email", value: "bramhanandakl2030@gmail.com", href: "mailto:bramhanandakl2030@gmail.com", external: false },
   { icon: Phone, label: "Phone", value: "+91 7676068819", href: "tel:+917676088819", external: false },
   { icon: LinkedinIcon, label: "LinkedIn", value: "in/bramhanandakl", href: "https://www.linkedin.com/in/bramhanandakl/", external: true },
@@ -129,9 +132,9 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="relative py-24 lg:py-32">
+    <section id="contact" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="relative overflow-hidden glass-strong rounded-3xl p-8 sm:p-12 lg:p-16">
+        <Reveal className="relative overflow-hidden glass-strong rounded-3xl p-8 sm:p-12 lg:p-16">
           <div
             aria-hidden
             className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[6.25rem]"
@@ -270,7 +273,7 @@ export function Contact() {
               )}
             </form>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -425,9 +428,9 @@ function SubmissionStatus({
 }
 
 const developerLinks = [
-  { label: "Architecture", href: "#architecture" },
-  { label: "Open Source", href: "#github" },
-  { label: "Certifications", href: "#certifications" },
+  { label: "Architecture", href: "/architecture" },
+  { label: "Open Source", href: "/open-source" },
+  { label: "Certifications", href: "/certifications" },
 ];
 
 const footerReveal = {
@@ -518,7 +521,7 @@ export function Footer() {
                 <LinkedinIcon className="h-4 w-4 text-muted-foreground transition-colors duration-200 group-hover:text-cyan-accent" />
               </a>
               <a
-                href="#home"
+                href="/"
                 aria-label="Back to top"
                 className="social-btn group flex h-10 w-10 items-center justify-center rounded-xl glass"
               >

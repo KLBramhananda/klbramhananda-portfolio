@@ -128,7 +128,9 @@ export function startFallback2D(opts: IntroSceneOptions): IntroScene {
       }
       const fade = 1 - explode;
 
-      ctx.fillStyle = "#0B0B0C";
+      // Last 500 ms of the exit: carbon -> site navy (colour hand-off).
+      const bgK = clamp01((explode * 0.7 - 0.2) / 0.5);
+      ctx.fillStyle = `rgb(11,${Math.round(12 + 8 * bgK)},${Math.round(12 + 21 * bgK)})`;
       ctx.fillRect(0, 0, width, height);
 
       const cx = width / 2;

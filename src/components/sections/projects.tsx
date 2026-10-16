@@ -9,6 +9,7 @@ import { SectionEyebrow } from "./about";
 import s2p from "@/assets/images/proj-s2p.jpg";
 import fastays from "@/assets/images/proj-fastays.jpg";
 import psp from "@/assets/images/proj-psp.jpg";
+import { Reveal } from "../effects/hero-interactions";
 import keemeds from "@/assets/images/proj-keemeds.png";
 
 type Project = {
@@ -112,9 +113,9 @@ const projects: Project[] = [
 
 export function Projects() {
   return (
-    <section id="projects" className="relative py-24 lg:py-32">
+    <section id="projects" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="flex items-end justify-between gap-6 flex-wrap">
+        <Reveal className="flex items-end justify-between gap-6 flex-wrap">
           <div>
             <SectionEyebrow>Featured Projects</SectionEyebrow>
             <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
@@ -125,13 +126,13 @@ export function Projects() {
             A selection of the platforms I've architected, built, and shipped -
             spanning procurement, travel, and healthcare.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="mt-14 grid gap-6 lg:gap-8">
+        <Reveal className="mt-14 grid gap-6 lg:gap-8">
           {projects.map((p, i) => (
             <ProjectCard key={p.name} project={p} flip={i % 2 === 1} />
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

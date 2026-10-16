@@ -1,227 +1,149 @@
-import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useRef, type CSSProperties, type MouseEvent as ReactMouseEvent } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
-import profileImg from "@/assets/images/profile.jpeg";
+import { motion } from "framer-motion";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { usePageTransition } from "../effects/page-transition-context";
 import { usePauseAnimations } from "../effects/use-pause-animations";
+import { HeroNetwork } from "../effects/hero-network";
+import { RoleRotator } from "../effects/role-rotator";
+import { usePointerTilt } from "../effects/use-pointer-tilt";
+import { HeroSpotlight, MagneticWrap, StatCard } from "../effects/hero-interactions";
+import { HeroCore, type CoreHandle } from "../effects/HeroCore";
+import type { CoreWorld } from "../effects/core-scene";
 
 const stats = [
-  { value: "~2+", label: "Years Experience" },
+  { value: "2+", label: "Years Experience" },
   { value: "4", label: "Enterprise Projects" },
   { value: "10+", label: "Technologies" },
 ];
 
-const terminalLines = [
-  { text: "$ bench start", tone: "muted" },
-  { text: "✓ bench ready · frappe v16", tone: "ok" },
-  { text: "SAP BTP · HANA connected", tone: "accent" },
-  { text: "▶ deploying s2p-matrix …", tone: "muted" },
-  { text: "✓ RFQ service online", tone: "ok" },
-] as const;
+const NAME_WORDS = ["Bramhananda", "K", "L"];
+const NAME_LETTERS = NAME_WORDS.join("").length;
 
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReduced(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  return reduced;
-}
-
-function TerminalPanel() {
-  const reduced = useReducedMotion();
-  const full = terminalLines.map((l) => l.text).join("\n");
-  const [out, setOut] = useState<string>(() => (reduced ? full : ""));
-  const idxRef = useRef(0);
-  const timerRef = useRef<number | undefined>(undefined);
-  const visibleRef = useRef(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  // Replay the typing animation whenever the Hero section becomes meaningfully
-  // visible, and blank the terminal when the Hero scrolls out of view. Uses an
-  // IntersectionObserver (no scroll listeners) with a visibility threshold so
-  // tiny scroll movements don't repeatedly restart the animation.
-  useEffect(() => {
-    const host = rootRef.current?.closest("section");
-    if (!host) return;
-
-    const clearTimer = () => {
-      if (timerRef.current !== undefined) {
-        window.clearTimeout(timerRef.current);
-        timerRef.current = undefined;
-      }
-    };
-
-    const start = () => {
-      clearTimer();
-      if (reduced) {
-        setOut(full);
-        return;
-      }
-      idxRef.current = 0;
-      setOut("");
-      const tick = () => {
-        idxRef.current += 1;
-        setOut(full.slice(0, idxRef.current));
-        if (idxRef.current < full.length) {
-          timerRef.current = window.setTimeout(tick, 24 + Math.random() * 46);
-        } else {
-          timerRef.current = undefined;
-        }
-      };
-      timerRef.current = window.setTimeout(tick, 350);
-    };
-
-    const reset = () => {
-      clearTimer();
-      idxRef.current = 0;
-      setOut(reduced ? full : "");
-    };
-
-    visibleRef.current = false;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          if (!visibleRef.current) start();
-          visibleRef.current = true;
-        } else {
-          if (visibleRef.current) reset();
-          visibleRef.current = false;
-        }
-      },
-      { threshold: 0.25 },
-    );
-
-    observer.observe(host);
-    return () => {
-      observer.disconnect();
-      clearTimer();
-    };
-  }, [reduced, full]);
-
-  const rendered = out.split("\n");
-  const done = out === full;
-  const toneCls = (tone: (typeof terminalLines)[number]["tone"]) =>
-    tone === "ok"
-      ? "text-emerald-700/90 dark:text-emerald-300/90"
-      : tone === "accent"
-        ? "text-cyan-accent/90"
-        : "text-muted-foreground";
-
+/** Per-letter spans carry the shared gradient slice (see `.hero-letter`). */
+function AnimatedName() {
+  let index = 0;
   return (
-    <div
-      ref={rootRef}
-      aria-hidden
-      className="absolute -top-8 -left-8 z-10 hidden w-60 rounded-2xl glass-strong shadow-[var(--shadow-terminal)] lg:block"
-    >
-      <div className="flex items-center gap-1.5 border-b border-slate-900/10 px-3 py-2 dark:border-white/10">
-        <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-        <span className="ml-2 truncate font-mono text-[0.625rem] text-muted-foreground">
-          ~ — enterprise
-        </span>
-        <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[0.5625rem] text-emerald-700 dark:text-emerald-300">
-          <span
-            className={`h-1 w-1 rounded-full bg-emerald-400 ${
-              done ? "" : "animate-pulse"
-            }`}
-          />
-          {done ? "online" : "syncing"}
-        </span>
-      </div>
-      <div className="px-3 py-2.5 font-mono text-[0.625rem] leading-relaxed">
-        {rendered.map((line, i) => (
-          <div
-            key={i}
-            className={`whitespace-nowrap ${toneCls(terminalLines[i].tone)}`}
-          >
-            {line}
-            {i === rendered.length - 1 && !done && (
-              <span className="ml-0.5 inline-block h-3 w-1.5 translate-y-0.5 bg-cyan-accent animate-caret" />
-            )}
-          </div>
+    <h1 className="text-[clamp(2.25rem,11vw,4.5rem)] font-bold leading-[1.05] tracking-tight">
+      <span className="sr-only">Bramhananda K L</span>
+      <span aria-hidden>
+        {NAME_WORDS.map((word, w) => (
+          <span key={word + w}>
+            {w > 0 && " "}
+            <span className="inline-block whitespace-nowrap">
+              {[...word].map((ch) => {
+                const i = index++;
+                return (
+                  <span
+                    key={i}
+                    className="hero-letter"
+                    style={
+                      {
+                        "--i": i,
+                        "--n": NAME_LETTERS,
+                        "--p": `${(i / (NAME_LETTERS - 1)) * 100}%`,
+                      } as CSSProperties
+                    }
+                  >
+                    {ch}
+                  </span>
+                );
+              })}
+            </span>
+          </span>
         ))}
-      </div>
-    </div>
+      </span>
+    </h1>
   );
 }
+
+const TINT: Record<CoreWorld, string> = {
+  neutral: "var(--cyan-accent)",
+  eng: "var(--cyan-accent)",
+  ai: "var(--ai-violet)",
+};
+
+type WorldLink = { world: "eng" | "ai"; to: "/lab" | "/lab/ai-research" };
 
 export function Hero() {
   const heroRef = usePauseAnimations<HTMLElement>();
   const router = useRouter();
   const transition = usePageTransition();
   const navigatingRef = useRef(false);
+  const coreRef = useRef<CoreHandle>(null);
+  const [tiltRef, tiltStyle] = usePointerTilt<HTMLDivElement>(6);
 
-  // Engineering World entry — the cinematic portal. The flash/glow starts in
-  // the same event as the navigation, so there is never a frozen frame or a
-  // blank delay: the router swaps routes immediately while the overlay covers
-  // the load and then fades/zooms into the painted Lab.
-  const handleEnterEngineering = (
-    e: ReactMouseEvent<HTMLAnchorElement>,
-  ) => {
-    // Middle-click / modified clicks keep the browser's native behaviour
-    // (open in new tab), matching the untouched link semantics.
-    if (
-      e.button !== 0 ||
-      e.metaKey ||
-      e.ctrlKey ||
-      e.shiftKey ||
-      e.altKey
-    ) {
-      return;
-    }
+  // Hovering / focusing a CTA morphs the Core and tints the hero glow.
+  const setWorld = (world: CoreWorld) => {
+    coreRef.current?.setWorld(world);
+    heroRef.current?.style.setProperty("--hero-tint", TINT[world]);
+  };
+
+  // Entering a world: the Core zooms in (~500 ms, never holding navigation past
+  // 600 ms), then the existing navigation runs. The Engineering World keeps its
+  // cinematic portal: the flash starts in the same event as the navigation, so
+  // there is never a frozen frame. Modified / middle clicks keep the browser's
+  // native behaviour (open in new tab) and skip the animation.
+  const enterWorld = (e: ReactMouseEvent<HTMLAnchorElement>, { world, to }: WorldLink) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     if (navigatingRef.current) return;
     navigatingRef.current = true;
+    e.preventDefault();
 
     const rect = e.currentTarget.getBoundingClientRect();
     // Keyboard-activated clicks report clientX/Y = 0; burst from the button
     // center in that case so the flash never originates from a corner.
-    transition?.enter({
+    const origin = {
       x: e.clientX !== 0 ? e.clientX : rect.left + rect.width / 2,
       y: e.clientY !== 0 ? e.clientY : rect.top + rect.height / 2,
-    });
-    e.preventDefault();
-    void router.navigate({ to: "/lab" }).catch(() => {
-      navigatingRef.current = false;
-    });
+    };
+    setWorld(world);
+
+    let went = false;
+    const go = () => {
+      if (went) return;
+      went = true;
+      if (world === "eng") transition?.enter(origin);
+      void router.navigate({ to }).catch(() => {
+        navigatingRef.current = false;
+      });
+    };
+    const zoom = coreRef.current?.zoom();
+    if (!zoom) {
+      go();
+      return;
+    }
+    void zoom.then(go);
+    window.setTimeout(go, 600);
   };
+
   return (
     <section
       id="home"
       ref={heroRef}
-      className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28"
+      className="relative overflow-hidden pt-32 pb-14 lg:pt-40 lg:pb-16"
+      style={{ "--hero-tint": "var(--cyan-accent)" } as CSSProperties}
     >
-      {/* Ambient blobs — static, composited once (no continuous animation) */}
+      {/* Ambient blobs — static, composited once (no continuous animation).
+          Two of them follow --hero-tint, which the Two Worlds morph shifts. */}
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
-        <div className="absolute top-20 left-[10%] h-80 w-80 rounded-full bg-cyan-accent/20 blur-[6.875rem]" />
+        <div className="absolute top-20 left-[10%] h-80 w-80 rounded-full bg-[color-mix(in_oklab,var(--hero-tint)_20%,transparent)] blur-[6.875rem] transition-colors duration-700" />
         <div className="absolute bottom-10 right-[8%] h-96 w-96 rounded-full bg-blue-accent/20 blur-[8.125rem]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[31.25rem] w-[31.25rem] rounded-full bg-cyan-accent/5 blur-[6.25rem]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[31.25rem] w-[31.25rem] rounded-full bg-[color-mix(in_oklab,var(--hero-tint)_6%,transparent)] blur-[6.25rem] transition-colors duration-700" />
       </div>
+      <HeroSpotlight />
+      <HeroNetwork />
 
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-14 items-center">
-          {/* Left */}
+      <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-4 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
+        <div className="order-2 text-center lg:order-1 lg:text-left">
+          <motion.div ref={tiltRef} style={tiltStyle} data-network-avoid className="relative z-10">
+            <p className="mb-3 text-lg text-muted-foreground">Hi, I'm</p>
+            <AnimatedName />
+            <RoleRotator className="mt-5 text-xl font-semibold tracking-tight text-cyan-accent sm:text-2xl" />
+          </motion.div>
+
           <div className="animate-fade-up">
-            <p className="text-muted-foreground text-lg mb-3">Hi, I'm</p>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] text-gradient">
-              Bramhananda K L
-            </h1>
-
-            <p className="mt-5 text-xl sm:text-2xl font-semibold tracking-tight text-cyan-accent">
-              Full Stack · AI · ERPNext · SAP BTP
-            </p>
-
-            <p className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:mx-0">
               Building scalable enterprise software across full-stack
               applications, ERPNext, AI-powered systems, and SAP BTP
               integrations.
@@ -233,104 +155,59 @@ export function Hero() {
                 with an indigo aura. Shared hover language: a gentle lift/
                 scale, a thin animated accent border sweep, a breathing glow,
                 and an arrow indicator that slides forward — all in `.hero-cta`. */}
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <Link
-                to="/lab"
-                preload="intent"
-                onClick={handleEnterEngineering}
-                aria-label="Enter the BK Engineering World — interactive systems playground"
-                title="BK Engineering World"
-                className="hero-cta hero-cta--primary group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:flex-1"
-              >
-                <span aria-hidden className="hero-cta__icon">⚡</span>
-                Enter Engineering World
-                <span aria-hidden className="hero-cta__indicator">
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </Link>
-              <Link
-                to="/lab/ai-research"
-                aria-label="Enter the BK AI World — AI, agents, enterprise systems and software architecture"
-                title="BK AI World"
-                className="hero-cta hero-cta--secondary group inline-flex w-full items-center justify-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground sm:flex-1"
-              >
-                <span aria-hidden className="hero-cta__icon">🧠</span>
-                Enter AI World
-                <span aria-hidden className="hero-cta__indicator">
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </Link>
+            <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:gap-4 lg:mx-0">
+              <MagneticWrap className="w-full sm:flex-1">
+                <Link
+                  to="/lab"
+                  preload="intent"
+                  onClick={(e) => enterWorld(e, { world: "eng", to: "/lab" })}
+                  onPointerEnter={() => setWorld("eng")}
+                  onPointerLeave={() => setWorld("neutral")}
+                  onFocus={() => setWorld("eng")}
+                  onBlur={() => setWorld("neutral")}
+                  aria-label="Enter the BK Engineering World — interactive systems playground"
+                  title="BK Engineering World"
+                  className="hero-cta hero-cta--primary group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:flex-1"
+                >
+                  <span aria-hidden className="hero-cta__icon">⚡</span>
+                  Enter Engineering World
+                  <span aria-hidden className="hero-cta__indicator">
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </Link>
+              </MagneticWrap>
+              <MagneticWrap className="w-full sm:flex-1">
+                <Link
+                  to="/lab/ai-research"
+                  onClick={(e) => enterWorld(e, { world: "ai", to: "/lab/ai-research" })}
+                  onPointerEnter={() => setWorld("ai")}
+                  onPointerLeave={() => setWorld("neutral")}
+                  onFocus={() => setWorld("ai")}
+                  onBlur={() => setWorld("neutral")}
+                  aria-label="Enter the BK AI World — AI, agents, enterprise systems and software architecture"
+                  title="BK AI World"
+                  className="hero-cta hero-cta--secondary group inline-flex w-full items-center justify-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground sm:flex-1"
+                >
+                  <span aria-hidden className="hero-cta__icon">🧠</span>
+                  Enter AI World
+                  <span aria-hidden className="hero-cta__indicator">
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </Link>
+              </MagneticWrap>
             </div>
 
             {/* Quick stats */}
-            <dl className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <dl className="mt-12 flex flex-wrap justify-center gap-3 lg:justify-start">
               {stats.map((s) => (
-                <div
-                  key={s.label}
-                  className="glass flex h-full min-w-0 flex-col rounded-2xl p-4 transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
-                >
-                  <dt className="text-xs leading-snug text-muted-foreground">
-                    {s.label}
-                  </dt>
-                  <dd className="mt-2 min-h-[3.1rem] text-lg font-semibold leading-tight text-balance text-foreground">
-                    {s.value}
-                  </dd>
-                </div>
+                <StatCard key={s.label} label={s.label} value={s.value} />
               ))}
             </dl>
           </div>
+        </div>
 
-          {/* Right: profile */}
-          <div className="relative mx-auto w-full max-w-md animate-fade-up">
-            {/* Static glow ring */}
-            <div className="absolute inset-0 -m-8" aria-hidden>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-accent/30 via-transparent to-blue-accent/30 blur-3xl" />
-            </div>
-
-            {/* Live engineering terminal — types once on load, then idles */}
-            <TerminalPanel />
-
-            {/* Image container — 4/5 frame matches the source photo, no cropping */}
-            <div className="relative aspect-[4/5] rounded-[2rem] glass-strong p-3 glow-cyan">
-              <div className="relative h-full w-full overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900">
-                <img
-                  src={profileImg}
-                  alt="Bramhananda K L — Software Engineer"
-                  width={900}
-                  height={1125}
-                  fetchPriority="high"
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
-              </div>
-
-              {/* Corner badge */}
-              <div className="absolute -bottom-4 -left-4 glass-strong rounded-2xl px-4 py-3 flex items-center gap-3">
-                <div
-                  aria-hidden
-                  className="building-fx absolute inset-0 rounded-2xl overflow-hidden pointer-events-none"
-                >
-                  <div className="building-glow absolute inset-0" />
-                  <div className="building-sweep" />
-                </div>
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent to-blue-accent">
-                  <Sparkles className="h-5 w-5 text-background" />
-                </div>
-                <div className="relative">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      aria-hidden
-                      className="status-pulse h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-accent"
-                    />
-                    <span className="text-xs text-muted-foreground">Currently building</span>
-                  </div>
-                  <div className="text-sm font-semibold text-foreground">
-                    KeeMeds · ERPNext
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="order-1 lg:order-2">
+          <HeroCore ref={coreRef} />
         </div>
       </div>
 
@@ -345,6 +222,19 @@ export function Hero() {
           <ChevronDown className="h-4 w-4" />
         </button>
       </div>
+
+      {/* Terminal hint — keyboard users; hidden on touch */}
+      <button
+        type="button"
+        onClick={() => window.dispatchEvent(new Event("bk:terminal"))}
+        className="absolute bottom-7 left-[calc(50%+2.75rem)] hidden items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground md:inline-flex pointer-coarse:hidden"
+      >
+        Press
+        <kbd className="rounded border border-slate-900/15 bg-slate-900/[0.04] px-1.5 py-0.5 font-mono text-[0.625rem] text-foreground/80 dark:border-white/15 dark:bg-white/[0.04]">
+          /
+        </kbd>
+        for terminal
+      </button>
     </section>
   );
 }
