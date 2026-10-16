@@ -23,6 +23,7 @@ export function TerminalLauncher() {
       if (document.querySelector('[role="dialog"][aria-label="Intro"]')) return;
       returnFocus.current = document.activeElement as HTMLElement | null;
       setOpen(true);
+      window.dispatchEvent(new Event("bk:terminal-open"));
     };
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
@@ -48,6 +49,7 @@ export function TerminalLauncher() {
       <TerminalPalette
         onClose={() => {
           setOpen(false);
+          window.dispatchEvent(new Event("bk:terminal-close"));
           returnFocus.current?.focus?.({ preventScroll: true });
         }}
       />

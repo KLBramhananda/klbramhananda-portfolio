@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Hero } from "@/components/sections/hero";
-import { CurrentlyBuilding } from "@/components/sections/currently-building";
 import { About } from "@/components/sections/about";
 import { Projects } from "@/components/sections/projects";
 import { Skills } from "@/components/sections/skills";
@@ -91,7 +90,7 @@ function Index() {
   }, [pathname]);
 
   return (
-    <div className="relative isolate min-h-screen bg-background text-foreground">
+    <div className="relative isolate min-h-screen bg-background pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-foreground md:pb-0">
       <IntroGate />
       <TerminalLauncher />
 
@@ -105,7 +104,6 @@ function Index() {
       <div aria-hidden className="page-bg" />
 
       <main id="main">
-        <CurrentlyBuilding />
         <Hero />
         <About />
         <Projects />

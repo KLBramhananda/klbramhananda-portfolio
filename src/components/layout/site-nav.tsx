@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { Menu, X, FlaskConical } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronDown, FlaskConical } from "lucide-react";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
 import { SystemThemeToggle } from "@/components/theme/SystemThemeToggle";
+import { MobileTabBar } from "./MobileTabBar";
+import { useNavScroll } from "./use-nav-scroll";
 import {
   SECTIONS,
   currentSectionId,
@@ -23,6 +26,8 @@ const links = (["home", "about", "experience", "projects", "skills", "tech", "ar
   },
 );
 const NAV_IDS = new Set<string>(links.map((l) => l.id));
+// On tablets the dock keeps the first links and folds the rest into "More".
+const DOCK_MD_COUNT = 3;
 
 // Fallback length for holding a clicked nav tag active while the browser
 // smooth-scrolls. `scrollend` releases it the moment the scroll really stops;
@@ -30,37 +35,43 @@ const NAV_IDS = new Set<string>(links.map((l) => l.id));
 const NAV_LOCK_MS = 1200;
 
 export function SiteNav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const moreRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [hover, setHover] = useState<string | null>(null);
   const [active, setActive] = useState<string | null>(
     () => sectionForPath(window.location.pathname)?.id ?? "home",
   );
-  const rafRef = useRef<number | null>(null);
   const router = useRouter();
   const onHome = useRouterState({
     select: (st) => st.matches.some((m) => m.routeId === "/_home"),
   });
 
-  // Track whether the page has scrolled past the top (rAF-throttled,
-  // guarded boolean so React only re-renders when the value actually flips).
+  useNavScroll(headerRef);
+
+  // Tablet "More" menu: Esc closes and returns focus; a click outside closes.
   useEffect(() => {
-    const update = () => {
-      rafRef.current = null;
-      const v = window.scrollY > 12;
-      setScrolled((prev) => (prev === v ? prev : v));
-    };
-    const onScroll = () => {
-      if (rafRef.current == null) {
-        rafRef.current = requestAnimationFrame(update);
+    if (!moreOpen) return;
+    menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setMoreOpen(false);
+        moreRef.current?.focus({ preventScroll: true });
       }
     };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!menuRef.current?.contains(t) && !moreRef.current?.contains(t)) setMoreOpen(false);
     };
-  }, []);
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, [moreOpen]);
 
   // Section links are real paths (`/about`, …). A plain click scrolls to the
   // section's heading with a consistent offset below the fixed navbar and
@@ -114,7 +125,7 @@ export function SiteNav() {
           : Promise.resolve();
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       void pushed.finally(() => scrollToSection(section.id, reduced ? "auto" : "smooth"));
-      if (anchor.closest("header") && NAV_IDS.has(section.id)) setActive(section.id);
+      if (anchor.closest("header, nav") && NAV_IDS.has(section.id)) setActive(section.id);
     };
 
     document.addEventListener("click", onClick);
@@ -144,7 +155,7 @@ export function SiteNav() {
       if (spyState.locked) return;
       const id = currentSectionId();
       if (!id) return;
-      setActive(NAV_IDS.has(id) ? id : null);
+      setActive(id);
       if (!syncUrl) return;
       if (sectionForPath(router.state.location.pathname)?.id === id) return;
       const s = sectionForId(id);
@@ -198,131 +209,155 @@ export function SiteNav() {
     };
   }, [onHome, router]);
 
+  const highlight = hover ?? active;
+  const moreLinks = links.slice(DOCK_MD_COUNT);
+
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-[padding] duration-300 ${
-        scrolled ? "py-2" : "py-4"
-      }`}
-    >
-      <div className="mx-auto max-w-7xl px-4">
-        <nav
-          aria-label="Primary"
-          className={`glass-nav flex items-center justify-between rounded-2xl px-4 py-3 transition-shadow duration-300 ${
-            scrolled ? "shadow-[var(--shadow-nav)]" : ""
-          }`}
-        >
-          <a
-            href="/"
-            className="group flex items-center gap-2 rounded-lg"
-            aria-label="Bramhananda K L — back to top"
+    <>
+      <header
+        ref={headerRef}
+        data-compact="false"
+        data-hidden="false"
+        className="group fixed inset-x-0 top-0 z-50 px-4 pt-3 transition-transform duration-300 ease-out data-[hidden=true]:-translate-y-[170%] lg:pt-4"
+      >
+        <div className="mx-auto max-w-7xl origin-top transition-transform duration-300 ease-out group-data-[compact=true]:scale-[0.857]">
+          <nav
+            aria-label="Primary"
+            className="relative flex h-[3.25rem] items-center justify-between rounded-2xl px-3 shadow-[var(--shadow-nav)]"
           >
-            <img
-              src={bkLogo}
-              alt="BK logo"
-              width={1254}
-              height={1254}
-              className="h-8 w-8 shrink-0 rounded-lg object-cover"
+            <span
+              aria-hidden
+              className="glass-nav absolute inset-0 rounded-2xl opacity-90 transition-opacity duration-300 group-data-[compact=true]:opacity-100"
             />
-            <span className="font-semibold tracking-tight text-foreground whitespace-nowrap">
-              Bramha<span className="text-muted-foreground">nanda K L</span>
-            </span>
-          </a>
 
-          <ul className="hidden lg:flex items-center gap-1">
-            {links.map((l) => {
-              const isActive = active === l.id;
-              return (
-                <li key={l.id}>
-                  <a
-                    href={l.href}
-                    aria-current={isActive ? "true" : undefined}
-                    className={`rounded-lg px-3 py-2 text-sm transition-colors ${
-                      isActive
-                        ? "bg-slate-900/5 text-foreground dark:bg-white/5"
-                        : "text-muted-foreground hover:text-foreground hover:bg-slate-900/5 dark:hover:bg-white/5"
-                    }`}
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="flex items-center gap-2">
-            {/* Theme toggle — global preference, shared with the lab shells.
-                The icon shows the ACTION (Sun = switch to light on a dark
-                site, Moon = switch to dark on a light site). */}
-            <SystemThemeToggle />
-            <Link
-              to="/lab"
-              aria-label="Open the BK Engineering Lab — interactive systems playground"
-              title="BK Engineering Lab"
-              className="lab-nav-shortcut inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-900/10 bg-slate-900/[0.04] text-muted-foreground transition-colors duration-300 hover:border-cyan-accent/40 hover:bg-slate-900/[0.06] hover:text-cyan-accent dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
-            >
-              <FlaskConical className="h-[1.125rem] w-[1.125rem]" />
-            </Link>
             <a
-              href="/contact"
-              className="group hidden sm:inline-flex items-center gap-2 rounded-lg border border-slate-900/10 bg-slate-900/[0.04] px-4 py-2 text-sm font-medium text-cyan-accent transition-all duration-300 hover:border-cyan-accent/40 hover:bg-cyan-accent/5 hover:shadow-[0_0_24px_-6px_rgba(6,182,212,0.55)] dark:border-white/10 dark:bg-white/[0.03]"
+              href="/"
+              className="nav-logo group/logo relative flex items-center gap-2 rounded-lg"
+              aria-label="Bramhananda K L — back to top"
             >
-              <span
-                aria-hidden
-                className="status-pulse h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-accent"
+              <img
+                src={bkLogo}
+                alt="BK logo"
+                width={1254}
+                height={1254}
+                className="nav-logo__mark h-8 w-8 shrink-0 rounded-lg object-cover"
               />
-              Let's Talk
+              <span className="font-semibold tracking-tight text-foreground whitespace-nowrap">
+                Bramha<span className="text-muted-foreground">nanda K L</span>
+              </span>
             </a>
-            <button
-              type="button"
-              aria-label={open ? "Close menu" : "Open menu"}
-              aria-expanded={open}
-              aria-controls="mobile-menu"
-              onClick={() => setOpen((v) => !v)}
-              className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg glass text-foreground"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </nav>
 
-        {open && (
-          <div
-            id="mobile-menu"
-            className="mt-2 glass-nav rounded-2xl p-2 animate-fade-up lg:hidden"
-          >
-            <ul className="flex flex-col">
-              {links.map((l) => {
-                const isActive = active === l.id;
+            <ul
+              className="relative hidden items-center gap-0.5 md:flex"
+              onPointerLeave={() => setHover(null)}
+            >
+              {links.map((l, i) => {
+                const lit = highlight === l.id;
                 return (
-                  <li key={l.id}>
+                  <li key={l.id} className={i >= DOCK_MD_COUNT ? "hidden lg:block" : undefined}>
                     <a
                       href={l.href}
-                      onClick={() => setOpen(false)}
-                      aria-current={isActive ? "true" : undefined}
-                      className={`block rounded-lg px-4 py-3 text-sm transition-colors ${
-                        isActive
-                          ? "bg-slate-900/5 text-foreground dark:bg-white/5"
-                          : "text-muted-foreground hover:text-foreground hover:bg-slate-900/5 dark:hover:bg-white/5"
+                      aria-current={active === l.id ? "location" : undefined}
+                      onPointerEnter={(e) => e.pointerType === "mouse" && setHover(l.id)}
+                      onFocus={() => setHover(l.id)}
+                      onBlur={() => setHover(null)}
+                      className={`relative z-0 block rounded-lg px-2.5 py-2 text-sm transition-colors xl:px-3 ${
+                        lit ? "text-foreground" : "text-muted-foreground"
                       }`}
                     >
+                      {lit && (
+                        <motion.span
+                          layoutId="nav-highlight"
+                          aria-hidden
+                          className="absolute inset-0 -z-10 rounded-lg bg-slate-900/[0.06] dark:bg-white/[0.08]"
+                          transition={{ type: "spring", stiffness: 520, damping: 38 }}
+                        />
+                      )}
                       {l.label}
                     </a>
                   </li>
                 );
               })}
-              <li>
-                <a
-                  href="/contact"
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-4 py-3 text-sm transition-colors text-cyan-accent hover:bg-slate-900/5 dark:hover:bg-white/5"
+
+              <li className="relative lg:hidden">
+                <button
+                  ref={moreRef}
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded={moreOpen}
+                  onClick={() => setMoreOpen((v) => !v)}
+                  className="relative z-0 flex items-center gap-1 rounded-lg px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Let's Talk
-                </a>
+                  More
+                  <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                </button>
+                {moreOpen && (
+                  <div
+                    ref={menuRef}
+                    role="menu"
+                    aria-label="More sections"
+                    className="glass-strong absolute top-full right-0 mt-3 w-48 rounded-2xl p-1.5 shadow-[var(--shadow-nav)]"
+                  >
+                    {moreLinks.map((l) => (
+                      <a
+                        key={l.id}
+                        role="menuitem"
+                        href={l.href}
+                        onClick={() => setMoreOpen(false)}
+                        aria-current={active === l.id ? "location" : undefined}
+                        className={`block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-slate-900/5 dark:hover:bg-white/5 ${
+                          active === l.id ? "text-foreground" : "text-muted-foreground"
+                        }`}
+                      >
+                        {l.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </li>
             </ul>
-          </div>
-        )}
-      </div>
-    </header>
+
+            <div className="relative flex items-center gap-2">
+              {/* Theme toggle — global preference, shared with the lab shells.
+                  The icon shows the ACTION (Sun = switch to light on a dark
+                  site, Moon = switch to dark on a light site). */}
+              <SystemThemeToggle />
+              <Link
+                to="/lab"
+                aria-label="Open the BK Engineering Lab — interactive systems playground"
+                title="BK Engineering Lab"
+                className="lab-nav-shortcut hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-900/10 bg-slate-900/[0.04] text-muted-foreground transition-colors duration-300 hover:border-cyan-accent/40 hover:bg-slate-900/[0.06] hover:text-cyan-accent md:inline-flex dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+              >
+                <FlaskConical className="h-[1.125rem] w-[1.125rem]" />
+              </Link>
+              <a
+                href="/contact"
+                aria-current={active === "contact" ? "location" : undefined}
+                className="group inline-flex items-center gap-2 rounded-lg border border-slate-900/10 bg-slate-900/[0.04] px-3 py-2 text-xs font-medium text-cyan-accent transition-all duration-300 hover:border-cyan-accent/40 hover:bg-cyan-accent/5 hover:shadow-[0_0_24px_-6px_rgba(6,182,212,0.55)] sm:px-4 sm:text-sm dark:border-white/10 dark:bg-white/[0.03]"
+              >
+                <span
+                  aria-hidden
+                  className="status-pulse h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-accent"
+                />
+                Let's Talk
+              </a>
+            </div>
+
+            {/* Scroll progress: scaleX driven by --nav-progress (set once per frame) */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-3 bottom-0 h-0.5 overflow-hidden rounded-full"
+            >
+              <span
+                className="block h-full origin-left bg-gradient-to-r from-cyan-accent to-blue-accent"
+                style={{ transform: "scaleX(var(--nav-progress, 0))" }}
+              />
+            </span>
+          </nav>
+        </div>
+      </header>
+
+      <MobileTabBar active={active} />
+    </>
   );
 }

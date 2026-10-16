@@ -42,6 +42,11 @@ export function RoleRotator({ className = "" }: { className?: string }) {
     };
   }, [reduced]);
 
+  // Only the faces around the current step exist: the one turning out (kept
+  // until the turn ends), the current one and the next. At rest, exactly one
+  // face is visible; the box is one line tall and clips everything else.
+  const faces = [step - 1, step, step + 1];
+
   return (
     <p className={className}>
       <span className="sr-only">{SR_LINE}</span>
@@ -51,7 +56,7 @@ export function RoleRotator({ className = "" }: { className?: string }) {
         <span
           ref={rootRef}
           aria-hidden
-          className="relative inline-block align-top"
+          className="relative inline-block overflow-hidden align-top"
           style={{ perspective: "700px", height: FACE_HEIGHT }}
         >
           <span className="invisible block whitespace-nowrap" style={{ height: FACE_HEIGHT }}>
@@ -65,18 +70,27 @@ export function RoleRotator({ className = "" }: { className?: string }) {
               transition: `transform ${TURN_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`,
             }}
           >
-            {ROLES.map((role, i) => (
-              <span
-                key={role}
-                className="absolute inset-0 flex items-center justify-center whitespace-nowrap lg:justify-start"
-                style={{
-                  backfaceVisibility: "hidden",
-                  transform: `rotateX(${-i * 90}deg) translateZ(0.75em)`,
-                }}
-              >
-                {role}
-              </span>
-            ))}
+            {faces.map((k) => {
+              const role = ROLES[((k % ROLES.length) + ROLES.length) % ROLES.length];
+              const outgoing = k === step - 1;
+              return (
+                <span
+                  key={k}
+                  className="absolute inset-0 flex items-center justify-center whitespace-nowrap lg:justify-start"
+                  style={{
+                    backfaceVisibility: "hidden",
+                    transform: `rotateX(${-k * 90}deg) translateZ(0.75em)`,
+                    // The next face stays invisible until its turn; the outgoing
+                    // face is removed once the turn has finished.
+                    opacity: k === step + 1 ? 0 : 1,
+                    visibility: outgoing ? "hidden" : "visible",
+                    transition: outgoing ? `visibility 0s linear ${TURN_MS}ms` : undefined,
+                  }}
+                >
+                  {role}
+                </span>
+              );
+            })}
           </span>
         </span>
       )}

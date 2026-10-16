@@ -577,3 +577,272 @@
     transform: none;
   }
 }
+
+/* ============================================================
+   B-Bot — the portfolio's eyes widget as a small glass robot head.
+   A button (opens the terminal) with state styling driven by a
+   `data-state` attribute: watching | happy | surprised | sleeping |
+   listening. Transform/opacity only; all motion off under reduced motion.
+   ============================================================ */
+.bkai--portfolio.bkbot {
+  --bbot-scale: 0.9;
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform: scale(var(--bbot-scale));
+  transform-origin: 100% 100%;
+}
+
+@media (max-width: 767px) {
+  .bkai--portfolio.bkbot {
+    --bbot-scale: 0.68;
+    right: 0.75rem;
+    bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + 4.9rem);
+  }
+}
+
+.bkbot:focus-visible {
+  outline: 2px solid var(--bk-accent);
+  outline-offset: 8px;
+  border-radius: 1.2rem;
+}
+
+.bkbot__rig {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-origin: 50% 100%;
+}
+
+.bkbot .bkai__tag {
+  display: none;
+}
+
+.bkbot__antenna {
+  position: absolute;
+  left: 50%;
+  top: -0.85rem;
+  width: 2px;
+  height: 0.85rem;
+  margin-left: -1px;
+  background: linear-gradient(to top, color-mix(in oklab, var(--bk-accent) 55%, #475569), #64748b);
+  border-radius: 2px;
+}
+
+.bkbot__led {
+  position: absolute;
+  left: 50%;
+  top: -0.3rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-left: -0.21rem;
+  border-radius: 9999px;
+  background: var(--bk-accent-hi);
+  box-shadow: 0 0 0.55rem var(--bk-accent);
+  animation: bkbot-led 2.2s ease-in-out infinite;
+}
+
+.bkbot__light {
+  position: absolute;
+  top: 50%;
+  width: 0.2rem;
+  height: 1.3rem;
+  margin-top: -0.65rem;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, transparent, var(--bk-accent) 40%, transparent);
+  opacity: 0.55;
+  box-shadow: 0 0 0.5rem color-mix(in oklab, var(--bk-accent) 60%, transparent);
+}
+
+.bkbot__light--l {
+  left: -0.3rem;
+}
+
+.bkbot__light--r {
+  right: -0.3rem;
+}
+
+/* Blink: lids driven by a data flag (random 3–7 s), not the lab keyframes. */
+.bkbot .bkai__lid {
+  animation: none;
+  transition: transform 70ms ease-in, opacity 70ms ease-in;
+}
+
+.bkbot[data-blink] .bkai__lid,
+.bkbot[data-state="sleeping"] .bkai__lid {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* Eye shapes for happy (^ ^) and sleeping (lines). */
+.bkai__arc {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: 50%;
+  height: 0;
+  border-top: 0.2rem solid var(--bk-accent-hi);
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bkbot[data-state="happy"] .bkai__arc {
+  opacity: 1;
+  top: 30%;
+  height: 36%;
+  border: 0.2rem solid var(--bk-accent-hi);
+  border-bottom: 0;
+  border-radius: 9999px 9999px 0 0;
+}
+
+.bkbot[data-state="sleeping"] .bkai__arc {
+  opacity: 1;
+  top: 52%;
+}
+
+.bkbot[data-state="happy"] :is(.bkai__sclera, .bkai__iris, .bkai__glint, .bkai__shade) {
+  opacity: 0;
+}
+
+.bkbot[data-state="surprised"] .bkai__socket {
+  transform: scale(1.12);
+}
+
+.bkbot[data-state="surprised"] .bkai__pupil {
+  transform: scale(0.7);
+}
+
+.bkbot[data-state="surprised"] .bkbot__rig {
+  animation: bkbot-hop 150ms ease-out;
+}
+
+.bkbot[data-wake] .bkbot__rig {
+  animation: bkbot-stretch 300ms ease-out;
+}
+
+.bkbot[data-state="listening"] .bkai__pupil {
+  animation: bkbot-listen 1.4s ease-in-out infinite;
+}
+
+.bkbot[data-state="listening"] .bkbot__led {
+  animation: none;
+  opacity: 1;
+  box-shadow: 0 0 0.8rem var(--bk-accent), 0 0 0.3rem var(--bk-accent-hi);
+}
+
+.bkbot__z {
+  position: absolute;
+  right: -0.1rem;
+  top: -0.9rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--bk-accent-hi);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bkbot[data-state="sleeping"] .bkbot__z {
+  animation: bkbot-z 2.6s ease-in-out infinite;
+}
+
+@keyframes bkbot-led {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes bkbot-hop {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes bkbot-stretch {
+  0% { transform: scaleY(1); }
+  40% { transform: scaleY(1.12) scaleX(0.97); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes bkbot-listen {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+}
+
+@keyframes bkbot-z {
+  0% { opacity: 0; transform: translate(0, 4px); }
+  35% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(0.3rem, -0.7rem); }
+}
+
+/* Tip bubble — sits above B-Bot, theme tokens for both themes. */
+.bkbot__tip {
+  position: fixed;
+  right: clamp(0.9rem, 3vw, 1.6rem);
+  bottom: calc(clamp(0.85rem, 3vh, 1.5rem) + 4.4rem * 0.9 + 1.2rem);
+  z-index: 75;
+  display: flex;
+  max-width: 14.5rem;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--border);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  box-shadow: var(--shadow-terminal);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.bkbot__tip[data-show="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.bkbot__tip-x {
+  flex: none;
+  margin: -0.1rem -0.2rem 0 0;
+  padding: 0 0.3rem;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--muted-foreground);
+}
+
+.bkbot__tip-x:hover {
+  color: var(--foreground);
+}
+
+@media (max-width: 767px) {
+  .bkbot__tip {
+    right: 0.75rem;
+    bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + 4.9rem + 4.4rem * 0.68 + 0.9rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bkbot,
+  .bkbot *,
+  .bkbot__tip {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .bkbot__z {
+    display: none;
+  }
+}

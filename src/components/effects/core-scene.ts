@@ -7,7 +7,9 @@ import {
   LineBasicMaterial,
   LineLoop,
   LineSegments,
+  Mesh,
   NormalBlending,
+  PlaneGeometry,
   PerspectiveCamera,
   Points,
   Scene,
@@ -58,6 +60,7 @@ uniform vec2 uPointer;
 uniform vec3 uCyan;
 uniform vec3 uViolet;
 uniform vec3 uPink;
+uniform vec3 uPulse[5];
 attribute vec3 aWire;
 attribute vec3 aNeural;
 attribute vec4 aSeed;
@@ -74,15 +77,30 @@ void main() {
   vec4 clip = projectionMatrix * mv;
   gl_Position = clip;
 
+  vec3 dir = normalize(p + vec3(0.0001));
+  // Rim light: points near the silhouette (normal ~ perpendicular to the view
+  // direction) glow brighter, so the cloud reads as a 3D ball, not dust.
+  vec3 vn = normalize(normalMatrix * dir);
+  float rim = pow(1.0 - abs(dot(vn, normalize(-mv.xyz))), 2.2);
+
+  // Data packets travelling along great-circle arcs (positions come from a
+  // small uniform array; nothing per point on the CPU).
+  float pulse = 0.0;
+  for (int i = 0; i < 5; i++) pulse += smoothstep(0.24, 0.0, distance(dir, uPulse[i]));
+  pulse = min(pulse, 1.5);
+
   float near = smoothstep(0.35, 0.0, distance(clip.xy / clip.w, uPointer));
   float depth = smoothstep(-(uCamZ + 1.3), -(uCamZ - 1.3), mv.z);
-  float size = (0.026 + aSeed.y * 0.024) * (1.0 + near * 0.9) * (1.0 - uEng * 0.22);
+  float twinkle = 1.0 + 0.22 * sin(uTime * 2.1 + aSeed.z * 40.0);
+  float size = (0.024 + aSeed.y * aSeed.y * 0.03) * (1.0 + near * 0.9 + rim * 0.35 + pulse * 0.7) * (1.0 - uEng * 0.22);
   gl_PointSize = min(size * uScale * uPixelRatio / max(-mv.z, 0.1), 28.0 * uPixelRatio);
 
   vec3 ai = mix(uViolet, uPink, smoothstep(-1.0, 1.0, p.y * 0.8 + aSeed.w * 0.8 - 0.4));
-  vCol = mix(uCyan * (1.0 + uEng * 0.2), ai, uAI);
-  float pulse = 1.0 + uAI * 0.25 * sin(uTime * 1.3 + aSeed.z * 6.2831);
-  vA = mix(0.35, 1.0, depth) * (0.6 + 0.4 * near) * pulse * mix(1.0, 1.25, uTheme);
+  vec3 base = mix(uCyan * (1.0 + uEng * 0.2), ai, uAI);
+  // Packets lean toward white on dark, toward a deeper tone on light.
+  vCol = mix(base, mix(vec3(1.0), base * 0.55, uTheme), clamp(pulse, 0.0, 1.0) * 0.5);
+  float anim = 1.0 + uAI * 0.25 * sin(uTime * 1.3 + aSeed.z * 6.2831);
+  vA = mix(0.3, 1.0, depth) * (0.55 + 0.4 * near + 0.7 * rim + 0.5 * pulse) * twinkle * anim * mix(1.0, 1.25, uTheme);
 }
 `;
 
@@ -222,6 +240,7 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
     uCyan: { value: new Vector3() },
     uViolet: { value: new Vector3() },
     uPink: { value: new Vector3() },
+    uPulse: { value: Array.from({ length: 5 }, () => new Vector3(0, 1, 0)) },
   };
   const material = new ShaderMaterial({
     uniforms,
@@ -278,6 +297,73 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
     return (slot / onRing) * Math.PI * 2 + ring * 0.7;
   });
 
+  // Latitude / longitude lines that turn with the sphere (hidden in the AI state).
+  const gridMaterial = new LineBasicMaterial({
+    transparent: true,
+    opacity: 0.16,
+    depthWrite: false,
+    blending: AdditiveBlending,
+  });
+  const gridGeometries: BufferGeometry[] = [];
+  const addLoop = (build: (a: number, out: Float32Array, i: number) => void) => {
+    const pts = new Float32Array(72 * 3);
+    for (let i = 0; i < 72; i++) build((i / 72) * Math.PI * 2, pts, i);
+    const geo = new BufferGeometry();
+    geo.setAttribute("position", new BufferAttribute(pts, 3));
+    gridGeometries.push(geo);
+    return new LineLoop(geo, gridMaterial);
+  };
+  for (let k = 1; k <= 6; k++) {
+    const lat = ((k / 7) * 2 - 1) * (Math.PI / 2) * 0.92;
+    const r = Math.cos(lat) * 1.003;
+    const y = Math.sin(lat) * 1.003;
+    group.add(
+      addLoop((a, out, i) => {
+        out[i * 3] = Math.cos(a) * r;
+        out[i * 3 + 1] = y;
+        out[i * 3 + 2] = Math.sin(a) * r;
+      }),
+    );
+  }
+  for (let k = 0; k < 4; k++) {
+    const loop = addLoop((a, out, i) => {
+      out[i * 3] = Math.cos(a) * 1.003;
+      out[i * 3 + 1] = Math.sin(a) * 1.003;
+      out[i * 3 + 2] = 0;
+    });
+    loop.rotation.y = (k / 4) * Math.PI;
+    group.add(loop);
+  }
+
+  // Soft pulsing glow at the centre (a camera-facing quad with a radial fade).
+  const glowMaterial = new ShaderMaterial({
+    uniforms: {
+      uColor: { value: new Vector3() },
+      uStrength: { value: 0.5 },
+      uTime: uniforms.uTime,
+    },
+    vertexShader: "varying vec2 vUv;\nvoid main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader:
+      "uniform vec3 uColor;\nuniform float uStrength;\nuniform float uTime;\nvarying vec2 vUv;\nvoid main() {\n  float r = length(vUv - 0.5) * 2.0;\n  float a = pow(max(0.0, 1.0 - r), 2.2);\n  gl_FragColor = vec4(uColor, a * uStrength * (0.85 + 0.15 * sin(uTime * 0.9)));\n}",
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    blending: AdditiveBlending,
+  });
+  const glowGeometry = new PlaneGeometry(3.1, 3.1);
+  const glow = new Mesh(glowGeometry, glowMaterial);
+  glow.renderOrder = -1;
+  scene.add(glow);
+
+  // Five packets: each travels a great circle (axis + start vector + speed).
+  const pulseAxes = Array.from({ length: 5 }, (_, i) => {
+    const axis = new Vector3(Math.sin(i * 2.4), Math.cos(i * 1.7), Math.sin(i * 0.9 + 1)).normalize();
+    const u = new Vector3(1, 0, 0);
+    if (Math.abs(axis.x) > 0.8) u.set(0, 1, 0);
+    u.cross(axis).normalize();
+    return { axis, u, v: new Vector3().crossVectors(axis, u), speed: 0.45 + i * 0.11, phase: i * 1.3 };
+  });
+
   const applyTheme = () => {
     const light = !document.documentElement.classList.contains("dark");
     uniforms.uTheme.value = light ? 1 : 0;
@@ -288,17 +374,29 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
     material.blending = blending;
     lineMaterial.blending = blending;
     ringMaterial.blending = blending;
+    gridMaterial.blending = blending;
+    glowMaterial.blending = blending;
+    gridMaterial.needsUpdate = true;
+    glowMaterial.needsUpdate = true;
     material.needsUpdate = true;
     lineMaterial.needsUpdate = true;
     ringMaterial.needsUpdate = true;
     const c = uniforms.uCyan.value;
     lineMaterial.color.setRGB(c.x, c.y, c.z);
     ringMaterial.color.setRGB(c.x, c.y, c.z);
+    gridMaterial.color.setRGB(c.x, c.y, c.z);
     ringMaterial.opacity = light ? 0.4 : 0.22;
   };
   applyTheme();
   const themeObserver = new MutationObserver(applyTheme);
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+  let labelW = labels.map(() => 64);
+  let labelH = 20;
+  const measureLabels = () => {
+    labelW = labels.map((el) => el.offsetWidth || 64);
+    labelH = labels[0]?.offsetHeight || 20;
+  };
 
   let width = 1;
   let height = 1;
@@ -320,6 +418,7 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
     uniforms.uPixelRatio.value = dpr;
     uniforms.uScale.value = height / (2 * tan);
     uniforms.uCamZ.value = camZ;
+    measureLabels();
   };
   applySize();
   const resizeObserver = new ResizeObserver(() => {
@@ -338,6 +437,7 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
   const onDown = (e: PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     dragging = true;
+    window.dispatchEvent(new Event("bk:core-drag"));
     lastX = e.clientX;
     lastT = performance.now();
     host.setPointerCapture?.(e.pointerId);
@@ -386,6 +486,12 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
   let rendered = false;
   const v = new Vector3();
   const pv = new Vector3();
+  const pulseTmp = new Vector3();
+  const lx = new Float32Array(labels.length);
+  const ly = new Float32Array(labels.length);
+  const off = new Float32Array(labels.length);
+  const tgt = new Float32Array(labels.length);
+  const front = new Float32Array(labels.length);
 
   const circle = (): CoreCircle | null => {
     const r = host.getBoundingClientRect();
@@ -413,6 +519,19 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
       uniforms.uEng.value += (targetEng - uniforms.uEng.value) * k;
       uniforms.uAI.value += (targetAI - uniforms.uAI.value) * k;
       lineMaterial.opacity = uniforms.uEng.value * (uniforms.uTheme.value ? 0.55 : 0.4);
+      gridMaterial.opacity = (uniforms.uTheme.value ? 0.34 : 0.24) * (1 - uniforms.uAI.value);
+      glowMaterial.uniforms.uColor.value
+        .copy(uniforms.uCyan.value)
+        .lerp(uniforms.uViolet.value, uniforms.uAI.value);
+      glowMaterial.uniforms.uStrength.value = uniforms.uTheme.value ? 0.22 : 0.8;
+      pulseAxes.forEach((pa, i) => {
+        const ang = pa.phase + time * pa.speed;
+        pulseTmp
+          .copy(pa.u)
+          .multiplyScalar(Math.cos(ang))
+          .addScaledVector(pa.v, Math.sin(ang));
+        uniforms.uPulse.value[i].copy(pulseTmp);
+      });
 
       if (!dragging) {
         spin += (AUTO - spin) * (1 - Math.exp(-dt * 1.6));
@@ -432,17 +551,40 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
         }
       }
 
-      // Project the labels (transform + opacity only).
+      // Project the labels (transform + opacity only). Labels behind the ball
+      // stay readable (>= 0.45 opacity); a light separation pass keeps chips
+      // from overlapping on screen.
       scene.updateMatrixWorld(true);
-      labels.forEach((el, i) => {
+      labels.forEach((_, i) => {
         const ring = RINGS[labelRing[i]];
         const a = labelBase[i] + time * ring.speed;
         v.set(Math.cos(a) * ring.radius, 0, Math.sin(a) * ring.radius);
         ringObjects[labelRing[i]].localToWorld(v);
-        const front = clamp01((v.z + 0.7) / 1.4);
+        front[i] = clamp01((v.z + 0.7) / 1.4);
         const projected = pv.copy(v).project(camera);
-        el.style.transform = `translate3d(${(projected.x * width) / 2}px,${(-projected.y * height) / 2}px,0) translate(-50%,-50%) scale(${0.85 + 0.15 * front})`;
-        el.style.opacity = String(0.2 + 0.8 * front);
+        lx[i] = (projected.x * width) / 2;
+        ly[i] = (-projected.y * height) / 2;
+        tgt[i] = 0;
+      });
+      for (let i = 0; i < labels.length; i++) {
+        for (let j = i + 1; j < labels.length; j++) {
+          const dx = Math.abs(lx[i] - lx[j]);
+          const dy = ly[i] - ly[j];
+          const needX = (labelW[i] + labelW[j]) / 2 + 4;
+          const needY = labelH + 3;
+          if (dx < needX && Math.abs(dy) < needY) {
+            const push = (needY - Math.abs(dy)) / 2;
+            const dir = dy === 0 ? (i < j ? 1 : -1) : Math.sign(dy);
+            tgt[i] += dir * push;
+            tgt[j] -= dir * push;
+          }
+        }
+      }
+      labels.forEach((el, i) => {
+        off[i] += (tgt[i] - off[i]) * 0.2;
+        const f = front[i];
+        el.style.transform = `translate3d(${lx[i]}px,${ly[i] + off[i]}px,0) translate(-50%,-50%) scale(${0.85 + 0.15 * f})`;
+        el.style.opacity = String(0.55 + 0.45 * f);
       });
 
       renderer.render(scene, camera);
@@ -522,6 +664,10 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
       lineMaterial.dispose();
       ringMaterial.dispose();
       ringGeometries.forEach((g) => g.dispose());
+      gridGeometries.forEach((g) => g.dispose());
+      gridMaterial.dispose();
+      glowGeometry.dispose();
+      glowMaterial.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
       canvas.remove();

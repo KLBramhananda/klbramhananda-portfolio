@@ -339,14 +339,28 @@ export function MouseTrail() {
       if (!running) start();
     };
 
+    // When the pointer leaves the window the leading square must go with it;
+    // otherwise the last frame (head included) stays painted at the exit point.
+    // `moved` drops, and one more frame runs to clear the canvas.
+    const onPointerLeave = () => {
+      if (!moved) return;
+      moved = false;
+      lastMoveAt = performance.now();
+      if (!running) start();
+    };
+
     measure();
     window.addEventListener("resize", measure);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", onPointerLeave);
+    window.addEventListener("blur", onPointerLeave);
 
     return () => {
       stop();
       window.removeEventListener("resize", measure);
       window.removeEventListener("pointermove", onPointerMove);
+      document.documentElement.removeEventListener("pointerleave", onPointerLeave);
+      window.removeEventListener("blur", onPointerLeave);
     };
   }, [reduced]);
 

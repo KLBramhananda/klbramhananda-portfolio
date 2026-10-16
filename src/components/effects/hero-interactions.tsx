@@ -157,24 +157,32 @@ export function CountUp({ value }: { value: string }) {
   );
 }
 
-/** Stat card: local 3D tilt (±8°) with a glass glare that follows the cursor. */
-export function StatCard({ label, value }: { label: string; value: string }) {
-  const [ref, style] = usePointerTilt<HTMLDivElement>(8, { local: true });
+/**
+ * One compact glass strip with the hero stats (dividers between cells). A
+ * subtle glare follows the cursor on desktop (via the shared local pointer
+ * hook, with no tilt); values count up once, in fixed-width tabular numerals.
+ */
+export function StatStrip({ stats }: { stats: { value: string; label: string }[] }) {
+  const [ref, style] = usePointerTilt<HTMLDListElement>(0, { local: true });
   return (
-    <motion.div
+    <motion.dl
       ref={ref}
       style={style}
-      className="glass relative flex w-40 min-w-0 flex-col overflow-hidden rounded-2xl p-4 text-left sm:w-44"
+      className="glass relative mx-auto flex w-full max-w-md divide-x divide-slate-900/10 overflow-hidden rounded-2xl sm:w-auto sm:max-w-none lg:mx-0 dark:divide-white/10"
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_var(--gx,50%)_var(--gy,50%),color-mix(in_oklab,var(--cyan-accent)_18%,transparent),transparent_60%)] opacity-[var(--glare,0)] transition-opacity duration-300"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_var(--gx,50%)_var(--gy,50%),color-mix(in_oklab,var(--cyan-accent)_16%,transparent),transparent_60%)] opacity-[var(--glare,0)] transition-opacity duration-300"
       />
-      <dt className="relative text-xs leading-snug text-muted-foreground">{label}</dt>
-      <dd className="relative mt-2 min-h-[3.1rem] text-lg font-semibold leading-tight text-balance text-foreground">
-        <CountUp value={value} />
-      </dd>
-    </motion.div>
+      {stats.map((s) => (
+        <div key={s.label} className="relative min-w-0 flex-1 px-3 py-2.5 text-left sm:flex-none sm:px-5">
+          <dt className="text-[0.6875rem] leading-snug text-muted-foreground">{s.label}</dt>
+          <dd className="mt-0.5 text-lg leading-tight font-semibold text-foreground">
+            <CountUp value={s.value} />
+          </dd>
+        </div>
+      ))}
+    </motion.dl>
   );
 }
 
