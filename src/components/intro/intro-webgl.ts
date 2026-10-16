@@ -12,6 +12,7 @@ import {
   WebGLRenderer,
 } from "three";
 import type { IntroScene, IntroSceneOptions } from "./IntroGate";
+import type { CoreCircle } from "./intro-bridge";
 
 const WORD = "BRAMHA";
 const FONT_FAMILY = '"Inter", "Geist", "SF Pro Display", ui-sans-serif, system-ui, sans-serif';
@@ -23,6 +24,9 @@ const LAYER_GAP = 0.11;
 const WORD_Y = 0.5;
 const TILT_MAX = (10 * Math.PI) / 180;
 const LINE_NODES = 240;
+// Site navy base (dark theme `--background`), the exit's colour hand-off target.
+const NAVY = [11 / 255, 20 / 255, 33 / 255] as const;
+const CARBON = [11 / 255, 12 / 255, 12 / 255] as const;
 
 const COMMON = /* glsl */ `
 uniform float uProgress;
@@ -33,6 +37,9 @@ uniform float uPixelRatio;
 uniform float uScale;
 uniform float uAlpha;
 uniform float uPower;
+uniform float uHandoff;
+uniform vec3 uCenter;
+uniform float uRadius;
 uniform vec2 uPointer;
 uniform vec2 uTilt;
 attribute vec3 aStart;
@@ -41,6 +48,7 @@ attribute vec4 aSeed;
 varying float vBand;
 varying float vBright;
 varying float vAlpha;
+varying float vEdge;
 
 float easeOutBack(float t) {
   float x = t - 1.0;
@@ -66,6 +74,10 @@ vec3 place(out float local) {
   float l = length(d);
   float push = smoothstep(1.3, 0.0, l);
   p.xy += (d / (l + 0.0001)) * push * push * 0.9 * local * uPower;
+
+  // Hand-off: compress onto the Core's on-screen sphere.
+  vec3 sph = uCenter + normalize(aStart + vec3(0.0001)) * uRadius * (0.8 + 0.2 * aSeed.x);
+  p = mix(p, sph, uHandoff);
   return p;
 }
 
@@ -83,10 +95,14 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
   float b = band(p) * local;
+  float edge = step(1.0, aSeed.w);
   vBand = b;
-  vBright = aSeed.w;
+  vEdge = edge;
+  // Edge points glow; interior points are dimmer; points further back dim too.
+  vBright = aSeed.w * (0.5 + 0.5 * aSeed.z);
   vAlpha = uAlpha * (0.3 + 0.7 * local) * (1.0 - uExplode * 0.6);
-  float size = (0.03 + aSeed.x * 0.035 + b * 0.03) * (1.0 + uExplode * 1.5);
+  float size = (0.017 + aSeed.x * 0.02 + b * 0.022) * mix(0.62, 1.0, edge);
+  size *= (1.0 + uExplode * 1.5) * (1.0 - 0.25 * uHandoff);
   gl_PointSize = min(size * uScale * uPixelRatio / max(-mv.z, 0.1), 48.0 * uPixelRatio);
 }
 `;
@@ -97,11 +113,12 @@ uniform vec3 uWhite;
 varying float vBand;
 varying float vBright;
 varying float vAlpha;
+varying float vEdge;
 void main() {
   float d = length(gl_PointCoord - 0.5);
   if (d > 0.5) discard;
   float a = pow(1.0 - d * 2.0, 2.0);
-  vec3 col = mix(uWhite, uAccent, clamp(vBand * 0.9, 0.0, 1.0)) * vBright * (1.0 + vBand * 1.4);
+  vec3 col = mix(uWhite, uAccent, clamp(vEdge * 0.7 + vBand * 0.9, 0.0, 1.0)) * vBright * (1.0 + vBand * 1.4);
   gl_FragColor = vec4(col, a * vAlpha);
 }
 `;
@@ -115,7 +132,8 @@ void main() {
   float flick = 0.5 + 0.5 * sin(uTime * (3.0 + aSeed.x * 5.0) + aSeed.x * 30.0);
   vBand = 0.0;
   vBright = 1.0;
-  vAlpha = uAlpha * (1.0 - smoothstep(0.1, 0.7, uProgress)) * (0.25 + 0.75 * flick) * 0.35 * (1.0 - uExplode);
+  vEdge = 0.0;
+  vAlpha = uAlpha * (1.0 - smoothstep(0.0, 0.3, uProgress)) * (0.25 + 0.75 * flick) * 0.35 * (1.0 - uExplode);
 }
 `;
 
@@ -144,6 +162,8 @@ function randomInSphere(): [number, number, number] {
 }
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+const rgbHex = (r: number, g: number, b: number) =>
+  (Math.round(r * 255) << 16) | (Math.round(g * 255) << 8) | Math.round(b * 255);
 
 async function loadFont(): Promise<void> {
   try {
@@ -211,14 +231,14 @@ function sampleWord(count: number): { norm: Float32Array; seed: Float32Array } {
     seed[i * 4] = Math.random();
     seed[i * 4 + 1] = clamp01((x / W) * 0.78 + Math.random() * 0.22);
     seed[i * 4 + 2] = layer / (LAYERS - 1);
-    seed[i * 4 + 3] = pickEdge ? 1.25 : 0.7;
+    seed[i * 4 + 3] = pickEdge ? 1.3 : 0.55;
   }
   return { norm, seed };
 }
 
 export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
   const { host, high, accent, white, onDegrade } = opts;
-  const count = high ? 9000 : 4000;
+  const count = high ? 12000 : 5000;
   const dprCap = high ? 1.75 : 1.5;
 
   await loadFont();
@@ -273,6 +293,9 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
     uScale: { value: 1 },
     uAlpha: { value: 0 },
     uPower: { value: 0 },
+    uHandoff: { value: 0 },
+    uCenter: { value: new Vector3(0, 0, 0) },
+    uRadius: { value: 1 },
     uPointer: { value: new Vector2(99, 99) },
     uTilt: { value: new Vector2(0, 0) },
     uAccent: { value: hexToVec3(accent) },
@@ -413,6 +436,8 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
   let last = 0;
   let time = opts.startAt;
   let enterAt = -1;
+  let exitDur = 0.7;
+  let handoff = false;
   let resolveEnter: (() => void) | null = null;
   let winStart = 0;
   let winFrames = 0;
@@ -463,8 +488,22 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
       uniforms.uProgress.value = clamp01((time - 0.6) / 1.6);
       uniforms.uSweep.value = sweep;
       if (enterAt >= 0) {
-        const p = clamp01((time - enterAt) / 0.7);
-        uniforms.uExplode.value = p * p;
+        const p = clamp01((time - enterAt) / exitDur);
+        if (handoff) {
+          uniforms.uHandoff.value = p * p * (3 - 2 * p);
+        } else {
+          uniforms.uExplode.value = p * p;
+        }
+        // Last 500 ms: carbon -> site navy, so the colour carries into Home.
+        const k = clamp01((p * exitDur - (exitDur - 0.5)) / 0.5);
+        renderer.setClearColor(
+          rgbHex(
+            CARBON[0] + (NAVY[0] - CARBON[0]) * k,
+            CARBON[1] + (NAVY[1] - CARBON[1]) * k,
+            CARBON[2] + (NAVY[2] - CARBON[2]) * k,
+          ),
+          1,
+        );
         if (p >= 1 && resolveEnter) {
           resolveEnter();
           resolveEnter = null;
@@ -500,8 +539,21 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
   startLoop();
 
   return {
-    enter() {
-      if (enterAt < 0) enterAt = time;
+    enter(target?: CoreCircle) {
+      if (enterAt < 0) {
+        enterAt = time;
+        if (target) {
+          const r = host.getBoundingClientRect();
+          const nx = ((target.x - r.left) / r.width) * 2 - 1;
+          const ny = -(((target.y - r.top) / r.height) * 2 - 1);
+          uniforms.uCenter.value.set((nx * visW) / 2, (ny * VIS_H) / 2, 0);
+          uniforms.uRadius.value = target.r * (VIS_H / r.height);
+          handoff = true;
+          exitDur = 0.8;
+          powerTarget = 0;
+          tiltTarget.set(0, 0);
+        }
+      }
       return new Promise<void>((resolve) => {
         resolveEnter = resolve;
       });

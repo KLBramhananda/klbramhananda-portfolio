@@ -108,8 +108,8 @@ export function Hero() {
       </div>
       <HeroNetwork />
 
-      <div className="mx-auto max-w-4xl px-4 text-center">
-        <motion.div ref={tiltRef} style={tiltStyle}>
+      <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
+        <motion.div ref={tiltRef} style={tiltStyle} data-network-avoid>
           <p className="mb-3 text-lg text-muted-foreground">Hi, I'm</p>
           <AnimatedName />
           <RoleRotator className="mt-5 text-xl font-semibold tracking-tight text-cyan-accent sm:text-2xl" />

@@ -8,6 +8,14 @@ interface Node {
 }
 
 const LINK_DIST = 150;
+const AVOID_PAD = 10;
+
+interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
 
 /**
  * Faint drifting point network behind the hero (Canvas 2D). Pauses while the
@@ -27,6 +35,7 @@ export function HeroNetwork() {
     let height = 0;
     let nodes: Node[] = [];
     let rgb = "6,182,212";
+    let avoid: Rect[] = [];
     let raf = 0;
     let last = 0;
     let inView = true;
@@ -42,8 +51,30 @@ export function HeroNetwork() {
       }
     };
 
+    // Elements marked `data-network-avoid` (the heading) are cut out of the
+    // drawing, so no node or line is ever painted where the letters sit.
+    const measureAvoid = () => {
+      const origin = canvas.getBoundingClientRect();
+      avoid = Array.from(
+        canvas.parentElement?.querySelectorAll("[data-network-avoid]") ?? [],
+      ).map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          x: r.left - origin.left - AVOID_PAD,
+          y: r.top - origin.top - AVOID_PAD,
+          w: r.width + AVOID_PAD * 2,
+          h: r.height + AVOID_PAD * 2,
+        };
+      });
+    };
+
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, width, height);
+      for (const r of avoid) ctx.rect(r.x, r.y, r.w, r.h);
+      ctx.clip("evenodd");
       ctx.lineWidth = 1;
       for (let i = 0; i < nodes.length; i++) {
         const a = nodes[i];
@@ -65,6 +96,7 @@ export function HeroNetwork() {
         ctx.arc(n.x, n.y, 1.4, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.restore();
     };
 
     const resize = () => {
@@ -75,6 +107,7 @@ export function HeroNetwork() {
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      measureAvoid();
       const count = width < 768 ? 30 : 60;
       nodes = Array.from({ length: count }, () => ({
         x: Math.random() * width,
