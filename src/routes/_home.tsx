@@ -90,7 +90,7 @@ function Index() {
   }, [pathname]);
 
   return (
-    <div className="relative isolate min-h-screen bg-background text-foreground">
+    <div className="relative isolate min-h-screen bg-background pb-[calc(4.75rem+env(safe-area-inset-bottom))] text-foreground md:pb-0">
       <IntroGate />
       <TerminalLauncher />
 

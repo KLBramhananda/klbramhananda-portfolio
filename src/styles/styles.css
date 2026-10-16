@@ -1903,3 +1903,29 @@ html:not(.dark) .hero-letter {
     animation: none;
   }
 }
+
+/* Nav logo: one 360° Y-axis turn on hover / focus (~600ms, perspective). */
+.nav-logo {
+  perspective: 400px;
+}
+
+.nav-logo__mark {
+  transform-style: preserve-3d;
+}
+
+.nav-logo:hover .nav-logo__mark,
+.nav-logo:focus-visible .nav-logo__mark {
+  animation: nav-logo-turn 600ms cubic-bezier(0.45, 0, 0.25, 1);
+}
+
+@keyframes nav-logo-turn {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-logo:hover .nav-logo__mark,
+  .nav-logo:focus-visible .nav-logo__mark {
+    animation: none;
+  }
+}
