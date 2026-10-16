@@ -60,7 +60,17 @@ function Tokens({ typed }: { typed?: boolean }) {
  * the card scrolls into view (written straight to the DOM — no React state).
  * Reduced motion shows the finished card immediately.
  */
-export function ProfileCodeCard({ className = "" }: { className?: string }) {
+export function ProfileCodeCard({
+  className = "",
+  active,
+  wrap = false,
+}: {
+  className?: string;
+  /** When given, typing starts the first time this becomes true (instead of on scroll-in). */
+  active?: boolean;
+  /** Wrap long lines (narrow hosts such as the badge back). */
+  wrap?: boolean;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const typedRef = useRef<HTMLPreElement>(null);
 
@@ -84,19 +94,29 @@ export function ProfileCodeCard({ className = "" }: { className?: string }) {
     }
 
     let raf = 0;
+    const type = () => {
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - t0) / TYPE_MS);
+        paint(Math.round(p * TOTAL));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+
+    // Driven from outside (the badge back): type once, when first shown.
+    if (active !== undefined) {
+      if (active) type();
+      return () => cancelAnimationFrame(raf);
+    }
+
     let started = false;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting || started) return;
         started = true;
         observer.disconnect();
-        const t0 = performance.now();
-        const tick = (now: number) => {
-          const p = Math.min(1, (now - t0) / TYPE_MS);
-          paint(Math.round(p * TOTAL));
-          if (p < 1) raf = requestAnimationFrame(tick);
-        };
-        raf = requestAnimationFrame(tick);
+        type();
       },
       { threshold: 0.4 },
     );
@@ -105,7 +125,7 @@ export function ProfileCodeCard({ className = "" }: { className?: string }) {
       observer.disconnect();
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [active]);
 
   return (
     <div
@@ -121,12 +141,15 @@ export function ProfileCodeCard({ className = "" }: { className?: string }) {
         </span>
       </div>
       <div className="grid px-4 py-3 font-mono text-[0.6875rem] leading-relaxed">
-        <pre aria-hidden className="invisible col-start-1 row-start-1 whitespace-pre">
+        <pre
+          aria-hidden
+          className={`invisible col-start-1 row-start-1 ${wrap ? "break-words whitespace-pre-wrap" : "whitespace-pre"}`}
+        >
           <Tokens />
         </pre>
         <pre
           ref={typedRef}
-          className="col-start-1 row-start-1 whitespace-pre"
+          className={`col-start-1 row-start-1 ${wrap ? "break-words whitespace-pre-wrap" : "whitespace-pre"}`}
         >
           <Tokens typed />
         </pre>

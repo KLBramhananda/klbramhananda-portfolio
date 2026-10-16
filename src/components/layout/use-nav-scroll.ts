@@ -5,6 +5,22 @@ const COMPACT_AT = 80;
 const HIDE_AFTER = 200;
 const DIRECTION_DELTA = 8;
 
+type ScrollFrame = (frame: { y: number; dy: number; dt: number }) => void;
+const subscribers = new Set<ScrollFrame>();
+
+/**
+ * Subscribe to the nav's single rAF-throttled scroll handler instead of adding
+ * another scroll listener. Called at most once per frame while scrolling (and on
+ * resize) with the scroll position, the change since the last frame and the
+ * elapsed milliseconds.
+ */
+export function onScrollFrame(fn: ScrollFrame) {
+  subscribers.add(fn);
+  return () => {
+    subscribers.delete(fn);
+  };
+}
+
 /**
  * One rAF-throttled scroll handler for the nav. It never touches React state:
  * it writes `data-compact` / `data-hidden` attributes (styled with
@@ -21,6 +37,8 @@ export function useNavScroll(ref: RefObject<HTMLElement | null>) {
     if (!header) return;
     let raf = 0;
     let anchorY = window.scrollY;
+    let lastY = anchorY;
+    let lastT = performance.now();
 
     const update = () => {
       raf = 0;
@@ -29,6 +47,13 @@ export function useNavScroll(ref: RefObject<HTMLElement | null>) {
 
       const max = document.documentElement.scrollHeight - window.innerHeight;
       header.style.setProperty("--nav-progress", max > 0 ? String(Math.min(1, y / max)) : "0");
+
+      const now = performance.now();
+      const frameDy = y - lastY;
+      const frameDt = Math.max(now - lastT, 1);
+      lastY = y;
+      lastT = now;
+      subscribers.forEach((fn) => fn({ y, dy: frameDy, dt: frameDt }));
 
       const delta = y - anchorY;
       // Programmatic scrolls (nav clicks, deep links) keep the nav visible.
