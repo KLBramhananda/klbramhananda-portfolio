@@ -138,7 +138,7 @@ function CoreInner({ handleRef, className }: { handleRef?: Ref<CoreHandle>; clas
     <div
       ref={hostRef}
       data-core
-      className={`relative mx-auto h-[230px] w-full max-w-[520px] touch-pan-y select-none sm:h-[260px] lg:aspect-square lg:h-auto lg:w-[min(100%,520px,calc(100svh-11rem))] ${className}`}
+      className={`relative mx-auto h-[230px] w-full max-w-[40.625rem] touch-pan-y select-none sm:h-[260px] lg:aspect-square lg:h-auto lg:w-[min(100%,40.625rem,calc(100svh-11rem))] ${className}`}
       style={{ "--core-accent": "var(--cyan-accent)" } as CSSProperties}
     >
       <div
