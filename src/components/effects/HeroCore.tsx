@@ -157,7 +157,7 @@ function CoreInner({ handleRef, className }: { handleRef?: Ref<CoreHandle>; clas
               labelRefs.current[i] = el;
             }}
             type="button"
-            className="group absolute top-1/2 left-1/2 z-10 whitespace-nowrap rounded-full border border-slate-900/10 bg-background/70 px-2.5 py-1 text-[0.625rem] font-medium text-foreground/85 transition-colors hover:border-cyan-accent/50 hover:text-foreground focus-visible:border-cyan-accent/60 dark:border-white/10"
+            className="group absolute top-1/2 left-1/2 z-10 whitespace-nowrap glass rounded-full px-2.5 py-1 text-[0.625rem] font-medium text-foreground/90 transition-colors hover:border-cyan-accent/50 hover:text-foreground focus-visible:border-cyan-accent/60"
             style={
               mode === "webgl"
                 ? undefined
