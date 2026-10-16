@@ -142,8 +142,18 @@
        radii, container widths) renders at ~80% of a 16px root, matching the
        density the site had at 80% browser zoom — without zooming or scaling
        the layout. Fixed `px` decorations are converted to `rem` throughout so
-       they scale in step. */
-    font-size: 12.8px;
+       they scale in step.
+
+       On large screens the scale grows with the viewport, up to 110% of that
+       base (88% of the browser size): nothing below 1440px wide or 800px tall,
+       the full step from about 1600x900 up, never beyond it. Expressed in `%`
+       so the user's own font-size setting is respected; breakpoints (media
+       queries) use the initial font size and are unaffected. */
+    font-size: clamp(
+      80%,
+      calc(80% + min((100vw - 1440px) * 0.008, (100vh - 800px) * 0.0128)),
+      88%
+    );
     /* Smooth anchor scrolling with offset for the fixed header */
     scroll-behavior: smooth;
     scroll-padding-top: 6rem;

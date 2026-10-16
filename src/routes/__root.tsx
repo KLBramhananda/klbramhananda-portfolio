@@ -5,7 +5,6 @@ import {
   PageTransitionProvider,
 } from "@/components/effects/page-transition";
 import { usePageTransition } from "@/components/effects/page-transition-context";
-import { ScrollProgress } from "@/components/effects/scroll-progress";
 import { SiteNav } from "@/components/layout/site-nav";
 import { ThemeProvider } from "@/lib/theme-context";
 
@@ -36,12 +35,7 @@ function RootComponent() {
     <ThemeProvider>
       <HeadContent />
       <PageTransitionProvider>
-        {!inLab && (
-          <>
-            <ScrollProgress />
-            <SiteNav />
-          </>
-        )}
+        {!inLab && <SiteNav />}
         <MouseTrail />
         <BkAiAssistant />
         <div className={surfaceClass}>
