@@ -9,6 +9,7 @@ import { Architecture } from "@/components/sections/architecture";
 import { GithubSection } from "@/components/sections/github-section";
 import { Contact, Footer } from "@/components/layout/contact-footer";
 import { IntroGate } from "@/components/intro/IntroGate";
+import { TerminalLauncher } from "@/components/layout/TerminalLauncher";
 import {
   currentSectionId,
   lockSpy,
@@ -92,6 +93,7 @@ function Index() {
   return (
     <div className="relative isolate min-h-screen bg-background text-foreground">
       <IntroGate />
+      <TerminalLauncher />
 
       <a
         href="#main"

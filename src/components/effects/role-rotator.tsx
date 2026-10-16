@@ -68,7 +68,7 @@ export function RoleRotator({ className = "" }: { className?: string }) {
             {ROLES.map((role, i) => (
               <span
                 key={role}
-                className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
+                className="absolute inset-0 flex items-center justify-center whitespace-nowrap lg:justify-start"
                 style={{
                   backfaceVisibility: "hidden",
                   transform: `rotateX(${-i * 90}deg) translateZ(0.75em)`,

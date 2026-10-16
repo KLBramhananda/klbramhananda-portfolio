@@ -1887,3 +1887,19 @@ html:not(.dark) .hero-letter {
     display: none;
   }
 }
+
+/* Hero Core SVG fallback: rings turn slowly (transform only). */
+@keyframes core-spin {
+  from { transform: scale(var(--core-scale)) rotateX(var(--core-tilt)) rotateZ(0deg); }
+  to { transform: scale(var(--core-scale)) rotateX(var(--core-tilt)) rotateZ(360deg); }
+}
+
+.core-spin {
+  animation: core-spin 60s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .core-spin {
+    animation: none;
+  }
+}

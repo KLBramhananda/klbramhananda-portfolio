@@ -19,7 +19,9 @@ const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-const channels = [
+// Shared with the terminal command bar so contact details live in one place.
+// eslint-disable-next-line react-refresh/only-export-components
+export const channels = [
   { icon: Mail, label: "Email", value: "bramhanandakl2030@gmail.com", href: "mailto:bramhanandakl2030@gmail.com", external: false },
   { icon: Phone, label: "Phone", value: "+91 7676068819", href: "tel:+917676088819", external: false },
   { icon: LinkedinIcon, label: "LinkedIn", value: "in/bramhanandakl", href: "https://www.linkedin.com/in/bramhanandakl/", external: true },
