@@ -437,6 +437,7 @@ export async function createCore(opts: CoreOptions): Promise<CoreScene> {
   const onDown = (e: PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     dragging = true;
+    window.dispatchEvent(new Event("bk:core-drag"));
     lastX = e.clientX;
     lastT = performance.now();
     host.setPointerCapture?.(e.pointerId);

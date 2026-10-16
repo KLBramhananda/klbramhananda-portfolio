@@ -40,12 +40,16 @@ const WORLD_ACCENT: Record<CoreWorld, string> = {
   ai: "var(--ai-violet)",
 };
 
-/** Static label spots for the SVG fallback (percent of the square host). */
+/**
+ * Static label spots for the SVG fallback (percent offsets from the centre of
+ * the host): alternating outer / inner ellipses, 36° apart, so chips never
+ * collide even in a wide, short host.
+ */
 const FALLBACK_SPOTS = LABEL_KEYS.map((_, i) => {
-  const ring = i % 2;
-  const a = (i / LABEL_KEYS.length) * Math.PI * 2 + ring * 0.5;
-  const rx = ring === 0 ? 40 : 46;
-  const ry = ring === 0 ? 17 : 26;
+  const outer = i % 2 === 0;
+  const a = ((outer ? i / 2 : (i - 1) / 2) * 72 + (outer ? 0 : 36)) * (Math.PI / 180);
+  const rx = outer ? 42 : 30;
+  const ry = outer ? 40 : 24;
   return { x: Math.cos(a) * rx, y: Math.sin(a) * ry };
 });
 
@@ -133,6 +137,7 @@ function CoreInner({ handleRef, className }: { handleRef?: Ref<CoreHandle>; clas
   return (
     <div
       ref={hostRef}
+      data-core
       className={`relative mx-auto h-[230px] w-full max-w-[520px] touch-pan-y select-none sm:h-[260px] lg:aspect-square lg:h-auto lg:w-[min(100%,520px,calc(100svh-11rem))] ${className}`}
       style={{ "--core-accent": "var(--cyan-accent)" } as CSSProperties}
     >
