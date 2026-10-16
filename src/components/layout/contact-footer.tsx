@@ -4,6 +4,7 @@ import emailjs from "@emailjs/browser";
 import { motion, useReducedMotion } from "framer-motion";
 import { SectionEyebrow } from "../sections/about";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
+import { Reveal } from "../effects/hero-interactions";
 import {
   Mail,
   Phone,
@@ -131,7 +132,7 @@ export function Contact() {
   return (
     <section id="contact" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="relative overflow-hidden glass-strong rounded-3xl p-8 sm:p-12 lg:p-16">
+        <Reveal className="relative overflow-hidden glass-strong rounded-3xl p-8 sm:p-12 lg:p-16">
           <div
             aria-hidden
             className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[6.25rem]"
@@ -270,7 +271,7 @@ export function Contact() {
               )}
             </form>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

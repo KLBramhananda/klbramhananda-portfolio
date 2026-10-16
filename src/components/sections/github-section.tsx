@@ -5,6 +5,7 @@ import {
   FolderGit2,
   GitFork as Github,
 } from "lucide-react";
+import { Reveal } from "../effects/hero-interactions";
 import { motion } from "framer-motion";
 
 type FeaturedRepo = {
@@ -92,10 +93,12 @@ export function GithubSection() {
   return (
     <section id="github" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <SectionEyebrow>Open Source</SectionEyebrow>
-        <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-          Engineering work, repositories, and contributions.
-        </h2>
+        <Reveal>
+          <SectionEyebrow>Open Source</SectionEyebrow>
+          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
+            Engineering work, repositories, and contributions.
+          </h2>
+        </Reveal>
 
         {/* Profile + stats */}
         <div className="mt-12 glass-strong rounded-3xl p-6">
@@ -206,10 +209,12 @@ export function GithubSection() {
 
         {/* Certifications */}
         <div id="certifications" className="mt-24 lg:mt-32">
-          <SectionEyebrow>Certifications</SectionEyebrow>
-          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-            Validated skills and what's next.
-          </h2>
+          <Reveal>
+            <SectionEyebrow>Certifications</SectionEyebrow>
+            <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
+              Validated skills and what's next.
+            </h2>
+          </Reveal>
 
           <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {certs.map((c) => (

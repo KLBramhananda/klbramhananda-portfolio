@@ -1848,3 +1848,42 @@ html:not(.dark) .hero-letter {
     background-position: calc(var(--p) + 75%) 0, var(--p) 0;
   }
 }
+
+/* "AI World" accents (violet/pink): used by the hero Core's AI state. */
+:root {
+  --ai-violet: #7c3aed;
+  --ai-pink: #db2777;
+}
+
+.dark {
+  --ai-violet: #a78bfa;
+  --ai-pink: #f472b6;
+}
+
+/* ── Hero spotlight: a faint circuit pattern revealed around the cursor ────
+   The pattern is an inline SVG used as a mask (so it takes the theme accent);
+   a second radial mask follows the cursor via --mx / --my, which are written
+   once per animation frame. Hidden on touch and under reduced motion. */
+.hero-blueprint {
+  --bp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23000' stroke-width='1'%3E%3Cpath d='M0 24h28l8-8h24M60 16V0M36 16V0'/%3E%3Cpath d='M96 56H70L60 66H40v30M70 56V40h26'/%3E%3Cpath d='M12 96V76h20'/%3E%3C/g%3E%3Cg fill='%23000'%3E%3Ccircle cx='28' cy='24' r='2'/%3E%3Ccircle cx='60' cy='16' r='2'/%3E%3Ccircle cx='70' cy='56' r='2'/%3E%3Ccircle cx='40' cy='66' r='2'/%3E%3Ccircle cx='32' cy='76' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: var(--cyan-accent);
+  opacity: calc(var(--spot, 0) * 0.5);
+  transition: opacity 0.4s ease;
+  -webkit-mask-image: var(--bp), radial-gradient(circle 220px at var(--mx, 50%) var(--my, 50%), #000 0%, transparent 100%);
+  -webkit-mask-size: 96px 96px, 100% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-image: var(--bp), radial-gradient(circle 220px at var(--mx, 50%) var(--my, 50%), #000 0%, transparent 100%);
+  mask-size: 96px 96px, 100% 100%;
+  mask-repeat: repeat, no-repeat;
+  mask-composite: intersect;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .hero-blueprint {
+    display: none;
+  }
+}

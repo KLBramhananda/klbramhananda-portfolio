@@ -7,6 +7,7 @@ import { usePauseAnimations } from "../effects/use-pause-animations";
 import { HeroNetwork } from "../effects/hero-network";
 import { RoleRotator } from "../effects/role-rotator";
 import { usePointerTilt } from "../effects/use-pointer-tilt";
+import { HeroSpotlight, MagneticWrap, StatCard } from "../effects/hero-interactions";
 
 const stats = [
   { value: "2+", label: "Years Experience" },
@@ -106,6 +107,7 @@ export function Hero() {
         <div className="absolute bottom-10 right-[8%] h-96 w-96 rounded-full bg-blue-accent/20 blur-[8.125rem]" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[31.25rem] w-[31.25rem] rounded-full bg-cyan-accent/5 blur-[6.25rem]" />
       </div>
+      <HeroSpotlight />
       <HeroNetwork />
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
@@ -129,48 +131,42 @@ export function Hero() {
               scale, a thin animated accent border sweep, a breathing glow,
               and an arrow indicator that slides forward — all in `.hero-cta`. */}
           <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:gap-4">
-            <Link
-              to="/lab"
-              preload="intent"
-              onClick={handleEnterEngineering}
-              aria-label="Enter the BK Engineering World — interactive systems playground"
-              title="BK Engineering World"
-              className="hero-cta hero-cta--primary group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:flex-1"
-            >
-              <span aria-hidden className="hero-cta__icon">⚡</span>
-              Enter Engineering World
-              <span aria-hidden className="hero-cta__indicator">
-                <ArrowRight className="h-3.5 w-3.5" />
-              </span>
-            </Link>
-            <Link
-              to="/lab/ai-research"
-              aria-label="Enter the BK AI World — AI, agents, enterprise systems and software architecture"
-              title="BK AI World"
-              className="hero-cta hero-cta--secondary group inline-flex w-full items-center justify-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground sm:flex-1"
-            >
-              <span aria-hidden className="hero-cta__icon">🧠</span>
-              Enter AI World
-              <span aria-hidden className="hero-cta__indicator">
-                <ArrowRight className="h-3.5 w-3.5" />
-              </span>
-            </Link>
+            <MagneticWrap className="w-full sm:flex-1">
+              <Link
+                to="/lab"
+                preload="intent"
+                onClick={handleEnterEngineering}
+                aria-label="Enter the BK Engineering World — interactive systems playground"
+                title="BK Engineering World"
+                className="hero-cta hero-cta--primary group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:flex-1"
+              >
+                <span aria-hidden className="hero-cta__icon">⚡</span>
+                Enter Engineering World
+                <span aria-hidden className="hero-cta__indicator">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            </MagneticWrap>
+            <MagneticWrap className="w-full sm:flex-1">
+              <Link
+                to="/lab/ai-research"
+                aria-label="Enter the BK AI World — AI, agents, enterprise systems and software architecture"
+                title="BK AI World"
+                className="hero-cta hero-cta--secondary group inline-flex w-full items-center justify-center gap-2 rounded-xl glass-strong px-5 py-3 text-sm font-semibold text-foreground sm:flex-1"
+              >
+                <span aria-hidden className="hero-cta__icon">🧠</span>
+                Enter AI World
+                <span aria-hidden className="hero-cta__indicator">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            </MagneticWrap>
           </div>
 
           {/* Quick stats */}
           <dl className="mt-12 flex flex-wrap justify-center gap-3">
             {stats.map((s) => (
-              <div
-                key={s.label}
-                className="glass flex w-40 min-w-0 flex-col rounded-2xl p-4 text-left transition-colors hover:bg-slate-900/[0.06] sm:w-44 dark:hover:bg-white/[0.06]"
-              >
-                <dt className="text-xs leading-snug text-muted-foreground">
-                  {s.label}
-                </dt>
-                <dd className="mt-2 min-h-[3.1rem] text-lg font-semibold leading-tight text-balance text-foreground">
-                  {s.value}
-                </dd>
-              </div>
+              <StatCard key={s.label} label={s.label} value={s.value} />
             ))}
           </dl>
         </div>

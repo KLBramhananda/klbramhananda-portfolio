@@ -2,6 +2,7 @@ import profileImg from "@/assets/images/profile.jpeg";
 import { motion } from "framer-motion";
 import { usePointerTilt } from "../effects/use-pointer-tilt";
 import { ProfileCodeCard } from "../ui/profile-code-card";
+import { Reveal } from "../effects/hero-interactions";
 import {
   Boxes,
   Bot,
@@ -126,8 +127,8 @@ const experience: Experience[] = [
 ];
 
 const reveal = {
-  initial: { opacity: 0, y: 19 },
-  whileInView: { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 16, filter: "blur(6px)" },
+  whileInView: { opacity: 1, y: 0, filter: "blur(0px)" },
   viewport: { once: true, margin: "-56px" },
 } as const;
 
@@ -136,10 +137,12 @@ export function About() {
   return (
     <section id="about" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <SectionEyebrow>About</SectionEyebrow>
-        <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-          Engineering enterprise software with clarity, speed, and depth.
-        </h2>
+        <Reveal>
+          <SectionEyebrow>About</SectionEyebrow>
+          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
+            Engineering enterprise software with clarity, speed, and depth.
+          </h2>
+        </Reveal>
 
         <div className="mt-14 grid lg:grid-cols-[0.82fr_1fr] gap-10 lg:gap-14">
           <div className="relative flex flex-col">
@@ -199,13 +202,7 @@ export function About() {
             </div>
 
             {/* Portrait card + floating profile.ts code card */}
-            <motion.div
-              initial={{ opacity: 0, y: 19 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-56px" }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="relative mx-auto w-full max-w-md lg:max-w-none"
-            >
+            <Reveal className="relative mx-auto w-full max-w-md lg:max-w-none">
               <motion.div ref={tiltRef} style={tiltStyle}>
                 <div className="glass-strong rounded-3xl p-3 glow-cyan">
                   {/* 4/5 frame matches the source portrait, no cropping */}
@@ -224,16 +221,10 @@ export function About() {
                 </div>
               </motion.div>
               <ProfileCodeCard className="mt-4 w-full md:absolute md:-right-6 md:-bottom-8 md:mt-0 md:w-max" />
-            </motion.div>
+            </Reveal>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 19 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-56px" }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
-            className="space-y-8"
-          >
+          <Reveal className="space-y-8" delay={0.12}>
             <div>
               <h3 className="text-sm uppercase tracking-widest text-muted-foreground">
                 Professional summary
@@ -299,20 +290,22 @@ export function About() {
                 commerce and enterprise platform.
               </p>
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </div>
 
       {/* Experience timeline */}
       <div id="experience" className="mx-auto max-w-7xl px-4 mt-24 lg:mt-32">
-        <SectionEyebrow>Experience</SectionEyebrow>
-        <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-          Experience that shaped how I build.
-        </h2>
-        <p className="mt-4 max-w-2xl text-muted-foreground">
-          The roles, projects, and responsibilities behind my engineering -
-          from business automation to enterprise platforms.
-        </p>
+        <Reveal>
+          <SectionEyebrow>Experience</SectionEyebrow>
+          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
+            Experience that shaped how I build.
+          </h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            The roles, projects, and responsibilities behind my engineering -
+            from business automation to enterprise platforms.
+          </p>
+        </Reveal>
 
         <div className="relative mt-14">
           {/* One continuous vertical line. Desktop: centered on the dedicated
@@ -487,15 +480,9 @@ function Row({
 
 export function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 11 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-64px" }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs uppercase tracking-widest text-foreground/85 dark:text-muted-foreground"
-    >
+    <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs uppercase tracking-widest text-foreground/85 dark:text-muted-foreground">
       <span className="h-1.5 w-1.5 rounded-full bg-cyan-accent" />
       {children}
-    </motion.div>
+    </div>
   );
 }

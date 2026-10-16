@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { usePauseAnimations } from "../effects/use-pause-animations";
+import { Reveal } from "../effects/hero-interactions";
 
 const diagrams = [
   {
@@ -55,19 +56,23 @@ export function Architecture() {
   return (
     <section id="architecture" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <SectionEyebrow>Architecture Showcase</SectionEyebrow>
-        <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-          System diagrams from the platforms I've built.
-        </h2>
-        <p className="mt-4 max-w-2xl text-muted-foreground">
-          A quick engineering-blog view into the flows that power enterprise
-          procurement, ERP, and event-driven systems.
-        </p>
+        <Reveal>
+          <SectionEyebrow>Architecture Showcase</SectionEyebrow>
+          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
+            System diagrams from the platforms I've built.
+          </h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            A quick engineering-blog view into the flows that power enterprise
+            procurement, ERP, and event-driven systems.
+          </p>
+        </Reveal>
 
-        <div ref={diagramsRef} className="mt-14 grid md:grid-cols-2 gap-6">
-          {diagrams.map((d, i) => (
-            <Diagram key={d.title} {...d} phase={i * 0.45} />
-          ))}
+        <div ref={diagramsRef} className="mt-14">
+          <Reveal className="grid md:grid-cols-2 gap-6">
+            {diagrams.map((d, i) => (
+              <Diagram key={d.title} {...d} phase={i * 0.45} />
+            ))}
+          </Reveal>
         </div>
       </div>
     </section>
