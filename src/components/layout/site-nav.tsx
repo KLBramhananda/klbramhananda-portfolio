@@ -10,6 +10,7 @@ import {
   SECTIONS,
   currentSectionId,
   lockSpy,
+  onSpySettle,
   pathForSection,
   scrollToSection,
   sectionForId,
@@ -17,6 +18,7 @@ import {
   spyLineY,
   spyState,
   unlockSpy,
+  type SectionId,
 } from "@/lib/sections";
 
 const links = (["home", "about", "experience", "projects", "skills", "tech", "architecture"] as const).map(
@@ -115,7 +117,7 @@ export function SiteNav() {
       // The scroll is the only thing that moves the page: the spy is locked
       // until it settles, so intermediate sections never flash another tag or
       // rewrite the URL.
-      lockSpy(NAV_LOCK_MS);
+      lockSpy(NAV_LOCK_MS, false, section.id);
       // Push the entry first: the browser stores the scroll position of the
       // page being left when the entry is pushed, so scrolling afterwards keeps
       // Back returning to where the previous entry actually was.
@@ -188,12 +190,32 @@ export function SiteNav() {
       sections.forEach((s) => observer!.observe(s));
     };
 
+    // A programmatic scroll ended on its target: that section becomes the
+    // active tag and URL (whatever the spy would pick at this exact offset),
+    // then scroll-spy takes over again.
+    const applyTarget = (id: SectionId) => {
+      setActive(id);
+      if (sectionForPath(router.state.location.pathname)?.id === id) return;
+      const s = sectionForId(id);
+      if (!s) return;
+      if (s.path === "") {
+        void router.navigate({ to: "/", replace: true, resetScroll: false });
+      } else {
+        void router.navigate({
+          to: "/$section",
+          params: { section: s.path },
+          replace: true,
+          resetScroll: false,
+        });
+      }
+    };
+    const offSettle = onSpySettle(applyTarget);
+
     const onScrollEnd = () => {
       if (!spyState.locked || performance.now() < spyState.holdUntil) return;
-      unlockSpy();
-      // The clicked/deep-linked section stays active until the visitor scrolls
-      // into another one; sync once so the tag matches where the scroll landed.
-      sync();
+      // With a clicked target the settle handler applies it; otherwise sync
+      // once so the tag matches where the scroll landed.
+      if (!unlockSpy()) sync();
     };
 
     connect();
@@ -205,6 +227,7 @@ export function SiteNav() {
     return () => {
       window.removeEventListener("scrollend", onScrollEnd);
       window.removeEventListener("resize", connect);
+      offSettle();
       observer?.disconnect();
     };
   }, [onHome, router]);

@@ -1939,3 +1939,18 @@ html:not(.dark) .hero-letter {
     animation: none;
   }
 }
+
+/* Native anchor / scrollIntoView offset for section targets (the nav-click and
+   deep-link scrolling use the measured nav height; this keeps any native
+   scroll to these ids clear of the fixed nav as well). */
+#about,
+#experience,
+#projects,
+#skills,
+#tech,
+#architecture,
+#github,
+#certifications,
+#contact {
+  scroll-margin-top: 6.5rem;
+}
