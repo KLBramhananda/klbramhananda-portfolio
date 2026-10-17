@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Hero } from "@/components/sections/hero";
 import { About } from "@/components/sections/about";
+import { Experience } from "@/components/sections/experience";
 import { Projects } from "@/components/sections/projects";
 import { Skills } from "@/components/sections/skills";
 import { Architecture } from "@/components/sections/architecture";
@@ -66,7 +67,7 @@ function Index() {
       if (first) unlockSpy();
       return;
     }
-    lockSpy(1200);
+    lockSpy(1200, false, section.id);
     if (!first) {
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       scrollToSection(section.id, reduced ? "auto" : "smooth");
@@ -75,7 +76,7 @@ function Index() {
     // Deep link: scroll once layout has settled, then re-aim a few times while
     // late-loading content (lazy images) shifts the page, until the visitor
     // scrolls on their own. The spy stays locked for the whole settling window.
-    lockSpy(2400, true);
+    lockSpy(2400, true, section.id);
     let landed = 0;
     const land = () => {
       scrollToSection(section.id, "instant");
@@ -106,6 +107,7 @@ function Index() {
       <main id="main">
         <Hero />
         <About />
+        <Experience />
         <Projects />
         <Skills />
         <Architecture />

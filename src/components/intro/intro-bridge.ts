@@ -33,8 +33,11 @@ export function hasWebGL2(): boolean {
   }
 }
 
+let cachedWebGL2: boolean | null = null;
+
 export function detectTier(): Tier {
-  if (window.innerWidth < 768 || !hasWebGL2()) return "2d";
+  if (cachedWebGL2 === null) cachedWebGL2 = hasWebGL2();
+  if (window.innerWidth < 768 || !cachedWebGL2) return "2d";
   const nav = navigator as NavigatorHints;
   const high =
     (nav.hardwareConcurrency ?? 0) >= 4 &&
@@ -49,4 +52,30 @@ export function isLowEnd(): boolean {
   return (
     !!nav.connection?.saveData || (nav.deviceMemory !== undefined && nav.deviceMemory < 2)
   );
+}
+
+let introScene: Promise<typeof import("./intro-webgl")> | null = null;
+
+/** The intro's WebGL scene chunk (and its `three` dependency), fetched once. */
+export function loadIntroScene() {
+  introScene ??= import("./intro-webgl");
+  return introScene;
+}
+
+/**
+ * Called at app boot, before React renders: when the entry intro is going to
+ * play on a WebGL-capable tier, start fetching its scene chunk right away, in
+ * parallel with the rest of the app, instead of waiting for the overlay to mount.
+ */
+export function preloadIntro() {
+  try {
+    if (window.location.pathname !== "/") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (detectTier() === "2d") return;
+    void loadIntroScene().catch(() => {
+      introScene = null; // a failed fetch may be retried by the overlay
+    });
+  } catch {
+    // Preloading is an optimisation only.
+  }
 }

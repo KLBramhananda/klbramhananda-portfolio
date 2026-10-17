@@ -441,6 +441,8 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
   let resolveEnter: (() => void) | null = null;
   let winStart = 0;
   let winFrames = 0;
+  let firstFrameAt = 0;
+  let lowSince = 0;
 
   const degrade = () => {
     if (!disposed) onDegrade();
@@ -456,16 +458,25 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
       time += dt;
       if (resizeDirty) applySize();
 
+      // Frame-rate guard: ignore the first 2 s (shader compile / first-load
+      // jank); afterwards downgrade only after 1.5 s straight under 30 fps.
+      if (firstFrameAt === 0) firstFrameAt = now;
       winFrames++;
       if (winStart === 0) winStart = now;
-      if (now - winStart >= 1000) {
+      if (now - winStart >= 500) {
         const fps = (winFrames * 1000) / (now - winStart);
-        if (time - opts.startAt > 1.5 && fps < 30) {
-          degrade();
-          return;
-        }
         winStart = now;
         winFrames = 0;
+        if (now - firstFrameAt >= 2000) {
+          if (fps >= 30) {
+            lowSince = 0;
+          } else if (lowSince === 0) {
+            lowSince = now;
+          } else if (now - lowSince >= 1500) {
+            degrade();
+            return;
+          }
+        }
       }
 
       const kp = 1 - Math.exp(-14 * dt);
@@ -520,6 +531,7 @@ export async function startWebGL(opts: IntroSceneOptions): Promise<IntroScene> {
     last = performance.now();
     winStart = 0;
     winFrames = 0;
+    lowSince = 0;
     raf = requestAnimationFrame(frame);
   };
   const onVisibility = () => {

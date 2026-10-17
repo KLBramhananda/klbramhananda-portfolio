@@ -10,6 +10,7 @@ import s2p from "@/assets/images/proj-s2p.jpg";
 import fastays from "@/assets/images/proj-fastays.jpg";
 import psp from "@/assets/images/proj-psp.jpg";
 import { Reveal } from "../effects/hero-interactions";
+import { projectCardId } from "@/lib/sections";
 import keemeds from "@/assets/images/proj-keemeds.png";
 
 type Project = {
@@ -147,7 +148,10 @@ function ProjectCard({
 }) {
   const isCurrent = p.status === "Currently Working On";
   return (
-    <article className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]">
+    <article
+      id={projectCardId(p.name)}
+      className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
+    >
       <div
         className={`grid lg:grid-cols-[1fr_1.05fr] gap-6 lg:gap-8 items-center ${
           flip ? "lg:[&>*:first-child]:order-2" : ""

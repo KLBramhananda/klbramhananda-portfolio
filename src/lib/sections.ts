@@ -30,11 +30,44 @@ export function sectionForId(id: string) {
 
 export const pathForSection = (s: { path: string }) => `/${s.path}`;
 
+/** Where a section heading lands below the fixed nav, in rem (scales with the root). */
+const LANDING_GAP_REM = 2.5;
+
+const remPx = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+
+/**
+ * The fixed nav's layout height. `offsetHeight` ignores transforms, so it is the
+ * same whether the nav is shown, hidden (translated away) or compact (scaled),
+ * and it follows the root font scale.
+ */
+export function navHeight() {
+  const header = document.querySelector("header");
+  return header instanceof HTMLElement ? header.offsetHeight : 58;
+}
+
+/** Viewport Y where a section heading lands after a nav click / deep link. */
+export function landingY() {
+  return navHeight() + LANDING_GAP_REM * remPx();
+}
+
+/**
+ * Y of the spy line. It is the landing line: once a section's heading has
+ * landed there, the section's own top (eyebrow included) is above it, so the
+ * spy agrees with where a click put the page — nested blocks like Experience
+ * and Tech Stack included.
+ */
+export function spyLineY() {
+  return landingY();
+}
+
 /** Shared by the nav scroll-spy and the Home layout's path-driven scroll. */
 export const spyState = {
   // Ignore `scrollend` until this time (ms, performance.now) — a deep link
   // keeps re-aiming while late content loads, so one scroll ending isn't "done".
   holdUntil: 0,
+  // The section a programmatic scroll is heading to; when the scroll settles
+  // it becomes the active section and URL, then scroll-spy takes over again.
+  target: null as SectionId | null,
   // True while a programmatic scroll runs, so the spy never rewrites the URL.
   // A deep link starts locked: Home scrolls to the section on mount.
   locked:
@@ -43,39 +76,47 @@ export const spyState = {
 };
 
 let lockTimer = 0;
+let settleHandler: ((id: SectionId) => void) | null = null;
+
+/** The nav registers how to apply a settled target (active tag + URL). */
+export function onSpySettle(fn: ((id: SectionId) => void) | null) {
+  settleHandler = fn;
+  return () => {
+    if (settleHandler === fn) settleHandler = null;
+  };
+}
 
 /** Suppress scroll-spy URL/active updates while a programmatic scroll runs. */
-export function lockSpy(fallbackMs: number, holdScrollEnd = false) {
+export function lockSpy(fallbackMs: number, holdScrollEnd = false, target?: SectionId) {
   spyState.locked = true;
+  if (target) spyState.target = target;
   if (holdScrollEnd) spyState.holdUntil = performance.now() + fallbackMs;
   window.clearTimeout(lockTimer);
   lockTimer = window.setTimeout(unlockSpy, fallbackMs);
 }
 
+/** Release the lock; returns true when a clicked target was applied. */
 export function unlockSpy() {
   window.clearTimeout(lockTimer);
   spyState.locked = false;
+  const target = spyState.target;
+  spyState.target = null;
+  if (!target) return false;
+  settleHandler?.(target);
+  return true;
 }
 
-/** Scroll so the section heading sits a consistent distance below the fixed nav. */
+/** Scroll so the section heading lands exactly at `landingY()` below the fixed nav. */
 export function scrollToSection(id: string, behavior: ScrollBehavior) {
   const target = document.getElementById(id);
   if (!target) return false;
   let top = 0;
   if (id !== "home") {
-    const navHeight = document.querySelector("header")?.getBoundingClientRect().height ?? 0;
     const heading = target.querySelector("h1, h2") ?? target;
-    // 45px ≈ 56px at the 80% root scale used across the site.
-    top = heading.getBoundingClientRect().top + window.scrollY - navHeight - 45;
+    top = heading.getBoundingClientRect().top + window.scrollY - landingY();
   }
   window.scrollTo({ top: Math.max(0, top), behavior });
   return true;
-}
-
-/** Y of the spy line: just under the fixed header. */
-export function spyLineY() {
-  const headerH = document.querySelector("header")?.getBoundingClientRect().height ?? 58;
-  return Math.max(headerH, 51);
 }
 
 /** The section whose top has cleared the spy line (last one wins), or null. */
@@ -88,3 +129,7 @@ export function currentSectionId(): SectionId | null {
   const first = document.getElementById(SECTIONS[0].id);
   return first && first.getBoundingClientRect().top >= y ? "home" : null;
 }
+
+/** Stable DOM id of a project card in the Projects section. */
+export const projectCardId = (name: string) =>
+  `project-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;

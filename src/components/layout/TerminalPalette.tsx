@@ -67,7 +67,7 @@ export default function TerminalPalette({ onClose }: { onClose: () => void }) {
   const goToSection = async (path: string) => {
     const section = sectionForPath(`/${path}`);
     if (!section) return;
-    lockSpy(1200);
+    lockSpy(1200, false, section.id);
     if (sectionForPath(router.state.location.pathname)?.id !== section.id) {
       await router.navigate({ to: "/$section", params: { section: section.path }, resetScroll: false });
     }
