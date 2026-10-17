@@ -1998,6 +1998,19 @@ html:not(.dark) .hero-letter {
     opacity: calc(1 - var(--stk, 0) * 0.3);
     will-change: transform, opacity;
   }
+
+  /* Opaque backing under the glass so dimmed cards don't ghost through the
+     card on top of the stack. Painted above the glass gradient (z -1 inside
+     the card's own stacking context) and below the content. */
+  .pcard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--background);
+    opacity: 0.6;
+  }
 }
 
 /* Project index: active item in the accent colour with a progress tick that
@@ -2037,4 +2050,121 @@ html:not(.dark) .hero-letter {
 .pstack-dot[aria-current="true"] {
   background: var(--cyan-accent);
   transform: scale(1.35);
+}
+
+/* ── Projects: 3D browser frame ──────────────────────────────────────
+   Rests tilted, turns flat on preview (400ms), flips to the back (600ms).
+   transform/opacity only; faces use backface-visibility. */
+.bframe {
+  perspective: 1200px;
+}
+
+.bframe-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateY(-6deg) rotateX(2deg);
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.bframe[data-preview="1"] .bframe-card {
+  transform: rotateY(0deg) rotateX(0deg);
+}
+
+.bframe[data-flipped="1"] .bframe-card {
+  transform: rotateY(180deg);
+  transition-duration: 600ms;
+}
+
+.bframe-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.bframe-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* Back content scales down to fit the window instead of scrolling. */
+.bframe-fit-inner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  transform: translate(-50%, -50%) scale(var(--fit, 1));
+}
+
+/* Screenshot: width-fitted. "pan" (taller than the window) slides to its
+   bottom over 4s on preview; "zoom" (shorter) sits centred and zooms 1.05. */
+.bframe-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  transition: transform 800ms ease-out;
+  will-change: transform;
+}
+
+.bframe-img[data-mode="zoom"] {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.bframe[data-preview="1"] .bframe-img[data-mode="pan"] {
+  transform: translateY(var(--pan, 0px));
+  transition: transform 4s linear;
+}
+
+.bframe[data-preview="1"] .bframe-img[data-mode="zoom"] {
+  transform: translate(-1%, -52%) scale(1.05);
+  transition: transform 1.6s ease-out;
+}
+
+/* Case-study step panels: crossfade in place (200ms). */
+.cs-tablist {
+  scrollbar-width: none;
+}
+
+.cs-tablist::-webkit-scrollbar {
+  display: none;
+}
+
+.cs-panel {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 200ms ease-out,
+    visibility 0s 200ms;
+}
+
+.cs-panel.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 200ms ease-out,
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bframe-card {
+    transform: none;
+    transition: none;
+  }
+
+  .bframe[data-flipped="1"] .bframe-card {
+    transform: rotateY(180deg);
+  }
+
+  .bframe-img {
+    transition: none;
+  }
+
+  .cs-panel,
+  .cs-panel.is-active {
+    transition: none;
+  }
 }

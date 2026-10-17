@@ -12,7 +12,9 @@ import {
 import { usePauseAnimations } from "../effects/use-pause-animations";
 import { Reveal } from "../effects/hero-interactions";
 
-const diagrams = [
+/** Diagram data, reused by the Projects "View architecture" flip (matched by title). */
+// eslint-disable-next-line react-refresh/only-export-components -- data shared with Projects
+export const diagrams = [
   {
     icon: Layers,
     title: "ERP System Flow",
@@ -79,24 +81,37 @@ export function Architecture() {
   );
 }
 
-function Diagram({
+export type DiagramData = (typeof diagrams)[number];
+
+/**
+ * One animated flow diagram. `compact` (off by default, so the Architecture
+ * section renders exactly as before) tightens the paddings for the small
+ * browser-frame back face in Projects.
+ */
+export function Diagram({
   icon: Icon,
   title,
   subtitle,
   nodes,
   phase,
+  compact = false,
 }: {
   icon: LucideIcon;
   title: string;
   subtitle: string;
   nodes: string[];
   phase: number;
+  compact?: boolean;
 }) {
   const cycle = 7.2;
   const step = cycle / nodes.length;
 
   return (
-    <article className="architecture-card glass-strong rounded-3xl p-6 lg:p-7 transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]">
+    <article
+      className={`architecture-card glass-strong rounded-3xl transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06] ${
+        compact ? "p-4 lg:p-5" : "p-6 lg:p-7"
+      }`}
+    >
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
           <Icon className="h-5 w-5" />
@@ -107,7 +122,11 @@ function Diagram({
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-slate-900/10 bg-slate-900/[0.03] p-5 overflow-hidden dark:border-white/10 dark:bg-white/[0.02]">
+      <div
+        className={`rounded-2xl border border-slate-900/10 bg-slate-900/[0.03] overflow-hidden dark:border-white/10 dark:bg-white/[0.02] ${
+          compact ? "mt-3 p-3" : "mt-6 p-5"
+        }`}
+      >
         {/* Each arrow leads its step as one unbreakable unit, so arrows only ever
             sit between steps — never trailing at the end of a wrapped line. */}
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-4">
