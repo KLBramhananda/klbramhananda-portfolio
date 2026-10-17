@@ -1,10 +1,6 @@
-import {
-  CheckCircle2,
-  Target,
-  Lightbulb,
-  TrendingUp,
-  type LucideIcon,
-} from "lucide-react";
+import { CheckCircle2, Target, Lightbulb, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
+import { usePointerTilt } from "../effects/use-pointer-tilt";
 import { SectionEyebrow } from "./about";
 import s2p from "@/assets/images/proj-s2p.jpg";
 import fastays from "@/assets/images/proj-fastays.jpg";
@@ -12,6 +8,11 @@ import psp from "@/assets/images/proj-psp.jpg";
 import { Reveal } from "../effects/hero-interactions";
 import { projectCardId } from "@/lib/sections";
 import keemeds from "@/assets/images/proj-keemeds.png";
+import type { CSSProperties } from "react";
+import { ProjectStack } from "./ProjectStack";
+import { BrowserFrame } from "./BrowserFrame";
+import { CaseStudySteps } from "./CaseStudySteps";
+import { Diagram, diagrams } from "./architecture";
 
 type Project = {
   name: string;
@@ -26,8 +27,11 @@ type Project = {
   challenge: string;
   solution: string;
   outcome: string;
+  /** Headline metric, built only from numbers/phrases in this project's own text. */
+  metric?: string;
+  /** Title of the matching diagram in the Architecture section, if one exists. */
+  architecture?: string;
 };
-
 
 const projects: Project[] = [
   {
@@ -47,6 +51,8 @@ const projects: Project[] = [
       "Modeling domain-specific inventory and compliance workflows on ERPNext and shipping custom Frappe apps for supplier onboarding and payments.",
     outcome:
       "Laying the ERP backbone for a compliant, scalable healthcare commerce launch.",
+    // No numeric outcome yet, so no headline metric.
+    architecture: "ERP System Flow",
   },
   {
     name: "S2P Matrix",
@@ -73,6 +79,9 @@ const projects: Project[] = [
       "Built a multi-tenant FastAPI backend with a React operator console, SAP BTP integration for SAP HANA master data, and LLM-assisted supplier matching and RFQ scoring.",
     outcome:
       "Cut RFQ turnaround from days to hours and gave buyers a single source of truth across procurement.",
+    // From the outcome: "Cut RFQ turnaround from days to hours"
+    metric: "Days → Hours",
+    architecture: "Procurement Lifecycle",
   },
   {
     name: "Fastays",
@@ -91,6 +100,9 @@ const projects: Project[] = [
       "Decomposed the monolith into Spring Boot services with Kafka-backed order queues, Redis for hot inventory, and idempotent reservation flows.",
     outcome:
       "Sub-second confirmations at peak load with zero double-bookings during pilot promo weeks.",
+    // From the challenge ("spiked 10×") and the outcome ("at peak load with zero double-bookings")
+    metric: "10× peak · 0 double-bookings",
+    architecture: "Microservices Architecture",
   },
   {
     name: "Procurement Service Platform",
@@ -109,6 +121,9 @@ const projects: Project[] = [
       "Extracted the common domain into versioned microservices with clean APIs, shared auth, and a config-driven workflow engine.",
     outcome:
       "Cut new-client onboarding effort by ~50% and standardized procurement flows across engagements.",
+    // From the outcome: "Cut new-client onboarding effort by ~50%"
+    metric: "~50% less onboarding effort",
+    // No diagram in the Architecture section matches this project.
   },
 ];
 
@@ -129,11 +144,18 @@ export function Projects() {
           </p>
         </Reveal>
 
-        <Reveal className="mt-14 grid gap-6 lg:gap-8">
+        {/* Not wrapped in <Reveal>: the cards are sticky and must keep the
+            section grid as their containing block from the first frame. */}
+        <ProjectStack names={projects.map((p) => p.name)}>
           {projects.map((p, i) => (
-            <ProjectCard key={p.name} project={p} flip={i % 2 === 1} />
+            <ProjectCard
+              key={p.name}
+              project={p}
+              index={i}
+              flip={i % 2 === 1}
+            />
           ))}
-        </Reveal>
+        </ProjectStack>
       </div>
     </section>
   );
@@ -141,122 +163,110 @@ export function Projects() {
 
 function ProjectCard({
   project: p,
+  index,
   flip,
 }: {
   project: Project;
+  index: number;
   flip: boolean;
 }) {
   const isCurrent = p.status === "Currently Working On";
+  const diagram = p.architecture
+    ? diagrams.find((d) => d.title === p.architecture)
+    : undefined;
+  // Fine-pointer tilt (±3°) and a cursor-following border glow via --gx/--gy
+  // (aliased to --mx/--my in CSS). The sticky <article> carries the stack
+  // transform; the inner card carries the tilt, so the two never fight.
+  const [tiltRef, tiltStyle] = usePointerTilt<HTMLDivElement>(3, {
+    local: true,
+  });
   return (
     <article
       id={projectCardId(p.name)}
-      className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
+      data-stack-index={index}
+      style={{ "--i": index } as CSSProperties}
+      className="pstack-card rounded-3xl"
     >
-      <div
-        className={`grid lg:grid-cols-[1fr_1.05fr] gap-6 lg:gap-8 items-center ${
-          flip ? "lg:[&>*:first-child]:order-2" : ""
-        }`}
+      <motion.div
+        ref={tiltRef}
+        style={tiltStyle}
+        className="pcard glass-strong relative isolate rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
       >
-        {/* Content (left by default, alternates right) */}
-        <div className="p-3 sm:p-4 lg:p-6 flex flex-col">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-                {p.name}
-              </h3>
-              <div className="text-cyan-accent text-sm mt-1">{p.tagline}</div>
-            </div>
-            <span
-              className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-                isCurrent
-                  ? "bg-emerald-500/15 text-emerald-700 border border-emerald-500/20 dark:text-emerald-300"
-                  : "bg-slate-900/10 text-slate-900/85 border border-slate-900/15 dark:bg-white/10 dark:text-white/85 dark:border-white/15"
-              }`}
-            >
-              {isCurrent && (
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              )}
-              {p.status}
-            </span>
-          </div>
-
-          <p className="mt-4 text-foreground/85 leading-relaxed">
-            {p.description}
-          </p>
-
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {p.tech.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/85 dark:border-white/10 dark:bg-white/[0.03]"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-5 text-xs text-muted-foreground">
-            <span className="uppercase tracking-wider">Role · </span>
-            <span className="text-foreground/80">{p.role}</span>
-          </div>
-
-          <div className="mt-5 grid gap-3">
-            <Detail icon={Target} label="Challenge" text={p.challenge} />
-            <Detail icon={Lightbulb} label="Solution" text={p.solution} />
-            <Detail
-              icon={isCurrent ? CheckCircle2 : TrendingUp}
-              label={isCurrent ? "Progress" : "Outcome"}
-              text={p.outcome}
-              highlight
-            />
-          </div>
-        </div>
-
-        {/* Screenshot — full screenshot always visible, never cropped */}
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 aspect-[16/10] lg:aspect-[7/3]">
-          <img
+        <span aria-hidden className="pcard-glow" />
+        <div
+          className={`grid gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:items-center ${
+            flip ? "" : "lg:[&>*:first-child]:order-2"
+          }`}
+        >
+          {/* Browser frame — first in DOM (tablet/mobile order), right column on desktop unless flipped */}
+          <BrowserFrame
+            name={p.name}
             src={p.image}
             alt={`${p.name} — ${p.tagline} screenshot`}
             width={p.imageWidth}
             height={p.imageHeight}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-contain"
+            eager={index === 0}
+            back={
+              diagram ? <Diagram {...diagram} phase={0} compact /> : undefined
+            }
           />
-        </div>
-      </div>
-    </article>
-  );
-}
 
-function Detail({
-  icon: Icon,
-  label,
-  text,
-  highlight,
-}: {
-  icon: LucideIcon;
-  label: string;
-  text: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex gap-3">
-      <div
-        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-          highlight
-            ? "bg-gradient-to-br from-cyan-accent/25 to-blue-accent/25 text-cyan-accent"
-            : "bg-slate-900/5 text-muted-foreground dark:bg-white/5"
-        }`}
-      >
-        <Icon className="h-4 w-4" />
-      </div>
-      <div className="text-sm">
-        <div className="text-xs uppercase tracking-wider text-muted-foreground">
-          {label}
+          {/* Content: title block, headline metric, case-study steps, chips */}
+          <div className="p-2 sm:p-3 lg:p-5 flex flex-col">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+                  {p.name}
+                </h3>
+                <div className="text-cyan-accent text-sm mt-1">{p.tagline}</div>
+              </div>
+              {p.status === "Completed" && (
+                <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-slate-900/10 text-slate-900/85 border border-slate-900/15 dark:bg-white/10 dark:text-white/85 dark:border-white/15">
+                  {p.status}
+                </span>
+              )}
+            </div>
+
+            <p className="mt-3 text-sm sm:text-base text-foreground/85 leading-relaxed">
+              {p.description}
+            </p>
+
+            <div className="mt-2 text-xs text-muted-foreground">
+              <span className="uppercase tracking-wider">Role · </span>
+              <span className="text-foreground/80">{p.role}</span>
+            </div>
+
+            {p.metric && (
+              <div className="mt-4 text-xl sm:text-2xl font-semibold tracking-tight text-gradient">
+                {p.metric}
+              </div>
+            )}
+
+            <CaseStudySteps
+              steps={[
+                { icon: Target, label: "Challenge", text: p.challenge },
+                { icon: Lightbulb, label: "Solution", text: p.solution },
+                {
+                  icon: isCurrent ? CheckCircle2 : TrendingUp,
+                  label: isCurrent ? "Progress" : "Outcome",
+                  text: p.outcome,
+                },
+              ]}
+            />
+
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {p.tech.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/85 transition-colors dark:border-white/10 dark:bg-white/[0.03] [@media(hover:hover)]:group-hover:border-cyan-accent/30 [@media(hover:hover)]:group-hover:bg-cyan-accent/10 [@media(hover:hover)]:group-hover:text-foreground"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="text-foreground/90 mt-0.5">{text}</div>
-      </div>
-    </div>
+      </motion.div>
+    </article>
   );
 }
