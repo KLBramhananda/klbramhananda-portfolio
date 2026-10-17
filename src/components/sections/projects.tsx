@@ -60,7 +60,8 @@ const TENXTA_DIAGRAM: DiagramData = {
   aside: { label: "AI Interview Scheduler", note: "AI · human-led · hybrid" },
 };
 
-const projects: Project[] = [
+// eslint-disable-next-line react-refresh/only-export-components -- data read by Skills (skill-usage)
+export const projects: Project[] = [
   {
     name: "10xTA",
     tagline: "Talent Acquisition · B2B Multi-Tenant SaaS",
