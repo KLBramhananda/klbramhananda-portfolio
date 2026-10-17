@@ -12,6 +12,8 @@ import psp from "@/assets/images/proj-psp.jpg";
 import { Reveal } from "../effects/hero-interactions";
 import { projectCardId } from "@/lib/sections";
 import keemeds from "@/assets/images/proj-keemeds.png";
+import type { CSSProperties } from "react";
+import { ProjectStack } from "./ProjectStack";
 
 type Project = {
   name: string;
@@ -129,11 +131,13 @@ export function Projects() {
           </p>
         </Reveal>
 
-        <Reveal className="mt-14 grid gap-6 lg:gap-8">
+        {/* Not wrapped in <Reveal>: the cards are sticky and must keep the
+            section grid as their containing block from the first frame. */}
+        <ProjectStack names={projects.map((p) => p.name)}>
           {projects.map((p, i) => (
-            <ProjectCard key={p.name} project={p} flip={i % 2 === 1} />
+            <ProjectCard key={p.name} project={p} index={i} flip={i % 2 === 1} />
           ))}
-        </Reveal>
+        </ProjectStack>
       </div>
     </section>
   );
@@ -141,24 +145,41 @@ export function Projects() {
 
 function ProjectCard({
   project: p,
+  index,
   flip,
 }: {
   project: Project;
+  index: number;
   flip: boolean;
 }) {
   const isCurrent = p.status === "Currently Working On";
   return (
     <article
       id={projectCardId(p.name)}
-      className="glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
+      data-stack-index={index}
+      style={{ "--i": index } as CSSProperties}
+      className="pstack-card glass-strong rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
     >
       <div
-        className={`grid lg:grid-cols-[1fr_1.05fr] gap-6 lg:gap-8 items-center ${
-          flip ? "lg:[&>*:first-child]:order-2" : ""
+        className={`grid gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:items-center ${
+          flip ? "" : "lg:[&>*:first-child]:order-2"
         }`}
       >
-        {/* Content (left by default, alternates right) */}
-        <div className="p-3 sm:p-4 lg:p-6 flex flex-col">
+        {/* Screenshot — first in DOM (tablet/mobile order), right column on desktop unless flipped */}
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 aspect-[16/10] lg:aspect-[7/3]">
+          <img
+            src={p.image}
+            alt={`${p.name} — ${p.tagline} screenshot`}
+            width={p.imageWidth}
+            height={p.imageHeight}
+            loading={index === 0 ? "eager" : "lazy"}
+            decoding="async"
+            className="h-full w-full object-contain"
+          />
+        </div>
+
+        {/* Content */}
+        <div className="p-2 sm:p-3 lg:p-5 flex flex-col">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
@@ -210,19 +231,6 @@ function ProjectCard({
               highlight
             />
           </div>
-        </div>
-
-        {/* Screenshot — full screenshot always visible, never cropped */}
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 aspect-[16/10] lg:aspect-[7/3]">
-          <img
-            src={p.image}
-            alt={`${p.name} — ${p.tagline} screenshot`}
-            width={p.imageWidth}
-            height={p.imageHeight}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-contain"
-          />
         </div>
       </div>
     </article>

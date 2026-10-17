@@ -1984,3 +1984,57 @@ html:not(.dark) .hero-letter {
     animation-duration: 0.6s;
   }
 }
+
+/* ── Projects: sticky stacking showcase ───────────────────────────────
+   Desktop only. Each card sticks below the nav (+24px, +12px per index) and
+   the one underneath scales/dims from ONE variable (`--stk`, 0..1) that the
+   shared scroll loop writes. transform + opacity only. */
+@media (min-width: 1024px) {
+  .pstack-card {
+    position: sticky;
+    top: calc(var(--nav-h, 58px) + 24px + var(--i, 0) * 12px);
+    transform-origin: 50% 0;
+    transform: scale(calc(1 - var(--stk, 0) * 0.06));
+    opacity: calc(1 - var(--stk, 0) * 0.3);
+    will-change: transform, opacity;
+  }
+}
+
+/* Project index: active item in the accent colour with a progress tick that
+   fills (`--ip`, 0..1) as the next card slides over the active one. */
+.pstack-item {
+  position: relative;
+}
+
+.pstack-item[data-active] .pstack-num,
+.pstack-item[data-active] .pstack-name {
+  color: var(--cyan-accent);
+}
+
+.pstack-item[data-active] .pstack-name {
+  font-weight: 500;
+}
+
+.pstack-tick {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 1.5rem;
+  border-radius: 1px;
+  background: var(--cyan-accent);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--ip, 0));
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.pstack-item[data-active] .pstack-tick {
+  opacity: 1;
+}
+
+/* Tablet / mobile dot indicator. */
+.pstack-dot[aria-current="true"] {
+  background: var(--cyan-accent);
+  transform: scale(1.35);
+}
