@@ -15,14 +15,26 @@ type ExperienceProject = {
   note?: string;
 };
 
+/** A project worked on within a role: its own focus chips and résumé bullets. */
+type ProjectGroup = {
+  project: ExperienceProject;
+  title?: string;
+  period?: string;
+  current?: boolean;
+  focus: string[];
+  bullets: string[];
+};
+
 type RoleData = {
   role: string;
   company: string;
   period: string;
   location?: string;
-  focus: string[];
-  projects: ExperienceProject[];
-  responsibilities: string[];
+  workMode?: string;
+  /** Newest first. */
+  groups: ProjectGroup[];
+  /** Items not in the résumé, kept verbatim in a collapsed group. */
+  other?: { title: string; focus: string[]; projects: ExperienceProject[]; bullets: string[] };
 };
 
 export type ExperienceRole = RoleData & {
@@ -36,57 +48,95 @@ const roles: RoleData[] = [
   {
     role: "Software Engineer",
     company: "HG Infotech",
-    period: "Feb 2025 - Present",
+    period: "Feb 2025 – Present",
     location: "Bengaluru South, India",
-    focus: [
-      "Full Stack Engineering",
-      "ERPNext",
-      "AI",
-      "SAP BTP",
-      "Enterprise Applications",
-    ],
-    projects: [
+    workMode: "On-site",
+    groups: [
       {
-        name: "KeeMeds",
-        note: "ERPNext-based Healthcare Commerce & Enterprise Platform",
+        project: { name: "10xTA", note: "AI-Powered Talent Acquisition Platform (B2B Multi-Tenant SaaS)" },
+        title: "AI-Powered Talent Acquisition Platform (B2B Multi-Tenant SaaS)",
+        period: "Apr 2026 – Present",
+        current: true,
+        focus: [
+          "Node.js",
+          "TypeScript",
+          "PostgreSQL (RLS)",
+          "Microservices",
+          "API Gateway",
+          "RBAC",
+          "AI Interview Scheduling",
+          "SAP HANA Cloud",
+          "SAP SuccessFactors",
+          "Agile/Scrum",
+        ],
+        bullets: [
+          "Leading the Recruiter module, owning technical planning, Jira task breakdown, dependencies, and delivery coordination across engineering and product teams.",
+          "Developing an AI-powered interview scheduling system supporting AI-conducted, human-led, and hybrid interviews, with scheduling, rescheduling, cancellation, and RBAC-based permissions for recruiters, hiring managers, and administrators.",
+          "Building scalable RESTful APIs using Node.js and TypeScript for recruiter workflows including jobs, candidates, applications, interviews, and scheduling, following microservices architecture and API Gateway patterns.",
+          "Implementing secure multi-tenant PostgreSQL architecture using Row-Level Security (RLS) and tenant-aware authorization to enforce client data isolation and secure access across recruiter and candidate workflows.",
+          "Analysing 400+ product features by comparing Figma designs with the existing codebase, APIs, database models, and Jira requirements to identify implementation gaps, technical risks, dependencies, and roadmap priorities.",
+          "Participating in SAP HANA Cloud and SAP SuccessFactors migration, environment configuration management.",
+          "Collaborating with product owners, architects, designers and QA in an Agile/Scrum environment, taking part in Jira story refinement and sprint delivery.",
+        ],
       },
       {
-        name: "S2P Matrix",
-        note: "AI-Powered Source-to-Pay Procurement Platform",
-      },
-      {
-        name: "Fastays",
-        note: "B2C Travel Booking Platform",
+        project: { name: "Fastays", note: "B2C Travel Booking Platform (Flights, Hotels, Tours, Buses)" },
+        title: "B2C Travel Booking Platform (Flights, Hotels, Tours, Buses)",
+        period: "Feb 2025 – Mar 2026",
+        focus: ["Java", "Spring Boot", "MongoDB", "React", "Kafka", "API Gateway", "REST APIs"],
+        bullets: [
+          "Designed & developed scalable backend microservices using Java, Spring Boot, MongoDB, and Microservices.",
+          "Developed 5+ responsive and dynamic frontend modules using React, JavaScript, and API integration.",
+          "Designed REST APIs with low latency and high throughput for real-time booking and payment systems.",
+          "Implemented API Gateway to enhance inter-service communication, security, and performance.",
+          "Implemented event-driven communication using Apache Kafka, improving system scalability, reliability, and fault tolerance.",
+          "Integrated Third-Party APIs for real-time availability of flights, hotels, tours, and bus services.",
+        ],
       },
     ],
-    responsibilities: [
-      "Build scalable full-stack applications using React, JavaScript, Python, FastAPI, Java, Spring Boot and REST APIs.",
-      "Develop enterprise workflows, integrations, backend services and data-driven applications.",
-      "Work across ERPNext, SAP BTP, AI integrations, cloud platforms and enterprise systems.",
-      "Design, integrate, test, debug and support production software systems.",
-      "Integrated Third-Party APIs for real-time availability of flights, hotels, tours, and bus services.",
-      "Implemented API Gateway to enhance inter-service communication, security, and performance.",
-      "Designed a modular LLM integration architecture supporting local AI models through Ollama and enabling future integration with OpenAI, Claude, and Gemini providers.",
-    ],
+    other: {
+      title: "Other work at HG Infotech",
+      focus: [
+        "Full Stack Engineering",
+        "ERPNext",
+        "AI",
+        "SAP BTP",
+        "Enterprise Applications",
+      ],
+      projects: [
+        {
+          name: "KeeMeds",
+          note: "ERPNext-based Healthcare Commerce & Enterprise Platform",
+        },
+        {
+          name: "S2P Matrix",
+          note: "AI-Powered Source-to-Pay Procurement Platform",
+        },
+      ],
+      bullets: [
+        "Build scalable full-stack applications using React, JavaScript, Python, FastAPI, Java, Spring Boot and REST APIs.",
+        "Develop enterprise workflows, integrations, backend services and data-driven applications.",
+        "Work across ERPNext, SAP BTP, AI integrations, cloud platforms and enterprise systems.",
+        "Design, integrate, test, debug and support production software systems.",
+        "Designed a modular LLM integration architecture supporting local AI models through Ollama and enabling future integration with OpenAI, Claude, and Gemini providers.",
+      ],
+    },
   },
   {
     role: "Junior Software Engineer",
     company: "HG Infotech",
     period: "Aug 2024 - Jan 2025",
-    focus: [
-      "Full Stack Engineering",
-      "Java",
-      "Spring Boot",
-      "Business Automation",
-      "AI",
-    ],
-    projects: [{ name: "Procurement Service Platform" }],
-    responsibilities: [
-      "Contributed to full-stack enterprise applications using Java, Spring Boot, MongoDB and JavaScript.",
-      "Developed internal business workflows for Sales, HR and Finance operations.",
-      "Contributed to process automation and AI-assisted business workflows.",
-      "Reduced manual coordination efforts by 35% through process automation.",
-      "Assisted in developing AI-assisted candidate matching and recruitment workflow features to improve hiring efficiency.",
+    groups: [
+      {
+        project: { name: "Procurement Service Platform" },
+        focus: ["Java", "Spring Boot", "MongoDB", "JavaScript", "HTML/CSS", "Process Automation", "AI"],
+        bullets: [
+          "Contributed to full-stack application development using Java, Spring Boot, MongoDB, JavaScript, HTML, and CSS.",
+          "Built internal modules to streamline procurement workflows across Sales, HR, and Finance teams.",
+          "Reduced manual coordination efforts by 35% through process automation.",
+          "Assisted in developing AI-assisted candidate matching and recruitment workflow features to improve hiring efficiency.",
+        ],
+      },
     ],
   },
 ];
@@ -109,7 +159,7 @@ const EXPERIENCE: ExperienceRole[] = roles.map((r, i) => ({
 }));
 
 // Projects that have a card in the Projects section (name must match it).
-const LINKED_PROJECTS = new Set(["KeeMeds", "S2P Matrix", "Fastays", "Procurement Service Platform"]);
+const LINKED_PROJECTS = new Set(["10xTA", "KeeMeds", "S2P Matrix", "Fastays", "Procurement Service Platform"]);
 const SHOWN_RESPONSIBILITIES = 3;
 
 function Row({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: ReactNode }) {
@@ -177,9 +227,9 @@ function ProjectChip({ project }: { project: ExperienceProject }) {
   );
 }
 
-/** Wrap numbers that are already in the text (e.g. "35%") in a glowing badge. */
+/** Wrap numbers that are already in the text (e.g. "35%", "400+") in a glowing badge. */
 function withImpact(text: string): ReactNode[] {
-  return text.split(/(\d+(?:\.\d+)?%?)/).map((part, i) =>
+  return text.split(/(\d+(?:\.\d+)?(?:%|\+)?)/).map((part, i) =>
     i % 2 === 1 ? (
       <span
         key={i}
@@ -193,41 +243,54 @@ function withImpact(text: string): ReactNode[] {
   );
 }
 
+/** grid-template-rows 0fr -> 1fr: smooth expand without measuring heights. */
+function Collapse({ id, open, children }: { id: string; open: boolean; children: ReactNode }) {
+  return (
+    <div
+      id={id}
+      inert={!open}
+      className={`grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+        open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+      }`}
+    >
+      <div className="min-h-0 overflow-hidden">{children}</div>
+    </div>
+  );
+}
+
+const toggleClass = "mt-3 rounded-md font-mono text-xs text-cyan-accent transition-colors hover:text-cyan-accent/80";
+
+function Bullet({ text }: { text: string }) {
+  return (
+    <li className="flex items-start gap-2">
+      <span className="mt-[0.4375rem] h-1 w-1 shrink-0 rounded-full bg-cyan-accent/70" />
+      <span>{withImpact(text)}</span>
+    </li>
+  );
+}
+
 function Responsibilities({ items }: { items: string[] }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const head = items.slice(0, SHOWN_RESPONSIBILITIES);
   const rest = items.slice(SHOWN_RESPONSIBILITIES);
-  const item = (r: string) => (
-    <li key={r} className="flex items-start gap-2">
-      <span className="mt-[0.4375rem] h-1 w-1 shrink-0 rounded-full bg-cyan-accent/70" />
-      <span>{withImpact(r)}</span>
-    </li>
-  );
   return (
     <>
-      <ul className="space-y-1.5 text-sm text-foreground/85">{head.map(item)}</ul>
+      <ul className="space-y-1.5 text-sm text-foreground/85">
+        {head.map((r) => (
+          <Bullet key={r} text={r} />
+        ))}
+      </ul>
       {rest.length > 0 && (
         <>
-          {/* grid-template-rows 0fr -> 1fr: smooth expand without measuring heights */}
-          <div
-            id={id}
-            inert={!open}
-            className={`grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
-              open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-            }`}
-          >
-            <div className="min-h-0 overflow-hidden">
-              <ul className="space-y-1.5 pt-1.5 text-sm text-foreground/85">{rest.map(item)}</ul>
-            </div>
-          </div>
-          <button
-            type="button"
-            aria-expanded={open}
-            aria-controls={id}
-            onClick={() => setOpen((v) => !v)}
-            className="mt-3 rounded-md font-mono text-xs text-cyan-accent transition-colors hover:text-cyan-accent/80"
-          >
+          <Collapse id={id} open={open}>
+            <ul className="space-y-1.5 pt-1.5 text-sm text-foreground/85">
+              {rest.map((r) => (
+                <Bullet key={r} text={r} />
+              ))}
+            </ul>
+          </Collapse>
+          <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((v) => !v)} className={toggleClass}>
             {open ? "Show less" : `Show all (${items.length})`}
           </button>
         </>
@@ -236,7 +299,100 @@ function Responsibilities({ items }: { items: string[] }) {
   );
 }
 
-/** Role details: focus, projects, responsibilities. Tilts and glows on fine pointers. */
+/** One project worked on within the role: chip, title, dates, focus and bullets. */
+function ProjectGroupBlock({ group }: { group: ProjectGroup }) {
+  return (
+    <div className="mt-6 border-t border-slate-900/10 pt-5 first:mt-0 first:border-t-0 first:pt-0 dark:border-white/10">
+      <div className="flex items-start gap-2">
+        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-900/5 text-cyan-accent dark:bg-white/5">
+          <FolderGit2 className="h-3.5 w-3.5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <ProjectChip project={group.project} />
+            {group.current && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/15 px-2 py-0.5 text-[0.625rem] font-semibold text-emerald-700 dark:text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                Current
+              </span>
+            )}
+          </div>
+          {group.title && <div className="mt-1.5 text-sm text-foreground/85">{group.title}</div>}
+          {group.period && <div className="mt-0.5 font-mono text-xs text-muted-foreground">{group.period}</div>}
+        </div>
+      </div>
+      <Row icon={Compass} title="Engineering focus">
+        <div className="flex flex-wrap gap-1.5">
+          {group.focus.map((f) => (
+            <span key={f} className={chipClass}>
+              {f}
+            </span>
+          ))}
+        </div>
+      </Row>
+      <Row icon={ListChecks} title="Key responsibilities">
+        <Responsibilities items={group.bullets} />
+      </Row>
+    </div>
+  );
+}
+
+/** Items not in the résumé, collapsed by default. Nothing is lost. */
+function OtherWork({ other }: { other: NonNullable<RoleData["other"]> }) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  return (
+    <div className="mt-6 border-t border-slate-900/10 pt-4 dark:border-white/10">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-2 rounded-md text-left text-xs tracking-wider text-muted-foreground uppercase transition-colors hover:text-foreground"
+      >
+        <span
+          className={`font-mono text-cyan-accent transition-transform duration-300 motion-reduce:transition-none ${open ? "rotate-90" : ""}`}
+          aria-hidden
+        >
+          ›
+        </span>
+        {other.title}
+        <span className="ml-auto font-mono text-[0.6875rem] normal-case tracking-normal text-cyan-accent">
+          {open ? "Show less" : `Show all (${other.focus.length + other.projects.length + other.bullets.length})`}
+        </span>
+      </button>
+      <Collapse id={id} open={open}>
+        <div className="pt-4">
+          <Row icon={Compass} title="Engineering focus">
+            <div className="flex flex-wrap gap-1.5">
+              {other.focus.map((f) => (
+                <span key={f} className={chipClass}>
+                  {f}
+                </span>
+              ))}
+            </div>
+          </Row>
+          <Row icon={FolderGit2} title="Projects">
+            <div className="flex flex-wrap gap-1.5">
+              {other.projects.map((p) => (
+                <ProjectChip key={p.name} project={p} />
+              ))}
+            </div>
+          </Row>
+          <Row icon={ListChecks} title="Role responsibilities">
+            <ul className="space-y-1.5 text-sm text-foreground/85">
+              {other.bullets.map((r) => (
+                <Bullet key={r} text={r} />
+              ))}
+            </ul>
+          </Row>
+        </div>
+      </Collapse>
+    </div>
+  );
+}
+
+/** Role details: one block per project, then the collapsed non-résumé work. Tilts and glows on fine pointers. */
 function DetailsCard({ role }: { role: ExperienceRole }) {
   const [ref, style] = usePointerTilt<HTMLDivElement>(4, { local: true });
   return (
@@ -245,25 +401,12 @@ function DetailsCard({ role }: { role: ExperienceRole }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(circle_160px_at_var(--gx,50%)_var(--gy,50%),var(--cyan-accent),transparent)] p-px opacity-[var(--glare,0)] transition-opacity duration-300 [mask:linear-gradient(#000_0_0)_content-box,linear-gradient(#000_0_0)] [mask-composite:exclude] [-webkit-mask-composite:xor]"
       />
-      <Row icon={Compass} title="Engineering focus">
-        <div className="flex flex-wrap gap-1.5">
-          {role.focus.map((f) => (
-            <span key={f} className={chipClass}>
-              {f}
-            </span>
-          ))}
-        </div>
-      </Row>
-      <Row icon={FolderGit2} title="Projects">
-        <div className="flex flex-wrap gap-1.5">
-          {role.projects.map((p) => (
-            <ProjectChip key={p.name} project={p} />
-          ))}
-        </div>
-      </Row>
-      <Row icon={ListChecks} title="Key responsibilities">
-        <Responsibilities items={role.responsibilities} />
-      </Row>
+      <div>
+        {role.groups.map((g) => (
+          <ProjectGroupBlock key={g.project.name} group={g} />
+        ))}
+      </div>
+      {role.other && <OtherWork other={role.other} />}
     </motion.div>
   );
 }
@@ -342,7 +485,11 @@ function ExperienceTimeline() {
     slug: r.slug,
     head: r.head,
     y: layout?.ys[i] ?? 0,
-    projects: r.projects.map((p) => p.name),
+    branches: r.groups.map((g) => ({
+      label: g.project.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      period: g.period,
+      open: g.current ?? false,
+    })),
   }));
 
   return (
