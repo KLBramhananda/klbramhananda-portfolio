@@ -20,7 +20,18 @@ const capabilities = [
     title: "Backend & Systems",
     blurb:
       "Production-ready services, APIs, and event-driven systems designed for reliability and scale.",
-    items: ["Python", "Java", "Spring Boot", "FastAPI", "Kafka", "REST APIs"],
+    items: [
+      "Python",
+      "Java",
+      "Spring Boot",
+      "FastAPI",
+      "Kafka",
+      "REST APIs",
+      "Node.js",
+      "TypeScript (backend)",
+      "API Gateway",
+      "RBAC",
+    ],
   },
   {
     icon: Layout,
@@ -34,28 +45,44 @@ const capabilities = [
     title: "AI & Automation",
     blurb:
       "AI-powered workflows, retrieval systems, and agent-based integrations for enterprise applications.",
-    items: ["AI / LLM", "AI Agents", "MCP", "RAG Workflows", "Vector Search"],
+    items: [
+      "AI / LLM",
+      "AI Agents",
+      "MCP",
+      "RAG Workflows",
+      "Vector Search",
+      "LLM Integration",
+      "AI Chatbot",
+      "Azure OpenAI",
+    ],
   },
   {
     icon: Boxes,
     title: "Enterprise & ERP",
     blurb:
       "Enterprise workflows, ERP platforms, integrations, and business process automation.",
-    items: ["ERPNext", "Frappe", "SAP BTP", "SAP HANA", "Enterprise Integration"],
+    items: [
+      "ERPNext",
+      "Frappe",
+      "SAP BTP",
+      "SAP HANA Cloud",
+      "SAP SuccessFactors",
+      "Enterprise Integration",
+    ],
   },
   {
     icon: GitBranch,
     title: "DevOps & Delivery",
     blurb:
       "Containerized deployments, version control, CI/CD, and production delivery workflows.",
-    items: ["Docker", "Git", "CI/CD", "Microservices"],
+    items: ["Docker", "Git", "CI/CD", "Microservices", "Agile / Scrum", "Jira"],
   },
   {
     icon: Cloud,
     title: "Cloud & Data",
     blurb:
       "Cloud infrastructure, databases, and data services supporting production applications.",
-    items: ["AWS", "MongoDB", "PostgreSQL", "MySQL"],
+    items: ["AWS", "MongoDB", "PostgreSQL (RLS)", "MySQL"],
   },
 ];
 
