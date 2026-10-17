@@ -129,3 +129,7 @@ export function currentSectionId(): SectionId | null {
   const first = document.getElementById(SECTIONS[0].id);
   return first && first.getBoundingClientRect().top >= y ? "home" : null;
 }
+
+/** Stable DOM id of a project card in the Projects section. */
+export const projectCardId = (name: string) =>
+  `project-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;

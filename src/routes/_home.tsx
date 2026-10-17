@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Hero } from "@/components/sections/hero";
 import { About } from "@/components/sections/about";
+import { Experience } from "@/components/sections/experience";
 import { Projects } from "@/components/sections/projects";
 import { Skills } from "@/components/sections/skills";
 import { Architecture } from "@/components/sections/architecture";
@@ -106,6 +107,7 @@ function Index() {
       <main id="main">
         <Hero />
         <About />
+        <Experience />
         <Projects />
         <Skills />
         <Architecture />
