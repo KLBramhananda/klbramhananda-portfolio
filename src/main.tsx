@@ -4,6 +4,10 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { MotionConfig } from "framer-motion";
 import { routeTree } from "./routeTree.gen";
 import "./styles/styles.css";
+import { preloadIntro } from "./components/intro/intro-bridge";
+
+// Start fetching the intro scene before the app renders.
+preloadIntro();
 
 const router = createRouter({ routeTree });
 

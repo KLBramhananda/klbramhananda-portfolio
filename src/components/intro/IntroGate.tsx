@@ -1,7 +1,7 @@
 import { Component, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CSSProperties, ReactNode } from "react";
-import { coreBridge, detectTier, type CoreCircle } from "./intro-bridge";
+import { coreBridge, detectTier, loadIntroScene, type CoreCircle } from "./intro-bridge";
 
 export interface IntroScene {
   /** Bursts the letters toward the camera; resolves when the burst is done. */
@@ -27,6 +27,9 @@ const GLYPHS = "01<>/{}[]#$%&*+=?";
 const WHITE = "#F2EFE8";
 const FALLBACK_ACCENT = "#06B6D4";
 const HOLD_MS = 800;
+// The scene chunk is preloaded at boot; on a slow network give it time before
+// falling back (until then the overlay shows only its dark backdrop + Skip).
+const SCENE_LOAD_TIMEOUT_MS = 4000;
 const DRAIN_MS = 400;
 const RING_R = 29;
 const RING_C = 2 * Math.PI * RING_R;
@@ -227,8 +230,8 @@ function IntroOverlay({ onExit }: { onExit: () => void }) {
       const loadTimer = later(() => {
         abandoned = true;
         void startFallback();
-      }, 1500);
-      import("./intro-webgl")
+      }, SCENE_LOAD_TIMEOUT_MS);
+      void loadIntroScene()
         .then((mod) => {
           if (abandoned || disposed) return undefined;
           window.clearTimeout(loadTimer);
