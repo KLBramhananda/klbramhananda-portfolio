@@ -151,7 +151,8 @@ function commitHash(title: string) {
   return (h >>> 0).toString(16).padStart(8, "0").slice(0, 7);
 }
 
-const EXPERIENCE: ExperienceRole[] = roles.map((r, i) => ({
+// eslint-disable-next-line react-refresh/only-export-components -- data read by Skills (skill-usage)
+export const EXPERIENCE: ExperienceRole[] = roles.map((r, i) => ({
   ...r,
   hash: commitHash(r.role),
   slug: r.role.toLowerCase().replace(/\s+/g, "-"),
