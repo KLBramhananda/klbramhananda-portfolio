@@ -8,6 +8,8 @@ import psp from "@/assets/images/proj-psp.jpg";
 import { Reveal } from "../effects/hero-interactions";
 import { projectCardId } from "@/lib/sections";
 import keemeds from "@/assets/images/proj-keemeds.png";
+import tenxta from "@/assets/images/10xTA-PGC.png";
+import { Users } from "lucide-react";
 import type { CSSProperties } from "react";
 import { ProjectStack } from "./ProjectStack";
 import { BrowserFrame } from "./BrowserFrame";
@@ -18,8 +20,13 @@ type Project = {
   name: string;
   tagline: string;
   role: string;
-  status: "Completed" | "Currently Working On";
+  /** Badge; none when omitted. */
+  status?: "Completed" | "Currently Working On";
+  /** Third case-study step reads "Progress" instead of "Outcome". */
+  progress?: boolean;
   image: string;
+  /** Overrides the `alt` built from name + tagline. */
+  alt?: string;
   imageWidth: number;
   imageHeight: number;
   description: string;
@@ -31,28 +38,98 @@ type Project = {
   metric?: string;
   /** Title of the matching diagram in the Architecture section, if one exists. */
   architecture?: string;
+  /** A diagram of this project's own, rendered on the frame's back. */
+  diagram?: DiagramData;
+};
+
+type DiagramData = Parameters<typeof Diagram>[0] extends infer P
+  ? Omit<P, "phase" | "compact">
+  : never;
+
+/** 10xTA system flow (not part of the Architecture section). */
+const TENXTA_DIAGRAM: DiagramData = {
+  icon: Users,
+  title: "10xTA System Flow",
+  subtitle: "Node.js · TypeScript · PostgreSQL RLS",
+  nodes: [
+    "Recruiter · Hiring Manager · Admin (RBAC)",
+    "API Gateway",
+    "Jobs · Candidates · Applications · Interviews · Scheduling",
+    "PostgreSQL (RLS · tenant-aware)",
+  ],
+  aside: { label: "AI Interview Scheduler", note: "AI · human-led · hybrid" },
 };
 
 const projects: Project[] = [
   {
-    name: "KeeMeds",
-    tagline: "Healthcare Commerce · ERPNext",
-    role: "ERPNext developer & implementation lead",
+    name: "10xTA",
+    tagline: "Talent Acquisition · B2B Multi-Tenant SaaS",
+    role: "Recruiter module lead · Backend engineer",
     status: "Currently Working On",
-    image: keemeds,
-    imageWidth: 1440,
-    imageHeight: 619,
+    progress: true,
+    image: tenxta,
+    imageWidth: 1852,
+    imageHeight: 847,
+    alt: "10xTA talent acquisition platform screenshot",
     description:
-      "End-to-end ERPNext + Frappe implementation for a healthcare commerce platform - catalog, orders, compliance, and fulfillment.",
-    tech: ["ERPNext", "Frappe", "Python", "MariaDB", "Docker"],
+      "AI-powered talent acquisition platform — recruiter workflows, AI-driven interview scheduling, and secure multi-tenant data isolation.",
+    tech: [
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "Microservices",
+      "API Gateway",
+      "RBAC",
+      "SAP HANA Cloud",
+    ],
     challenge:
-      "Healthcare commerce needs strict compliance, controlled catalogs, and reliable fulfillment - off-the-shelf ERP alone won't cover it.",
+      "Recruiters, hiring managers, and admins across multiple client companies need one platform — with strict client data isolation and flexible AI, human-led, and hybrid interviews.",
     solution:
-      "Modeling domain-specific inventory and compliance workflows on ERPNext and shipping custom Frappe apps for supplier onboarding and payments.",
+      "Node.js + TypeScript microservices behind an API Gateway, PostgreSQL Row-Level Security with tenant-aware authorization, and an AI-powered interview scheduling system with RBAC.",
     outcome:
-      "Laying the ERP backbone for a compliant, scalable healthcare commerce launch.",
-    // No numeric outcome yet, so no headline metric.
-    architecture: "ERP System Flow",
+      "Leading the Recruiter module — 400+ product features analysed against Figma, codebase, APIs, and Jira to drive the roadmap.",
+    metric: "400+ features analysed · Multi-tenant RLS",
+    diagram: TENXTA_DIAGRAM,
+  },
+  {
+    name: "Fastays",
+    tagline: "Travel Booking Platform",
+    role: "Backend & frontend engineer",
+    status: "Completed",
+    image: fastays,
+    imageWidth: 1440,
+    imageHeight: 592,
+    description:
+      "B2C travel booking platform for flights, hotels, tours, and buses — real-time availability, booking, and payments.",
+    tech: ["Java", "Spring Boot", "MongoDB", "Kafka", "React", "API Gateway"],
+    challenge:
+      "Real-time availability and bookings across flights, hotels, tours, and buses from multiple third-party providers.",
+    solution:
+      "Spring Boot microservices behind an API Gateway, Kafka event-driven communication, and low-latency REST APIs for booking and payments.",
+    outcome:
+      "A scalable, fault-tolerant booking backend plus 5+ responsive React frontend modules.",
+    metric: "Event-driven · 5+ frontend modules",
+    architecture: "Microservices Architecture",
+  },
+  {
+    name: "Procurement Service Platform",
+    tagline: "Reusable procurement microservices",
+    role: "Junior software engineer",
+    status: "Completed",
+    image: psp,
+    imageWidth: 1440,
+    imageHeight: 616,
+    description:
+      "A shared procurement toolkit - supplier, catalog, RFQ, contract, and approval services - reused across enterprise client engagements.",
+    tech: ["Java", "Spring Boot", "MongoDB", "JavaScript", "HTML", "CSS"],
+    challenge:
+      "Procurement workflows across Sales, HR, and Finance relied on manual coordination.",
+    solution:
+      "Full-stack internal modules on Java, Spring Boot, and MongoDB to streamline procurement workflows, plus AI-assisted candidate matching features.",
+    outcome:
+      "Reduced manual coordination efforts by 35% through process automation.",
+    metric: "35% less manual coordination",
+    // No diagram in the Architecture section matches this project.
   },
   {
     name: "S2P Matrix",
@@ -84,46 +161,24 @@ const projects: Project[] = [
     architecture: "Procurement Lifecycle",
   },
   {
-    name: "Fastays",
-    tagline: "Travel Booking Platform",
-    role: "Backend engineer",
-    status: "Completed",
-    image: fastays,
+    name: "KeeMeds",
+    tagline: "Healthcare Commerce · ERPNext",
+    role: "ERPNext developer & implementation lead",
+    progress: true,
+    image: keemeds,
     imageWidth: 1440,
-    imageHeight: 592,
+    imageHeight: 619,
     description:
-      "High-throughput booking backend handling flights and stays with event-driven order processing and inventory synchronization.",
-    tech: ["Java", "Spring Boot", "Kafka", "MongoDB", "Redis"],
+      "End-to-end ERPNext + Frappe implementation for a healthcare commerce platform - catalog, orders, compliance, and fulfillment.",
+    tech: ["ERPNext", "Frappe", "Python", "MariaDB", "Docker"],
     challenge:
-      "Booking traffic spiked 10× during promotions, causing double-bookings and confirmation delays on the legacy stack.",
+      "Healthcare commerce needs strict compliance, controlled catalogs, and reliable fulfillment - off-the-shelf ERP alone won't cover it.",
     solution:
-      "Decomposed the monolith into Spring Boot services with Kafka-backed order queues, Redis for hot inventory, and idempotent reservation flows.",
+      "Modeling domain-specific inventory and compliance workflows on ERPNext and shipping custom Frappe apps for supplier onboarding and payments.",
     outcome:
-      "Sub-second confirmations at peak load with zero double-bookings during pilot promo weeks.",
-    // From the challenge ("spiked 10×") and the outcome ("at peak load with zero double-bookings")
-    metric: "10× peak · 0 double-bookings",
-    architecture: "Microservices Architecture",
-  },
-  {
-    name: "Procurement Service Platform",
-    tagline: "Reusable procurement microservices",
-    role: "Architect & lead engineer",
-    status: "Completed",
-    image: psp,
-    imageWidth: 1440,
-    imageHeight: 616,
-    description:
-      "A shared procurement toolkit - supplier, catalog, RFQ, contract, and approval services - reused across enterprise client engagements.",
-    tech: ["Python", "FastAPI", "PostgreSQL", "Docker", "AWS"],
-    challenge:
-      "Each new enterprise engagement rebuilt the same procurement primitives from scratch, blowing up timelines and cost.",
-    solution:
-      "Extracted the common domain into versioned microservices with clean APIs, shared auth, and a config-driven workflow engine.",
-    outcome:
-      "Cut new-client onboarding effort by ~50% and standardized procurement flows across engagements.",
-    // From the outcome: "Cut new-client onboarding effort by ~50%"
-    metric: "~50% less onboarding effort",
-    // No diagram in the Architecture section matches this project.
+      "Laying the ERP backbone for a compliant, scalable healthcare commerce launch.",
+    // No numeric outcome yet, so no headline metric.
+    architecture: "ERP System Flow",
   },
 ];
 
@@ -171,9 +226,11 @@ function ProjectCard({
   flip: boolean;
 }) {
   const isCurrent = p.status === "Currently Working On";
-  const diagram = p.architecture
-    ? diagrams.find((d) => d.title === p.architecture)
-    : undefined;
+  const diagram =
+    p.diagram ??
+    (p.architecture
+      ? diagrams.find((d) => d.title === p.architecture)
+      : undefined);
   // Fine-pointer tilt (±3°) and a cursor-following border glow via --gx/--gy
   // (aliased to --mx/--my in CSS). The sticky <article> carries the stack
   // transform; the inner card carries the tilt, so the two never fight.
@@ -202,7 +259,7 @@ function ProjectCard({
           <BrowserFrame
             name={p.name}
             src={p.image}
-            alt={`${p.name} — ${p.tagline} screenshot`}
+            alt={p.alt ?? `${p.name} — ${p.tagline} screenshot`}
             width={p.imageWidth}
             height={p.imageHeight}
             eager={index === 0}
@@ -220,8 +277,17 @@ function ProjectCard({
                 </h3>
                 <div className="text-cyan-accent text-sm mt-1">{p.tagline}</div>
               </div>
-              {p.status === "Completed" && (
-                <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-slate-900/10 text-slate-900/85 border border-slate-900/15 dark:bg-white/10 dark:text-white/85 dark:border-white/15">
+              {p.status && (
+                <span
+                  className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                    isCurrent
+                      ? "bg-emerald-500/15 text-emerald-700 border border-emerald-500/20 dark:text-emerald-300"
+                      : "bg-slate-900/10 text-slate-900/85 border border-slate-900/15 dark:bg-white/10 dark:text-white/85 dark:border-white/15"
+                  }`}
+                >
+                  {isCurrent && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                  )}
                   {p.status}
                 </span>
               )}
@@ -247,8 +313,8 @@ function ProjectCard({
                 { icon: Target, label: "Challenge", text: p.challenge },
                 { icon: Lightbulb, label: "Solution", text: p.solution },
                 {
-                  icon: isCurrent ? CheckCircle2 : TrendingUp,
-                  label: isCurrent ? "Progress" : "Outcome",
+                  icon: p.progress ? CheckCircle2 : TrendingUp,
+                  label: p.progress ? "Progress" : "Outcome",
                   text: p.outcome,
                 },
               ]}
