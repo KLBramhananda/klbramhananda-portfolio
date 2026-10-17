@@ -93,6 +93,7 @@ export function Diagram({
   nodes,
   phase,
   compact = false,
+  aside,
 }: {
   icon: LucideIcon;
   title: string;
@@ -100,6 +101,8 @@ export function Diagram({
   nodes: string[];
   phase: number;
   compact?: boolean;
+  /** Optional side node shown under the flow (only used by the Projects 10xTA card). */
+  aside?: { label: string; note: string };
 }) {
   const cycle = 7.2;
   const step = cycle / nodes.length;
@@ -151,6 +154,15 @@ export function Diagram({
             </div>
           ))}
         </div>
+        {aside && (
+          <div className="mt-3 flex items-center justify-center gap-2 text-xs">
+            <span aria-hidden className="h-px w-5 bg-cyan-accent/50" />
+            <div className="flow-node rounded-lg glass border border-slate-900/10 px-3 py-2 font-medium text-foreground/90 dark:border-white/10">
+              {aside.label}
+              <span className="ml-1.5 font-normal text-muted-foreground">{aside.note}</span>
+            </div>
+          </div>
+        )}
       </div>
     </article>
   );

@@ -26,6 +26,12 @@ export function RolePanel({ role, className = "" }: { role: ExperienceRole; clas
         <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" aria-hidden />
           {role.location}
+          {role.workMode && (
+            <>
+              <span aria-hidden>·</span>
+              {role.workMode}
+            </>
+          )}
         </div>
       )}
       <div className="mt-4 border-t border-slate-900/10 pt-3 font-mono text-xs text-muted-foreground dark:border-white/10">

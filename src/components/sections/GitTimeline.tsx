@@ -6,7 +6,14 @@ export interface TimelineNode {
   head: boolean;
   /** Y of the commit node, px from the top of the timeline. */
   y: number;
-  projects: string[];
+  branches: TimelineBranch[];
+}
+
+export interface TimelineBranch {
+  label: string;
+  period?: string;
+  /** Still open: it does not merge back but ends under the node with a pulsing tip. */
+  open: boolean;
 }
 
 const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
@@ -88,8 +95,24 @@ export function GitTimeline({
         const next = nodes[i + 1]?.y ?? height;
         const start = n.y + rem * 6;
         const avail = next - rem * 1.5 - start;
-        const seg = Math.min(rem * 3.9, avail / Math.max(n.projects.length, 1));
+        const seg = Math.min(rem * 3.9, avail / Math.max(n.branches.length, 1));
         const span = Math.max(seg - rem * 1.2, rem * 1.4);
+        const label = (b: TimelineBranch, cy: number) => {
+          if (!showLabels) return null;
+          const lines = wrap(b.label, maxChars);
+          if (b.period) lines.push(b.period);
+          return lines.map((l, j) => (
+            <text
+              key={j}
+              x={x + offset + rem * 0.7}
+              y={cy + fontSize * 0.35 + (j - (lines.length - 1) / 2) * fontSize * 1.4}
+              fontSize={fontSize}
+              className={b.period && j === lines.length - 1 ? "fill-muted-foreground" : "fill-foreground/80"}
+            >
+              {l}
+            </text>
+          ));
+        };
         return (
           <g key={n.hash}>
             <g style={lit(n.y / height) as CSSProperties}>
@@ -115,30 +138,34 @@ export function GitTimeline({
               )}
             </g>
 
-            {n.projects.map((name, k) => {
+            {n.branches.map((b, k) => {
               const y1 = start + k * seg;
               const y2 = y1 + span;
-              const h = y2 - y1;
               const d = offset;
+              if (b.open) {
+                // Open branch: forks from main at the bottom and runs up to a
+                // pulsing tip just under the HEAD node — not merged yet.
+                const tip = n.y + rem * 2.4;
+                const h = y2 - tip;
+                const path = `M${x} ${y2} C${x} ${y2 - h * 0.2} ${x + d} ${y2 - h * 0.05} ${x + d} ${y2 - h * 0.4} L${x + d} ${tip}`;
+                return (
+                  <g key={b.label} style={lit(tip / height) as CSSProperties}>
+                    <path d={path} className="stroke-cyan-accent/70" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+                    <circle cx={x} cy={y2} r={rem * 0.2} className="fill-cyan-accent" />
+                    <circle cx={x + d} cy={tip} r={rem * 0.5} className={`fill-cyan-accent/25 ${reduced ? "" : "animate-pulse"}`} />
+                    <circle cx={x + d} cy={tip} r={rem * 0.24} className="fill-cyan-accent" />
+                    {label(b, tip)}
+                  </g>
+                );
+              }
+              const h = y2 - y1;
               const path = `M${x} ${y1} C${x} ${y1 + h * 0.2} ${x + d} ${y1 + h * 0.05} ${x + d} ${y1 + h * 0.4} L${x + d} ${y2 - h * 0.4} C${x + d} ${y2 - h * 0.05} ${x} ${y2 - h * 0.2} ${x} ${y2}`;
-              const lines = wrap(name, maxChars);
               return (
-                <g key={name} style={lit(y1 / height) as CSSProperties}>
+                <g key={b.label} style={lit(y1 / height) as CSSProperties}>
                   <path d={path} className="stroke-cyan-accent/70" strokeWidth={1.5} fill="none" strokeLinecap="round" />
                   <circle cx={x} cy={y1} r={rem * 0.2} className="fill-cyan-accent" />
                   <circle cx={x} cy={y2} r={rem * 0.2} className="fill-cyan-accent" />
-                  {showLabels &&
-                    lines.map((l, j) => (
-                      <text
-                        key={j}
-                        x={x + d + rem * 0.7}
-                        y={(y1 + y2) / 2 + fontSize * 0.35 + (j - (lines.length - 1) / 2) * fontSize * 1.4}
-                        fontSize={fontSize}
-                        className="fill-foreground/80"
-                      >
-                        {l}
-                      </text>
-                    ))}
+                  {label(b, (y1 + y2) / 2)}
                 </g>
               );
             })}
