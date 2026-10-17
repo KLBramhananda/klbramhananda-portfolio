@@ -29,7 +29,13 @@ function naturalTop(grid: HTMLElement, cards: HTMLElement[], index: number) {
  * Children must be the cards themselves (direct grid items) so the grid is
  * their sticky containing block and the stack releases at the section end.
  */
-export function ProjectStack({ names, children }: { names: string[]; children: ReactNode }) {
+export function ProjectStack({
+  names,
+  children,
+}: {
+  names: string[];
+  children: ReactNode;
+}) {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const indexRef = useRef<HTMLOListElement | null>(null);
   const dotsRef = useRef<HTMLDivElement | null>(null);
@@ -41,7 +47,9 @@ export function ProjectStack({ names, children }: { names: string[]; children: R
     const index = indexRef.current;
     const dots = dotsRef.current;
     if (!grid || !index || !dots) return;
-    const cards = Array.from(grid.querySelectorAll<HTMLElement>(":scope > [data-stack-index]"));
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>(":scope > [data-stack-index]"),
+    );
     const items = Array.from(index.querySelectorAll<HTMLElement>("li"));
     const dotEls = Array.from(dots.querySelectorAll<HTMLElement>("button"));
     const desktop = window.matchMedia(DESKTOP);
@@ -66,13 +74,19 @@ export function ProjectStack({ names, children }: { names: string[]; children: R
       let progress = 0;
 
       if (desktop.matches) {
-        for (let i = 0; i < rects.length; i++) if (rects[i].top <= navH + 24 + 12 * i + 1) next = i;
+        for (let i = 0; i < rects.length; i++)
+          if (rects[i].top <= navH + 24 + 12 * i + 1) next = i;
         for (let i = 0; i < cards.length; i++) {
           const r = rects[i];
           const below = rects[i + 1];
           // 0 while the next card is still under this one's bottom edge, 1 when
           // its top reaches this card's top.
-          const p = below ? Math.min(1, Math.max(0, (r.top + r.height - below.top) / r.height)) : 0;
+          const p = below
+            ? Math.min(
+                1,
+                Math.max(0, (r.top + r.height - below.top) / r.height),
+              )
+            : 0;
           if (Math.abs(p - stk[i]) > 0.002) {
             stk[i] = p;
             cards[i].style.setProperty("--stk", p.toFixed(3));
@@ -86,7 +100,8 @@ export function ProjectStack({ names, children }: { names: string[]; children: R
           if (i === next) progress = p;
         }
       } else {
-        for (let i = 0; i < rects.length; i++) if (rects[i].top <= vh * 0.45) next = i;
+        for (let i = 0; i < rects.length; i++)
+          if (rects[i].top <= vh * 0.45) next = i;
         for (let i = 0; i < cards.length; i++) {
           if (stk[i] !== 0) {
             stk[i] = 0;
@@ -105,9 +120,14 @@ export function ProjectStack({ names, children }: { names: string[]; children: R
         items.forEach((li, i) => {
           if (i === active) li.dataset.active = "";
           else delete li.dataset.active;
-          li.querySelector("button")?.setAttribute("aria-current", i === active ? "true" : "false");
+          li.querySelector("button")?.setAttribute(
+            "aria-current",
+            i === active ? "true" : "false",
+          );
         });
-        dotEls.forEach((d, i) => d.setAttribute("aria-current", i === active ? "true" : "false"));
+        dotEls.forEach((d, i) =>
+          d.setAttribute("aria-current", i === active ? "true" : "false"),
+        );
       }
     };
 
@@ -126,13 +146,19 @@ export function ProjectStack({ names, children }: { names: string[]; children: R
   const goTo = (i: number) => {
     const grid = gridRef.current;
     if (!grid) return;
-    const cards = Array.from(grid.querySelectorAll<HTMLElement>(":scope > [data-stack-index]"));
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>(":scope > [data-stack-index]"),
+    );
     if (!cards[i]) return;
     lockSpy(1500, false, "projects");
     const onProjects = window.location.pathname === "/projects";
     const go = onProjects
       ? Promise.resolve()
-      : router.navigate({ to: "/$section", params: { section: "projects" }, resetScroll: false });
+      : router.navigate({
+          to: "/$section",
+          params: { section: "projects" },
+          resetScroll: false,
+        });
     void go.finally(() => {
       window.scrollTo({
         top: Math.max(0, naturalTop(grid, cards, i) - landingY()),
@@ -144,7 +170,11 @@ export function ProjectStack({ names, children }: { names: string[]; children: R
   return (
     <div className="mt-10 lg:mt-14 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-8">
       {/* Tablet / mobile: dot indicator under the heading */}
-      <div ref={dotsRef} className="mb-6 flex items-center gap-2 lg:hidden" aria-label="Project indicator">
+      <div
+        ref={dotsRef}
+        className="mb-6 flex items-center gap-2 lg:hidden"
+        aria-label="Project indicator"
+      >
         {names.map((n, i) => (
           <button
             key={n}
@@ -159,16 +189,25 @@ export function ProjectStack({ names, children }: { names: string[]; children: R
 
       {/* Desktop: slim sticky index on the left edge */}
       <nav aria-label="Project index" className="hidden lg:block">
-        <ol ref={indexRef} className="pstack-index sticky top-[calc(50svh-6rem)] space-y-1">
+        <ol
+          ref={indexRef}
+          className="pstack-index sticky top-[calc(50svh-6rem)] space-y-1"
+        >
           {names.map((n, i) => (
-            <li key={n} data-active={i === 0 ? "" : undefined} className="pstack-item">
+            <li
+              key={n}
+              data-active={i === 0 ? "" : undefined}
+              className="pstack-item"
+            >
               <button
                 type="button"
                 aria-current={i === 0 ? "true" : "false"}
                 onClick={() => goTo(i)}
                 className="group flex w-full items-start gap-2.5 rounded-lg py-1.5 pr-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <span className="pstack-num font-mono text-xs tabular-nums leading-5">{String(i + 1).padStart(2, "0")}</span>
+                <span className="pstack-num font-mono text-xs tabular-nums leading-5">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
                 <span className="pstack-name min-w-0 leading-5">{n}</span>
               </button>
               <span aria-hidden className="pstack-tick" />

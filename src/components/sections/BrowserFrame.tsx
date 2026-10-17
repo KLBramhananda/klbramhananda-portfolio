@@ -52,7 +52,10 @@ export function BrowserFrame({
       const imgH = (img.naturalHeight / img.naturalWidth) * shot.clientWidth;
       const taller = imgH > shot.clientHeight + 1;
       img.dataset.mode = taller ? "pan" : "zoom";
-      img.style.setProperty("--pan", taller ? `${Math.round(shot.clientHeight - imgH)}px` : "0px");
+      img.style.setProperty(
+        "--pan",
+        taller ? `${Math.round(shot.clientHeight - imgH)}px` : "0px",
+      );
     };
     measure();
     img.addEventListener("load", measure);
@@ -70,7 +73,11 @@ export function BrowserFrame({
     const inner = innerRef.current;
     if (!fit || !inner) return;
     const measure = () => {
-      const s = Math.min(1, fit.clientHeight / Math.max(1, inner.offsetHeight), fit.clientWidth / Math.max(1, inner.offsetWidth));
+      const s = Math.min(
+        1,
+        fit.clientHeight / Math.max(1, inner.offsetHeight),
+        fit.clientWidth / Math.max(1, inner.offsetWidth),
+      );
       fit.style.setProperty("--fit", s.toFixed(3));
     };
     measure();
@@ -141,10 +148,18 @@ export function BrowserFrame({
     "shrink-0 rounded-md border border-slate-900/10 bg-slate-900/[0.04] px-2 py-0.5 text-[0.6875rem] font-medium text-foreground/80 transition-colors hover:border-cyan-accent/40 hover:text-foreground dark:border-white/10 dark:bg-white/[0.04]";
 
   return (
-    <div ref={rootRef} className="bframe" data-flipped={flipped ? "1" : undefined}>
+    <div
+      ref={rootRef}
+      className="bframe"
+      data-flipped={flipped ? "1" : undefined}
+    >
       <div className="bframe-card glass-strong rounded-2xl shadow-[var(--shadow-terminal)]">
         {/* Front: chrome + screenshot */}
-        <div className="bframe-face bframe-front overflow-hidden rounded-2xl" inert={flipped} aria-hidden={flipped}>
+        <div
+          className="bframe-face bframe-front overflow-hidden rounded-2xl"
+          inert={flipped}
+          aria-hidden={flipped}
+        >
           {chrome(
             <>
               <span className="mx-auto min-w-0 truncate rounded-md border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-0.5 font-mono text-[0.6875rem] text-muted-foreground dark:border-white/10 dark:bg-white/[0.04]">
@@ -182,13 +197,22 @@ export function BrowserFrame({
 
         {/* Back: the architecture diagram */}
         {back && (
-          <div className="bframe-face bframe-back flex flex-col overflow-hidden rounded-2xl" inert={!flipped} aria-hidden={!flipped}>
+          <div
+            className="bframe-face bframe-back flex flex-col overflow-hidden rounded-2xl"
+            inert={!flipped}
+            aria-hidden={!flipped}
+          >
             {chrome(
               <>
                 <span className="mx-auto min-w-0 truncate rounded-md border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-0.5 font-mono text-[0.6875rem] text-muted-foreground dark:border-white/10 dark:bg-white/[0.04]">
                   {host}/architecture
                 </span>
-                <button ref={backBtnRef} type="button" onClick={() => setFlipped(false)} className={btnClass}>
+                <button
+                  ref={backBtnRef}
+                  type="button"
+                  onClick={() => setFlipped(false)}
+                  className={btnClass}
+                >
                   Back to preview
                 </button>
               </>,

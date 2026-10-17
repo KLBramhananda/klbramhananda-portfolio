@@ -2011,6 +2011,35 @@ html:not(.dark) .hero-letter {
     background: var(--background);
     opacity: 0.6;
   }
+
+  /* No tilt while a card is in its stacked / scaled state. */
+  .pstack-card[data-stacked] .pcard {
+    transform: none !important;
+  }
+}
+
+/* Card hover glow (fine pointers only: --glare is set by usePointerTilt,
+   which is off on coarse pointers and under reduced motion). */
+.pcard {
+  --mx: var(--gx, 50%);
+  --my: var(--gy, 50%);
+}
+
+.pcard-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(circle 220px at var(--mx) var(--my), var(--cyan-accent), transparent);
+  opacity: var(--glare, 0);
+  transition: opacity 300ms ease-out;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
 }
 
 /* Project index: active item in the accent colour with a progress tick that

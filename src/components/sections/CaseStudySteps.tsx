@@ -47,8 +47,16 @@ export function CaseStudySteps({ steps }: { steps: CaseStudyStep[] }) {
           const Icon = s.icon;
           const selected = i === active;
           return (
-            <div key={s.label} className="flex shrink-0 items-center gap-1 snap-start">
-              {i > 0 && <MoveRight aria-hidden className="h-3.5 w-3.5 shrink-0 text-cyan-accent/50" />}
+            <div
+              key={s.label}
+              className="flex shrink-0 items-center gap-1 snap-start"
+            >
+              {i > 0 && (
+                <MoveRight
+                  aria-hidden
+                  className="h-3.5 w-3.5 shrink-0 text-cyan-accent/50"
+                />
+              )}
               <button
                 type="button"
                 role="tab"
@@ -66,7 +74,9 @@ export function CaseStudySteps({ steps }: { steps: CaseStudyStep[] }) {
                     : "border-slate-900/10 bg-slate-900/[0.04] text-muted-foreground hover:text-foreground dark:border-white/10 dark:bg-white/[0.03]"
                 }`}
               >
-                <Icon className={`h-3.5 w-3.5 ${selected ? "text-cyan-accent" : ""}`} />
+                <Icon
+                  className={`h-3.5 w-3.5 ${selected ? "text-cyan-accent" : ""}`}
+                />
                 {s.label}
               </button>
             </div>

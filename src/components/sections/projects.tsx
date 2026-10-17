@@ -1,4 +1,6 @@
-﻿import { CheckCircle2, Target, Lightbulb, TrendingUp } from "lucide-react";
+import { CheckCircle2, Target, Lightbulb, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
+import { usePointerTilt } from "../effects/use-pointer-tilt";
 import { SectionEyebrow } from "./about";
 import s2p from "@/assets/images/proj-s2p.jpg";
 import fastays from "@/assets/images/proj-fastays.jpg";
@@ -146,7 +148,12 @@ export function Projects() {
             section grid as their containing block from the first frame. */}
         <ProjectStack names={projects.map((p) => p.name)}>
           {projects.map((p, i) => (
-            <ProjectCard key={p.name} project={p} index={i} flip={i % 2 === 1} />
+            <ProjectCard
+              key={p.name}
+              project={p}
+              index={i}
+              flip={i % 2 === 1}
+            />
           ))}
         </ProjectStack>
       </div>
@@ -164,7 +171,15 @@ function ProjectCard({
   flip: boolean;
 }) {
   const isCurrent = p.status === "Currently Working On";
-  const diagram = p.architecture ? diagrams.find((d) => d.title === p.architecture) : undefined;
+  const diagram = p.architecture
+    ? diagrams.find((d) => d.title === p.architecture)
+    : undefined;
+  // Fine-pointer tilt (±3°) and a cursor-following border glow via --gx/--gy
+  // (aliased to --mx/--my in CSS). The sticky <article> carries the stack
+  // transform; the inner card carries the tilt, so the two never fight.
+  const [tiltRef, tiltStyle] = usePointerTilt<HTMLDivElement>(3, {
+    local: true,
+  });
   return (
     <article
       id={projectCardId(p.name)}
@@ -172,79 +187,86 @@ function ProjectCard({
       style={{ "--i": index } as CSSProperties}
       className="pstack-card rounded-3xl"
     >
-      <div className="pcard glass-strong relative isolate rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]">
-      <div
-        className={`grid gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:items-center ${
-          flip ? "" : "lg:[&>*:first-child]:order-2"
-        }`}
+      <motion.div
+        ref={tiltRef}
+        style={tiltStyle}
+        className="pcard glass-strong relative isolate rounded-3xl p-3 sm:p-4 overflow-hidden transition-colors group hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
       >
-        {/* Browser frame — first in DOM (tablet/mobile order), right column on desktop unless flipped */}
-        <BrowserFrame
-          name={p.name}
-          src={p.image}
-          alt={`${p.name} — ${p.tagline} screenshot`}
-          width={p.imageWidth}
-          height={p.imageHeight}
-          eager={index === 0}
-          back={diagram ? <Diagram {...diagram} phase={0} compact /> : undefined}
-        />
-
-        {/* Content: title block, headline metric, case-study steps, chips */}
-        <div className="p-2 sm:p-3 lg:p-5 flex flex-col">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-                {p.name}
-              </h3>
-              <div className="text-cyan-accent text-sm mt-1">{p.tagline}</div>
-            </div>
-            {p.status === "Completed" && (
-              <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-slate-900/10 text-slate-900/85 border border-slate-900/15 dark:bg-white/10 dark:text-white/85 dark:border-white/15">
-                {p.status}
-              </span>
-            )}
-          </div>
-
-          <p className="mt-3 text-sm sm:text-base text-foreground/85 leading-relaxed">
-            {p.description}
-          </p>
-
-          <div className="mt-2 text-xs text-muted-foreground">
-            <span className="uppercase tracking-wider">Role · </span>
-            <span className="text-foreground/80">{p.role}</span>
-          </div>
-
-          {p.metric && (
-            <div className="mt-4 text-xl sm:text-2xl font-semibold tracking-tight text-gradient">
-              {p.metric}
-            </div>
-          )}
-
-          <CaseStudySteps
-            steps={[
-              { icon: Target, label: "Challenge", text: p.challenge },
-              { icon: Lightbulb, label: "Solution", text: p.solution },
-              {
-                icon: isCurrent ? CheckCircle2 : TrendingUp,
-                label: isCurrent ? "Progress" : "Outcome",
-                text: p.outcome,
-              },
-            ]}
+        <span aria-hidden className="pcard-glow" />
+        <div
+          className={`grid gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:items-center ${
+            flip ? "" : "lg:[&>*:first-child]:order-2"
+          }`}
+        >
+          {/* Browser frame — first in DOM (tablet/mobile order), right column on desktop unless flipped */}
+          <BrowserFrame
+            name={p.name}
+            src={p.image}
+            alt={`${p.name} — ${p.tagline} screenshot`}
+            width={p.imageWidth}
+            height={p.imageHeight}
+            eager={index === 0}
+            back={
+              diagram ? <Diagram {...diagram} phase={0} compact /> : undefined
+            }
           />
 
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {p.tech.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/85 dark:border-white/10 dark:bg-white/[0.03]"
-              >
-                {t}
-              </span>
-            ))}
+          {/* Content: title block, headline metric, case-study steps, chips */}
+          <div className="p-2 sm:p-3 lg:p-5 flex flex-col">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+                  {p.name}
+                </h3>
+                <div className="text-cyan-accent text-sm mt-1">{p.tagline}</div>
+              </div>
+              {p.status === "Completed" && (
+                <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-slate-900/10 text-slate-900/85 border border-slate-900/15 dark:bg-white/10 dark:text-white/85 dark:border-white/15">
+                  {p.status}
+                </span>
+              )}
+            </div>
+
+            <p className="mt-3 text-sm sm:text-base text-foreground/85 leading-relaxed">
+              {p.description}
+            </p>
+
+            <div className="mt-2 text-xs text-muted-foreground">
+              <span className="uppercase tracking-wider">Role · </span>
+              <span className="text-foreground/80">{p.role}</span>
+            </div>
+
+            {p.metric && (
+              <div className="mt-4 text-xl sm:text-2xl font-semibold tracking-tight text-gradient">
+                {p.metric}
+              </div>
+            )}
+
+            <CaseStudySteps
+              steps={[
+                { icon: Target, label: "Challenge", text: p.challenge },
+                { icon: Lightbulb, label: "Solution", text: p.solution },
+                {
+                  icon: isCurrent ? CheckCircle2 : TrendingUp,
+                  label: isCurrent ? "Progress" : "Outcome",
+                  text: p.outcome,
+                },
+              ]}
+            />
+
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {p.tech.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-slate-900/10 bg-slate-900/[0.04] px-2.5 py-1 text-[0.6875rem] text-foreground/85 transition-colors dark:border-white/10 dark:bg-white/[0.03] [@media(hover:hover)]:group-hover:border-cyan-accent/30 [@media(hover:hover)]:group-hover:bg-cyan-accent/10 [@media(hover:hover)]:group-hover:text-foreground"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-      </div>
+      </motion.div>
     </article>
   );
 }

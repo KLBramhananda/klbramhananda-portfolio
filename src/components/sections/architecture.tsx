@@ -81,8 +81,6 @@ export function Architecture() {
   );
 }
 
-export type DiagramData = (typeof diagrams)[number];
-
 /**
  * One animated flow diagram. `compact` (off by default, so the Architecture
  * section renders exactly as before) tightens the paddings for the small
