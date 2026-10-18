@@ -7,14 +7,12 @@ import {
   Bot,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import { skills } from "@/data/skills";
 import { SectionEyebrow } from "./about";
-import { SkillInsight } from "../ui/skill-insight";
-import { TechConstellation } from "../effects/tech-constellation";
 import { Reveal } from "../effects/hero-interactions";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 import { Keycap } from "./Keycap";
 import { SkillEvidence } from "./SkillEvidence";
+import { StackLayers } from "./StackLayers";
 import { matchesQuery, usageFor } from "./skill-usage";
 
 const capabilities = [
@@ -90,106 +88,19 @@ const capabilities = [
 ];
 
 const CLOSE_DELAY = 150;
-const POPUP_ID = "skill-insight-popup";
 const EVIDENCE_ID = "skill-evidence-popup";
 const HOVER_INTENT_MS = 250;
 const FILTER_DEBOUNCE_MS = 80;
 const COARSE = "(pointer: coarse)";
 
 const SKILL_COUNT = capabilities.reduce((n, g) => n + g.items.length, 0);
+/** Every skill label of the Skills data; the Tech Stack adds a "+" block only if it is here. */
+const SKILL_LABELS = capabilities.flatMap((g) => g.items);
 
 type Evidence = { skill: string; el: HTMLButtonElement; pinned: boolean; keyboard: boolean; sheet: boolean };
 
 export function Skills() {
   const techBlockRef = usePauseAnimations<HTMLDivElement>();
-  const [active, setActive] = useState<{ key: string; el: HTMLElement } | null>(
-    null,
-  );
-  const [pinned, setPinned] = useState(false);
-  const closeTimer = useRef<number | null>(null);
-  const lastElRef = useRef<HTMLElement | null>(null);
-
-  const clearCloseTimer = useCallback(() => {
-    if (closeTimer.current != null) {
-      window.clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-  }, []);
-
-  const close = useCallback(() => {
-    clearCloseTimer();
-    setActive(null);
-    setPinned(false);
-  }, [clearCloseTimer]);
-
-  const scheduleClose = useCallback(() => {
-    clearCloseTimer();
-    closeTimer.current = window.setTimeout(close, CLOSE_DELAY);
-  }, [clearCloseTimer, close]);
-
-  // Hover / focus opens. Does not change pin state.
-  const handleOpen = useCallback(
-    (key: string, el: HTMLElement) => {
-      clearCloseTimer();
-      lastElRef.current = el;
-      // Only update when the skill actually changes — moving within the same
-      // pill fires repeated mouseover events and would otherwise re-render.
-      setActive((prev) => (prev?.key === key ? prev : { key, el }));
-    },
-    [clearCloseTimer],
-  );
-
-  // Leaving a pill closes after a short delay — unless pinned.
-  const handleLeave = useCallback(() => {
-    if (!pinned) scheduleClose();
-  }, [pinned, scheduleClose]);
-
-  // Click pins the card. Clicking the same pinned pill unpins it.
-  const handleClick = useCallback(
-    (key: string, el: HTMLElement) => {
-      clearCloseTimer();
-      lastElRef.current = el;
-      if (active?.key === key && pinned) {
-        setActive(null);
-        setPinned(false);
-      } else {
-        setActive({ key, el });
-        setPinned(true);
-      }
-    },
-    [active, pinned, clearCloseTimer],
-  );
-
-  // Click / tap outside the pills or the card closes it.
-  useEffect(() => {
-    if (!active) return;
-    const onPointerDown = (e: MouseEvent | TouchEvent) => {
-      const target = e.target;
-      if (!(target instanceof Element)) return;
-      if (target.closest("[data-skill], [data-skill-insight]")) return;
-      close();
-    };
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("touchstart", onPointerDown, { passive: true });
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("touchstart", onPointerDown);
-    };
-  }, [active, close]);
-
-  // Escape closes and returns focus to the last focused pill.
-  useEffect(() => {
-    if (!active) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        close();
-        lastElRef.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [active, close]);
-
   // ── Keycaps: "Used in" evidence card (one open at a time) ──────────────
   const [evidence, setEvidence] = useState<Evidence | null>(null);
   const intentTimer = useRef<number | null>(null);
@@ -242,14 +153,13 @@ export function Skills() {
     (skill: string, el: HTMLButtonElement, keyboard: boolean) => {
       clearEvidenceTimers();
       evidenceKeyRef.current = el;
-      close(); // never two cards: closes the Tech Stack insight too
       setEvidence((prev) =>
         prev?.skill === skill && prev.pinned
           ? null
           : { skill, el, pinned: true, keyboard, sheet: window.matchMedia(COARSE).matches },
       );
     },
-    [clearEvidenceTimers, close],
+    [clearEvidenceTimers],
   );
 
   // Tap / click outside the keys or the card closes it.
@@ -295,11 +205,6 @@ export function Skills() {
   const matchCount = filter
     ? capabilities.reduce((n, g) => n + g.items.filter((it) => matchesQuery(it, filter)).length, 0)
     : SKILL_COUNT;
-
-  const activeSkill = active ? skills[active.key] : null;
-  const relatedKeys = activeSkill
-    ? new Set(activeSkill.related.filter((k) => skills[k]))
-    : null;
 
   return (
     <section id="skills" className="relative py-12 lg:py-16">
@@ -414,30 +319,10 @@ export function Skills() {
         </Reveal>
 
         <div className="mt-12">
-          <TechConstellation
-            activeKey={active?.key ?? null}
-            relatedKeys={relatedKeys}
-            popupId={POPUP_ID}
-            onOpen={handleOpen}
-            onLeave={handleLeave}
-            onClick={handleClick}
-          />
+          <StackLayers skillLabels={SKILL_LABELS} />
         </div>
       </div>
 
-      {activeSkill && active && (
-        <SkillInsight
-          skill={activeSkill}
-          anchorEl={active.el}
-          open
-          popupId={POPUP_ID}
-          onPopupEnter={clearCloseTimer}
-          onPopupLeave={() => {
-            if (!pinned) scheduleClose();
-          }}
-          onClose={close}
-        />
-      )}
     </section>
   );
 }
