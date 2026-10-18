@@ -428,7 +428,6 @@ function SubmissionStatus({
 }
 
 const developerLinks = [
-  { label: "Architecture", href: "/architecture" },
   { label: "Open Source", href: "/open-source" },
   { label: "Certifications", href: "/certifications" },
 ];

@@ -9,7 +9,6 @@ export const SECTIONS = [
   { path: "projects", id: "projects", title: "Projects" },
   { path: "skills", id: "skills", title: "Skills" },
   { path: "stack", id: "tech", title: "Tech Stack" },
-  { path: "architecture", id: "architecture", title: "Architecture" },
   { path: "open-source", id: "github", title: "Open Source" },
   { path: "certifications", id: "certifications", title: "Certifications" },
   { path: "contact", id: "contact", title: "Contact" },
@@ -18,6 +17,9 @@ export const SECTIONS = [
 export type SectionId = (typeof SECTIONS)[number]["id"];
 
 const trimPath = (pathname: string) => pathname.replace(/^\/+|\/+$/g, "");
+
+/** Removed sections whose old URLs redirect (replace) to a surviving one. */
+export const SECTION_REDIRECTS: Record<string, string> = { architecture: "projects" };
 
 export function sectionForPath(pathname: string) {
   const p = trimPath(pathname);
@@ -72,7 +74,9 @@ export const spyState = {
   // A deep link starts locked: Home scrolls to the section on mount.
   locked:
     typeof window !== "undefined" &&
-    (sectionForPath(window.location.pathname)?.id ?? "home") !== "home",
+    // A redirected legacy path is a deep link too: Home scrolls to its target.
+    ((sectionForPath(window.location.pathname)?.id ?? "home") !== "home" ||
+      trimPath(window.location.pathname) in SECTION_REDIRECTS),
 };
 
 let lockTimer = 0;

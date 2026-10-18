@@ -18,7 +18,6 @@ const SECTION_COMMANDS: Record<string, string> = {
   projects: "projects",
   skills: "skills",
   stack: "stack",
-  architecture: "architecture",
   opensource: "open-source",
   certs: "certifications",
   contact: "contact",
@@ -30,7 +29,7 @@ const ALL_COMMANDS = [...Object.keys(SECTION_COMMANDS), ...OTHER_COMMANDS, ...EG
 const CHIPS = ["help", "about", "projects", "skills", "contact", "github", "theme", "clear"];
 
 const HELP = [
-  "Navigate:  about · experience · projects · skills · stack · architecture · opensource · certs · contact",
+  "Navigate:  about · experience · projects · skills · stack · opensource · certs · contact",
   "Links:     github · linkedin · email",
   "Other:     theme · clear · exit · help",
 ];
