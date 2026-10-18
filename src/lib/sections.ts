@@ -9,7 +9,7 @@ export const SECTIONS = [
   { path: "projects", id: "projects", title: "Projects" },
   { path: "skills", id: "skills", title: "Skills" },
   { path: "stack", id: "tech", title: "Tech Stack" },
-  { path: "open-source", id: "github", title: "Open Source" },
+  { path: "open-source", id: "github", title: "GitHub" },
   { path: "certifications", id: "certifications", title: "Certifications" },
   { path: "contact", id: "contact", title: "Contact" },
 ] as const;

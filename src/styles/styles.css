@@ -2847,3 +2847,89 @@ html:not(.dark) .hero-letter {
     animation: none;
   }
 }
+
+/* ── GitHub section: repo cards and the contribution heatmap ───────────
+   Repo card: usePointerTilt rotates it (fine pointers only), the lift uses
+   the `translate` property so it composes with that inline transform, and a
+   border glow follows the cursor via --gx / --gy (opacity only). */
+.repo-tilt {
+  transition:
+    translate 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .repo-tilt:hover {
+    translate: 0 -0.3125rem;
+  }
+}
+
+.repo-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(circle 200px at var(--gx, 50%) var(--gy, 50%), var(--cyan-accent), transparent);
+  opacity: var(--glare, 0);
+  transition: opacity 300ms ease-out;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+/* Heatmap squares (mobile grid and the legend); the canvas uses the same scale. */
+.sky-cell {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: none;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--foreground) 7%, transparent);
+}
+
+.sky-cell[data-l="1"] {
+  background: color-mix(in oklab, var(--cyan-accent) 28%, transparent);
+}
+
+.sky-cell[data-l="2"] {
+  background: color-mix(in oklab, var(--cyan-accent) 50%, transparent);
+}
+
+.sky-cell[data-l="3"] {
+  background: color-mix(in oklab, var(--cyan-accent) 75%, transparent);
+}
+
+.sky-cell[data-l="4"] {
+  background: var(--cyan-accent);
+}
+
+.sky-cell[data-empty] {
+  background: transparent;
+}
+
+.sky-scroller {
+  scrollbar-width: thin;
+}
+
+.sky-tip {
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .repo-tilt:hover {
+    translate: none;
+  }
+
+  .sky-tip {
+    transition: none;
+  }
+}

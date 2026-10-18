@@ -428,7 +428,7 @@ function SubmissionStatus({
 }
 
 const developerLinks = [
-  { label: "Open Source", href: "/open-source" },
+  { label: "GitHub", href: "/open-source" },
   { label: "Certifications", href: "/certifications" },
 ];
 
