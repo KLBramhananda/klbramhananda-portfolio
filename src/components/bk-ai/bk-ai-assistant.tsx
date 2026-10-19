@@ -273,6 +273,23 @@ export function BkAiAssistant() {
         document.removeEventListener("focusout", onOut);
       });
 
+      // The Contact form fires `bbot:happy` after a real, successful send.
+      let happyTimer = 0;
+      const onHappy = () => {
+        flags.happy = true;
+        render();
+        window.clearTimeout(happyTimer);
+        happyTimer = window.setTimeout(() => {
+          flags.happy = false;
+          render();
+        }, 3200);
+      };
+      window.addEventListener("bbot:happy", onHappy);
+      cleanups.push(() => {
+        window.removeEventListener("bbot:happy", onHappy);
+        window.clearTimeout(happyTimer);
+      });
+
       // Click / Enter / Space: a small hop, then open the terminal.
       const onClick = () => {
         flags.surprised = true;
