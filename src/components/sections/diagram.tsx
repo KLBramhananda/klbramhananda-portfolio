@@ -1,18 +1,6 @@
-import { SectionEyebrow } from "./about";
-import {
-  Layers,
-  Bot,
-  Zap,
-  Boxes,
-  ShoppingCart,
-  FileCheck,
-  MoveRight,
-  type LucideIcon,
-} from "lucide-react";
-import { usePauseAnimations } from "../effects/use-pause-animations";
-import { Reveal } from "../effects/hero-interactions";
+import { Layers, Boxes, FileCheck, MoveRight, type LucideIcon } from "lucide-react";
 
-/** Diagram data, reused by the Projects "View architecture" flip (matched by title). */
+/** Diagram data for the Projects "View architecture" flip (matched by title). */
 // eslint-disable-next-line react-refresh/only-export-components -- data shared with Projects
 export const diagrams = [
   {
@@ -22,28 +10,10 @@ export const diagrams = [
     nodes: ["Customer", "Sales Order", "Inventory", "Fulfillment", "Invoice"],
   },
   {
-    icon: Bot,
-    title: "AI Chatbot Workflow",
-    subtitle: "LLM · RAG · Tools",
-    nodes: ["User", "Router", "Vector Store", "LLM", "Tool Call", "Response"],
-  },
-  {
-    icon: Zap,
-    title: "REST API Lifecycle",
-    subtitle: "FastAPI · Middleware",
-    nodes: ["Client", "Gateway", "Auth", "Handler", "Service", "DB"],
-  },
-  {
     icon: Boxes,
     title: "Microservices Architecture",
     subtitle: "Spring Boot · Kafka",
     nodes: ["API Gateway", "Auth Svc", "Order Svc", "Inventory Svc", "Kafka Bus"],
-  },
-  {
-    icon: ShoppingCart,
-    title: "Order Processing Flow",
-    subtitle: "Event driven",
-    nodes: ["Cart", "Order Created", "Payment", "Warehouse", "Shipped"],
   },
   {
     icon: FileCheck,
@@ -53,37 +23,8 @@ export const diagrams = [
   },
 ];
 
-export function Architecture() {
-  const diagramsRef = usePauseAnimations<HTMLDivElement>();
-  return (
-    <section id="architecture" className="relative py-12 lg:py-16">
-      <div className="mx-auto max-w-7xl px-4">
-        <Reveal>
-          <SectionEyebrow>Architecture Showcase</SectionEyebrow>
-          <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient max-w-3xl">
-            System diagrams from the platforms I've built.
-          </h2>
-          <p className="mt-4 max-w-2xl text-muted-foreground">
-            A quick engineering-blog view into the flows that power enterprise
-            procurement, ERP, and event-driven systems.
-          </p>
-        </Reveal>
-
-        <div ref={diagramsRef} className="mt-14">
-          <Reveal className="grid md:grid-cols-2 gap-6">
-            {diagrams.map((d, i) => (
-              <Diagram key={d.title} {...d} phase={i * 0.45} />
-            ))}
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /**
- * One animated flow diagram. `compact` (off by default, so the Architecture
- * section renders exactly as before) tightens the paddings for the small
+ * One animated flow diagram. `compact` tightens the paddings for the small
  * browser-frame back face in Projects.
  */
 export function Diagram({

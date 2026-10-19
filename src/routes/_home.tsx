@@ -5,7 +5,6 @@ import { About } from "@/components/sections/about";
 import { Experience } from "@/components/sections/experience";
 import { Projects } from "@/components/sections/projects";
 import { Skills } from "@/components/sections/skills";
-import { Architecture } from "@/components/sections/architecture";
 import { GithubSection } from "@/components/sections/github-section";
 import { Contact, Footer } from "@/components/layout/contact-footer";
 import { IntroGate } from "@/components/intro/IntroGate";
@@ -110,7 +109,6 @@ function Index() {
         <Experience />
         <Projects />
         <Skills />
-        <Architecture />
         <GithubSection />
         <Contact />
       </main>

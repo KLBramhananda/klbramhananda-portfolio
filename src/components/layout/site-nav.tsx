@@ -21,7 +21,7 @@ import {
   type SectionId,
 } from "@/lib/sections";
 
-const links = (["home", "about", "experience", "projects", "skills", "tech", "architecture"] as const).map(
+const links = (["home", "about", "experience", "projects", "skills", "tech"] as const).map(
   (id) => {
     const s = sectionForId(id)!;
     return { id, label: s.title, href: pathForSection(s) };

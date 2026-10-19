@@ -14,7 +14,7 @@ import type { CSSProperties } from "react";
 import { ProjectStack } from "./ProjectStack";
 import { BrowserFrame } from "./BrowserFrame";
 import { CaseStudySteps } from "./CaseStudySteps";
-import { Diagram, diagrams } from "./architecture";
+import { Diagram, diagrams } from "./diagram";
 
 type Project = {
   name: string;

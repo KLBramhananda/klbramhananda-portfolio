@@ -1,0 +1,196 @@
+{
+  "generatedAt": null,
+  "login": "KLBramhananda",
+  "totalContributions": 308,
+  "sinceYear": 2023,
+  "calendar": [],
+  "publicRepoCount": 21,
+  "repos": [
+    {
+      "name": "klbramhananda-portfolio",
+      "url": "https://github.com/KLBramhananda/klbramhananda-portfolio",
+      "description": "Personal portfolio showcasing my work as a Software Engineer across full-stack development, ERPNext, AI/LLM integrations, SAP BTP, enterprise applications, system architecture, and open-source engineering. Built to document real-world projects, technical capabilities, and engineering experience.",
+      "pushedAt": "2026-10-18T03:54:49Z",
+      "stargazerCount": 1,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Enterprise-Healthcare-Commerce-Platform-F",
+      "url": "https://github.com/KLBramhananda/Enterprise-Healthcare-Commerce-Platform-F",
+      "description": "Frontend for the Enterprise Healthcare Commerce Platform built with React, Vite, and TypeScript. Delivers a modern healthcare commerce experience powered by ERPNext APIs.",
+      "pushedAt": "2026-09-16T07:17:35Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Enterprise-Healthcare-Commerce-Platform-B",
+      "url": "https://github.com/KLBramhananda/Enterprise-Healthcare-Commerce-Platform-B",
+      "description": "Backend for the Enterprise Healthcare Commerce Platform built with Frappe Framework and ERPNext. Provides APIs, business services, ERP integrations, and healthcare commerce workflows.",
+      "pushedAt": "2026-09-16T06:28:31Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "erpnext-procurement",
+      "url": "https://github.com/KLBramhananda/erpnext-procurement",
+      "description": "ERPNext Procurement Module - Enterprise backend implementation using Frappe Framework covering Buying, Selling, Supplier Management, Purchase Workflow, Services, APIs, and Business Logic.",
+      "pushedAt": "2026-08-19T05:42:35Z",
+      "stargazerCount": 1,
+      "isArchived": false,
+      "languages": [
+        {
+          "name": "Python",
+          "color": "#3572A5",
+          "percent": 100
+        }
+      ]
+    },
+    {
+      "name": "KLBramhananda",
+      "url": "https://github.com/KLBramhananda/KLBramhananda",
+      "description": null,
+      "pushedAt": "2026-06-17T09:16:55Z",
+      "stargazerCount": 2,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "contract-management-sap-cap",
+      "url": "https://github.com/KLBramhananda/contract-management-sap-cap",
+      "description": null,
+      "pushedAt": "2026-02-13T10:38:54Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Mini-Link-Management-Platform",
+      "url": "https://github.com/KLBramhananda/Mini-Link-Management-Platform",
+      "description": " A Mini Link Management Platform that allows users to shorten, manage, and track URLs efficiently. It features user authentication, click analytics, expiration dates, and a responsive dashboard for seamless link management. 🚀",
+      "pushedAt": "2025-02-23T04:58:04Z",
+      "stargazerCount": 1,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "FormBot-Builder-APP",
+      "url": "https://github.com/KLBramhananda/FormBot-Builder-APP",
+      "description": "FormBot is a dynamic MERN stack app for creating, editing, and managing forms effortlessly. 🚀 It supports real-time tracking for 50+ forms with folder-based organization. 📂 Designed with a responsive UI, ensuring a smooth experience on mobile & desktop. 📱 Features a visually appealing landing page for easy navigation and engagement. 🎨",
+      "pushedAt": "2025-02-05T08:03:18Z",
+      "stargazerCount": 2,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "My_Portfolio",
+      "url": "https://github.com/KLBramhananda/My_Portfolio",
+      "description": "Welcome to my personal portfolio website! This project showcases my skills, experiences, and the projects I've worked on. Built with HTML, CSS, and JavaScript, it highlights my abilities as a web developer and serves as a dynamic introduction to my work.",
+      "pushedAt": "2025-02-05T06:35:42Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Notes_App_React",
+      "url": "https://github.com/KLBramhananda/Notes_App_React",
+      "description": "\"Notes App\" is a modern React-based web application designed for efficient note management. It offers features like creating, editing, deleting, and organizing notes with persistent local storage. The clean UI, built with React and Bootstrap, ensures a smooth user experience, making it an ideal tool for everyday productivity.",
+      "pushedAt": "2025-01-17T17:45:17Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Freind-App--Tutedude-company-",
+      "url": "https://github.com/KLBramhananda/Freind-App--Tutedude-company-",
+      "description": null,
+      "pushedAt": "2025-01-11T16:42:32Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "QR-Code-Generator---Scanner",
+      "url": "https://github.com/KLBramhananda/QR-Code-Generator---Scanner",
+      "description": "\"QR Code Generator and Scanner\" is a responsive web application that allows users to effortlessly generate and scan QR codes. Built with modern web technologies, it improves usability and engagement by supporting diverse formats and providing a seamless interface for both desktop and mobile users.",
+      "pushedAt": "2025-01-06T05:24:56Z",
+      "stargazerCount": 1,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "ZuAI-Internship-Task",
+      "url": "https://github.com/KLBramhananda/ZuAI-Internship-Task",
+      "description": null,
+      "pushedAt": "2024-12-02T13:47:02Z",
+      "stargazerCount": 1,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "FullStack_Projects_inTrainingCourse",
+      "url": "https://github.com/KLBramhananda/FullStack_Projects_inTrainingCourse",
+      "description": null,
+      "pushedAt": "2024-11-10T11:19:37Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Simon-Game",
+      "url": "https://github.com/KLBramhananda/Simon-Game",
+      "description": null,
+      "pushedAt": "2024-04-04T04:16:26Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Drum-Kit",
+      "url": "https://github.com/KLBramhananda/Drum-Kit",
+      "description": "using JS,HTML,CSS ",
+      "pushedAt": "2024-04-02T13:01:54Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "TNS_Training",
+      "url": "https://github.com/KLBramhananda/TNS_Training",
+      "description": null,
+      "pushedAt": "2024-02-19T09:58:07Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "My-Myntra-Clone",
+      "url": "https://github.com/KLBramhananda/My-Myntra-Clone",
+      "description": null,
+      "pushedAt": "2024-01-26T10:39:24Z",
+      "stargazerCount": 1,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Java-Concepts-and-Programs",
+      "url": "https://github.com/KLBramhananda/Java-Concepts-and-Programs",
+      "description": null,
+      "pushedAt": "2024-01-26T09:42:34Z",
+      "stargazerCount": 1,
+      "isArchived": false,
+      "languages": []
+    },
+    {
+      "name": "Calculator-js",
+      "url": "https://github.com/KLBramhananda/Calculator-js",
+      "description": "using JS,HTML,CSS",
+      "pushedAt": "2024-01-24T16:35:49Z",
+      "stargazerCount": 0,
+      "isArchived": false,
+      "languages": []
+    }
+  ]
+}
