@@ -1,23 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import type { FormEvent } from "react";
-import emailjs from "@emailjs/browser";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { SectionEyebrow } from "../sections/about";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
 import { Reveal } from "../effects/hero-interactions";
-import {
-  Mail,
-  Phone,
-  Send,
-  ArrowUp,
-  Loader2,
-  Check,
-  TriangleAlert,
-} from "lucide-react";
-
-const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+import { Mail, Phone, ArrowUp } from "lucide-react";
+import { EndpointCard } from "./EndpointCard";
+import { RequestBuilder } from "./RequestBuilder";
 
 // Shared with the terminal command bar so contact details live in one place.
 // eslint-disable-next-line react-refresh/only-export-components
@@ -54,87 +42,25 @@ function LinkedinIcon({ className }: { className?: string }) {
   );
 }
 
-type FormErrors = Partial<
-  Record<"name" | "email" | "subject" | "message", string>
->;
+const clock = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "numeric", minute: "2-digit" });
 
-function validateForm(form: HTMLFormElement): FormErrors {
-  const data = new FormData(form);
-  const read = (key: string) => String(data.get(key) ?? "").trim();
-
-  const errors: FormErrors = {};
-  const name = read("name");
-  const email = read("email");
-  const subject = read("subject");
-  const message = read("message");
-
-  if (!name) errors.name = "Please enter your name.";
-  if (!email) {
-    errors.email = "Please enter your email address.";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = "Please enter a valid email address.";
-  }
-  if (!subject) errors.subject = "Please enter a subject.";
-  if (!message) errors.message = "Please write a message.";
-
-  return errors;
+/** Bengaluru time, refreshed every 30 s; the timer is cleared on unmount. */
+function useIstTime() {
+  const [time, setTime] = useState(() => clock.format(new Date()));
+  useEffect(() => {
+    const id = window.setInterval(() => setTime(clock.format(new Date())), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+  return time;
 }
 
 export function Contact() {
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
-    "idle",
-  );
-  const [errors, setErrors] = useState<FormErrors>({});
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const clearError = (field: keyof FormErrors) => {
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (status === "sending") return;
-
-    const form = formRef.current;
-    if (!form) return;
-
-    const validationErrors = validateForm(form);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
-
-    setStatus("sending");
-    try {
-      await emailjs.sendForm(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        form,
-        { publicKey: EMAILJS_PUBLIC_KEY },
-      );
-      setStatus("success");
-    } catch (error) {
-      console.error("EmailJS send failed:", error);
-      setStatus("error");
-    }
-  };
-
-  const handleReset = () => {
-    formRef.current?.reset();
-    setErrors({});
-    setStatus("idle");
-    requestAnimationFrame(() => {
-      formRef.current?.querySelector<HTMLElement>('[name="name"]')?.focus();
-    });
-  };
+  const time = useIstTime();
 
   return (
     <section id="contact" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <Reveal className="relative overflow-hidden glass-strong rounded-3xl p-8 sm:p-12 lg:p-16">
+        <Reveal className="relative overflow-hidden glass-strong rounded-3xl p-6 sm:p-10 lg:p-14">
           <div
             aria-hidden
             className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[6.25rem]"
@@ -151,279 +77,32 @@ export function Contact() {
             </p>
           </div>
 
-          <div className="relative mt-12 grid gap-6 lg:grid-cols-2 lg:gap-8">
-            {/* Channels */}
-            <div className="flex flex-col gap-3">
+          {/* Status strip */}
+          <p className="relative mt-8 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-muted-foreground">
+            <span aria-hidden className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="text-foreground/90">Available for opportunities</span>
+            <span aria-hidden>·</span>
+            <span>Bengaluru</span>
+            <span aria-hidden>·</span>
+            <span className="tabular-nums">IST {time}</span>
+            <span aria-hidden>·</span>
+            <span>Usually replies within 24 h</span>
+          </p>
+
+          <div className="relative mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] lg:gap-8">
+            {/* Endpoints */}
+            <div className="grid grid-cols-2 content-start gap-3 lg:sticky lg:top-[5.75rem] lg:grid-cols-1 lg:self-start" role="group" aria-label="Contact endpoints">
               {channels.map((c) => (
-                <a
-                  key={c.label}
-                  href={c.href}
-                  {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="group flex flex-1 items-center gap-3.5 glass rounded-2xl px-4 py-3.5 transition-colors hover:bg-slate-900/[0.07] dark:hover:bg-white/[0.07]"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-accent/20 to-blue-accent/20 text-cyan-accent">
-                    <c.icon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                      {c.label}
-                    </div>
-                    <div className="text-foreground/90 truncate transition-colors group-hover:text-cyan-accent">
-                      {c.value}
-                    </div>
-                  </div>
-                </a>
+                <EndpointCard key={c.label} channel={c} />
               ))}
             </div>
 
-            {/* Form */}
-            <form
-              ref={formRef}
-              onSubmit={handleSubmit}
-              noValidate
-              aria-busy={status === "sending"}
-              className="glass flex flex-col rounded-3xl p-6 sm:p-8"
-            >
-              {status === "success" ? (
-                <SubmissionStatus variant="success" onReset={handleReset} />
-              ) : status === "error" ? (
-                <SubmissionStatus variant="error" onReset={handleReset} />
-              ) : (
-                <>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <Field
-                      label="Name"
-                      name="name"
-                      placeholder="Your name"
-                      error={errors.name}
-                      onChange={() => clearError("name")}
-                    />
-                    <Field
-                      label="Email"
-                      name="email"
-                      type="email"
-                      placeholder="you@company.com"
-                      error={errors.email}
-                      onChange={() => clearError("email")}
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <Field
-                      label="Subject"
-                      name="subject"
-                      placeholder="How can I help you?"
-                      error={errors.subject}
-                      onChange={() => clearError("subject")}
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <label
-                      htmlFor="message"
-                      className="text-xs uppercase tracking-widest text-muted-foreground"
-                    >
-                      Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={5}
-                      placeholder="Tell me what you'd like to discuss, ask, or build..."
-                      aria-invalid={errors.message ? true : undefined}
-                      aria-describedby={errors.message ? "message-error" : undefined}
-                      onChange={() => clearError("message")}
-                      className={`mt-2 w-full rounded-xl border bg-slate-900/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:bg-slate-900/[0.06] dark:bg-white/[0.03] dark:focus:bg-white/[0.05] ${
-                        errors.message
-                          ? "border-rose-400/60 focus:border-rose-400/60"
-                          : "border-slate-900/10 focus:border-cyan-accent/50 dark:border-white/10"
-                      }`}
-                    />
-                    {errors.message && (
-                      <p
-                        id="message-error"
-                        role="alert"
-                        className="mt-1.5 text-xs text-rose-600 dark:text-rose-400"
-                      >
-                        {errors.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={status === "sending"}
-                    className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-accent to-blue-accent px-5 py-3 text-sm font-semibold text-background shadow-[0_10px_40px_-10px_rgba(6,182,212,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_50px_-8px_rgba(6,182,212,0.75)] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {status === "sending" ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        Send Message
-                        <Send className="h-4 w-4" />
-                      </>
-                    )}
-                  </button>
-
-                  <p className="sr-only" role="status" aria-live="polite">
-                    {status === "sending" ? "Sending your message." : ""}
-                  </p>
-                </>
-              )}
-            </form>
+            {/* Request builder + response console */}
+            <RequestBuilder email={channels[0].value} />
           </div>
         </Reveal>
       </div>
     </section>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = "text",
-  placeholder,
-  error,
-  onChange,
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  placeholder?: string;
-  error?: string;
-  onChange?: () => void;
-}) {
-  return (
-    <div>
-      <label
-        htmlFor={name}
-        className="text-xs uppercase tracking-widest text-muted-foreground"
-      >
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        required
-        placeholder={placeholder}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${name}-error` : undefined}
-        onChange={onChange}
-        className={`mt-2 w-full rounded-xl border bg-slate-900/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:bg-slate-900/[0.06] dark:bg-white/[0.03] dark:focus:bg-white/[0.05] ${
-          error
-            ? "border-rose-400/60 focus:border-rose-400/60"
-            : "border-slate-900/10 focus:border-cyan-accent/50 dark:border-white/10"
-        }`}
-      />
-      {error && (
-        <p
-          id={`${name}-error`}
-          role="alert"
-          className="mt-1.5 text-xs text-rose-600 dark:text-rose-400"
-        >
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function SubmissionStatus({
-  variant,
-  onReset,
-}: {
-  variant: "success" | "error";
-  onReset: () => void;
-}) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    panelRef.current?.focus();
-  }, []);
-
-  const isSuccess = variant === "success";
-  const Icon = isSuccess ? Check : TriangleAlert;
-  const title = isSuccess
-    ? "Message sent successfully"
-    : "Couldn't send your message";
-  const body = isSuccess
-    ? "Thanks for reaching out.\nI'll get back to you soon."
-    : "Something went wrong while sending your message.\nPlease try again.";
-  const action = isSuccess ? "Send another message" : "Try Again";
-
-  const popIn = reduceMotion
-    ? { initial: { opacity: 1 }, animate: { opacity: 1 } }
-    : {
-        initial: { opacity: 0, scale: 0.6 },
-        animate: { opacity: 1, scale: 1 },
-      };
-  const fadeUp = reduceMotion
-    ? { initial: { opacity: 1 }, animate: { opacity: 1 } }
-    : {
-        initial: { opacity: 0, y: 8 },
-        animate: { opacity: 1, y: 0 },
-      };
-  const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-  return (
-    <div
-      ref={panelRef}
-      role={isSuccess ? "status" : "alert"}
-      tabIndex={-1}
-      className="flex min-h-[20rem] flex-1 flex-col items-center justify-center px-2 py-10 text-center outline-none"
-    >
-      <motion.div
-        {...popIn}
-        transition={{ duration: 0.3, ease }}
-        className={`flex h-14 w-14 items-center justify-center rounded-full border ${
-          isSuccess
-            ? "border-cyan-accent/25 bg-cyan-accent/10"
-            : "border-rose-400/25 bg-rose-400/10"
-        }`}
-      >
-        <Icon
-          className={`h-6 w-6 ${isSuccess ? "text-cyan-accent" : "text-rose-600 dark:text-rose-400"}`}
-          strokeWidth={2.25}
-        />
-      </motion.div>
-
-      <motion.h3
-        {...fadeUp}
-        transition={{ duration: 0.3, ease, delay: 0.08 }}
-        className="mt-5 text-lg font-semibold tracking-tight text-foreground"
-      >
-        {title}
-      </motion.h3>
-
-      <motion.p
-        {...fadeUp}
-        transition={{ duration: 0.3, ease, delay: 0.16 }}
-        className="mt-2 max-w-xs whitespace-pre-line text-sm leading-relaxed text-muted-foreground"
-      >
-        {body}
-      </motion.p>
-
-      <motion.div
-        {...fadeUp}
-        transition={{ duration: 0.3, ease, delay: 0.24 }}
-        className="mt-7"
-      >
-        <button
-          type="button"
-          onClick={onReset}
-          className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 ${
-            isSuccess
-              ? "border border-cyan-accent/30 bg-cyan-accent/10 text-cyan-accent hover:bg-cyan-accent/20"
-              : "border border-rose-400/30 bg-rose-400/10 text-rose-600 hover:bg-rose-400/20 dark:text-rose-300"
-          }`}
-        >
-          {action}
-        </button>
-      </motion.div>
-    </div>
   );
 }
 
