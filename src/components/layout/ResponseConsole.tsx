@@ -26,11 +26,13 @@ export function ResponseConsole({
   lines,
   reduced,
   innerRef,
+  className = "",
   children,
 }: {
   lines: ConsoleLine[];
   reduced: boolean;
   innerRef?: Ref<HTMLDivElement>;
+  className?: string;
   /** Shown under the lines, e.g. the "Email me directly" button. */
   children?: ReactNode;
 }) {
@@ -84,10 +86,13 @@ export function ResponseConsole({
   );
 
   return (
-    <div ref={innerRef} className="api-console flex flex-col rounded-2xl p-4 font-mono text-[0.8125rem] leading-relaxed">
+    <div ref={innerRef} className={`api-box flex flex-col rounded-xl p-4 font-mono text-[0.8125rem] leading-relaxed ${className}`}>
       <div aria-hidden className="api-console__lines min-h-0 flex-1 overflow-y-auto">
         {lines.length === 0 ? (
-          <div className="text-muted-foreground/70"># response will appear here</div>
+          <div className="text-muted-foreground">
+            {"> Awaiting request…"}
+            <span className="api-cursor">▌</span>
+          </div>
         ) : (
           lines.map((l) => (
             <div key={l.id} className={`${TONE[l.tone]} break-words`}>
@@ -102,7 +107,7 @@ export function ResponseConsole({
         )}
       </div>
       {children}
-      <div className="sr-only" aria-live="polite">
+      <div className="sr-only" aria-live="polite" role="log">
         {lines.map((l) => (
           <p key={l.id}>{l.text}</p>
         ))}
