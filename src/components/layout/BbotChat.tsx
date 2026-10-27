@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useReducedMotion } from "framer-motion";
+import { Check } from "lucide-react";
 import {
   ERROR_TEXT,
   FIELDS,
@@ -213,6 +214,7 @@ export function BbotChat({ session, active, email }: { session: ContactSession; 
   };
 
   const waiting = session.cooldown > 0;
+  const canSubmit = !!field && !typing && !!draft.trim();
   const placeholder = field ? "Type your answer…" : step === "sending" ? "Sending…" : "Use the buttons above";
 
   return (
@@ -332,7 +334,7 @@ export function BbotChat({ session, active, email }: { session: ContactSession; 
               rows={2}
               placeholder={placeholder}
               aria-describedby="chat-hint"
-              className="chat-field max-h-24 w-full resize-none rounded-xl border border-slate-900/10 bg-slate-900/[0.04] py-2.5 pr-3 pl-7 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-cyan-accent/50 dark:border-white/10 dark:bg-white/[0.03]"
+              className="chat-field max-h-24 w-full resize-none rounded-xl border border-slate-900/10 bg-slate-900/[0.04] py-2.5 pr-12 pl-7 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-cyan-accent/50 dark:border-white/10 dark:bg-white/[0.03]"
             />
           ) : (
             <input
@@ -349,10 +351,19 @@ export function BbotChat({ session, active, email }: { session: ContactSession; 
               autoComplete={field === "name" ? "name" : field === "email" ? "email" : "off"}
               inputMode={field === "email" ? "email" : undefined}
               enterKeyHint="send"
-              className="chat-field w-full rounded-xl border border-slate-900/10 bg-slate-900/[0.04] py-2.5 pr-3 pl-7 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-cyan-accent/50 disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.03]"
+              className="chat-field w-full rounded-xl border border-slate-900/10 bg-slate-900/[0.04] py-2.5 pr-12 pl-7 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-cyan-accent/50 disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.03]"
             />
           )}
           <span aria-hidden className="api-cursor chat-input__caret">▌</span>
+          <button
+            type="button"
+            aria-label="Submit answer"
+            disabled={!canSubmit}
+            onClick={() => answer(draft)}
+            className="chat-submit"
+          >
+            <Check className="h-4 w-4" aria-hidden />
+          </button>
         </div>
         <p id="chat-hint" className="sr-only">
           Press Enter to send your answer{field === "message" ? ". Press Shift and Enter for a new line" : ""}.

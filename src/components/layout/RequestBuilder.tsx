@@ -21,7 +21,13 @@ const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const COOLDOWN_S = 30;
-const PACKET_MS = 700;
+const PACKET_MS = 1600;
+/** Ghost copies that trail the packet: [delay ms, opacity factor]. */
+const TRAIL: [number, number][] = [
+  [110, 0.5],
+  [220, 0.3],
+  [330, 0.15],
+];
 const PREVIEW_MESSAGE_CHARS = 120;
 
 interface SendResult {
@@ -76,6 +82,7 @@ export interface ContactSession {
     origin: (el: HTMLDivElement | null) => void;
     target: (el: HTMLDivElement | null) => void;
     packet: (el: HTMLSpanElement | null) => void;
+    ghost: (i: number) => (el: HTMLSpanElement | null) => void;
   };
 }
 
@@ -98,6 +105,7 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
   const origin = useRef<HTMLDivElement | null>(null);
   const target = useRef<HTMLDivElement | null>(null);
   const packet = useRef<HTMLSpanElement | null>(null);
+  const ghosts = useRef<(HTMLSpanElement | null)[]>([]);
   const flight = useRef<Animation | null>(null);
   const busy = useRef(false);
   const finished = useRef(false);
@@ -110,6 +118,7 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
       origin: (el: HTMLDivElement | null) => void (origin.current = el),
       target: (el: HTMLDivElement | null) => void (target.current = el),
       packet: (el: HTMLSpanElement | null) => void (packet.current = el),
+      ghost: (i: number) => (el: HTMLSpanElement | null) => void (ghosts.current[i] = el),
     }),
     [],
   );
@@ -128,7 +137,13 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
     const id = window.setTimeout(() => setCooldown((c) => c - 1), 1000);
     return () => window.clearTimeout(id);
   }, [cooldown]);
-  useEffect(() => () => flight.current?.cancel(), []);
+  useEffect(
+    () => () => {
+      flight.current?.cancel();
+      ghosts.current.forEach((g) => g?.getAnimations().forEach((a) => a.cancel()));
+    },
+    [],
+  );
 
   const clearConsole = useCallback(() => {
     finished.current = false;
@@ -148,16 +163,16 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
   const push = (text: string, tone: ConsoleLine["tone"]) => setLines((prev) => [...prev, { id: ++lineId.current, text, tone }]);
 
   /** A glowing orb flies from the left monitor to the console: transform + opacity only. */
-  const launchPacket = () => {
+  const launchPacket = (done: () => void) => {
     const w = wrap.current;
     const orb = packet.current;
     const to = target.current;
     const from = origin.current;
-    if (reduced || !w || !orb || !to || !from) return;
+    if (reduced || !w || !orb || !to || !from) return done();
     const wr = w.getBoundingClientRect();
     const a = from.getBoundingClientRect();
     const b = to.getBoundingClientRect();
-    if (!b.width || !a.width) return;
+    if (!b.width || !a.width) return done();
     const sx = a.left - wr.left + a.width / 2 - 7;
     const sy = a.top - wr.top + a.height / 2 - 7;
     const ex = b.left - wr.left + b.width / 2 - 7;
@@ -165,15 +180,19 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
     const mx = (sx + ex) / 2;
     const my = Math.min(sy, ey) - 64;
     flight.current?.cancel();
-    flight.current = orb.animate(
-      [
-        { transform: `translate3d(${sx}px, ${sy}px, 0) scale(1.1) rotateX(0deg)`, opacity: 0, offset: 0 },
-        { transform: `translate3d(${sx + (mx - sx) * 0.2}px, ${sy - 10}px, 30px) scale(1) rotateX(10deg)`, opacity: 1, offset: 0.12 },
-        { transform: `translate3d(${mx}px, ${my}px, 110px) scale(0.8) rotateX(35deg)`, opacity: 1, offset: 0.5 },
-        { transform: `translate3d(${ex}px, ${ey}px, 0) scale(0.25) rotateX(70deg)`, opacity: 0, offset: 1 },
-      ],
-      { duration: PACKET_MS, easing: "cubic-bezier(0.45, 0, 0.35, 1)" },
-    );
+    // The same curved path for the packet and its fading ghosts (opacity scaled, delayed).
+    const path = (k: number): Keyframe[] => [
+      { transform: `translate3d(${sx}px, ${sy}px, 0) scale(1.1) rotateX(0deg)`, opacity: 0, offset: 0 },
+      { transform: `translate3d(${sx + (mx - sx) * 0.2}px, ${sy - 10}px, 30px) scale(1) rotateX(10deg)`, opacity: k, offset: 0.12 },
+      { transform: `translate3d(${mx}px, ${my}px, 110px) scale(0.8) rotateX(35deg)`, opacity: k, offset: 0.5 },
+      { transform: `translate3d(${ex}px, ${ey}px, 0) scale(0.25) rotateX(70deg)`, opacity: 0, offset: 1 },
+    ];
+    const timing = { duration: PACKET_MS, easing: "ease-in-out", fill: "backwards" } as const;
+    TRAIL.forEach(([delay, k], i) => ghosts.current[i]?.animate(path(k), { ...timing, delay }));
+    const anim = orb.animate(path(1), timing);
+    flight.current = anim;
+    // Resolves when the packet has arrived (or was cancelled).
+    anim.finished.then(done, done);
   };
 
   const submit = async () => {
@@ -193,7 +212,8 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
     const first = firstName(payload.name);
     setLines([{ id: ++lineId.current, text: "⏳ POST /contact … pending", tone: "pending" }]);
     // After a frame, so a panel that opens on send (mobile) has its final position.
-    requestAnimationFrame(launchPacket);
+    // The result lines wait for the packet to arrive (or the request to finish, whichever is later).
+    const arrived = new Promise<void>((resolve) => requestAnimationFrame(() => launchPacket(resolve)));
 
     const reset = () => {
       setValues(EMPTY);
@@ -209,6 +229,7 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
 
     // Honeypot filled: a bot. Pretend success, send nothing.
     if (honeypot) {
+      await arrived;
       push("✓ OK", "ok");
       push(`"Thanks ${first} — I'll reply within 24 h."`, "ok");
       reset();
@@ -216,7 +237,7 @@ export function useContactSession({ onStart }: { onStart?: () => void } = {}): C
       return "done" as const;
     }
 
-    const res = await send(payload);
+    const [res] = await Promise.all([send(payload), arrived]);
     if (res.ok) {
       push(`✓ ${res.status ? `${res.status} ` : ""}OK · ${res.ms} ms`, "ok");
       push(`"Thanks ${first} — I'll reply within 24 h."`, "ok");

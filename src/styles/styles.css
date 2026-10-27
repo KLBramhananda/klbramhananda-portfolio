@@ -2382,358 +2382,12 @@ html:not(.dark) .hero-letter {
   }
 }
 
-/* ── Tech Stack: exploded 3D layer stack ───────────────────────────────
-   CSS 3D transforms + a small SVG overlay (no WebGL). Layers spread from ONE
-   variable, --explode (0..1), written by the shared scroll loop. Chips are
-   never rotated, so their text stays upright. Only transform / opacity
-   animate; box-shadow and the packet's glow are static, per-state values. */
-.stk {
-  --nav-room: 4.5rem;
-  --H: min(34rem, calc(100svh - var(--nav-room) - 120px));
-  --P: calc(var(--H) / 5.8);
-  --C: calc(var(--P) * 0.28);
-  --gap: calc(var(--P) - var(--C));
-  --lh: calc(var(--P) * 0.92);
-  --tw: 7rem;
-  --rx: 55deg;
-}
-
-@media (max-width: 1023.98px) {
-  .stk {
-    --rx: 45deg;
-    --H: min(30rem, calc(100svh - var(--nav-room) - 120px));
-  }
-}
-
-.stk-scene {
-  position: relative;
-  height: var(--H);
-  perspective: 1400px;
-}
-
-.stk-tilt {
-  position: absolute;
-  inset: 0;
-  transform: rotateX(calc(var(--py, 0) * -4deg)) rotateY(calc(var(--px, 0) * 4deg));
-  transition: transform 180ms ease-out;
-  will-change: transform;
-}
-
-.stk-layer {
-  position: absolute;
-  left: calc(var(--tw) + 0.75rem);
-  right: calc(var(--tw) + 0.75rem);
-  top: calc(var(--i) * var(--C));
-  height: var(--lh);
-  z-index: calc(10 - var(--i));
-  transform: translateY(calc(var(--explode, 0) * var(--gap) * var(--i)));
-  opacity: calc(0.3 + var(--explode, 0) * 0.7);
-  transition: scale 200ms ease-out;
-}
-
-.stk-layer__in,
-.stk-tower__in {
-  position: absolute;
-  inset: 0;
-  transition: opacity 200ms ease-out;
-}
-
-.stk-layer[data-focus],
-.stk-tower[data-focus] {
-  scale: 1.03;
-}
-
-.stk-layer[data-dim] .stk-layer__in,
-.stk-tower[data-dim] .stk-tower__in {
-  opacity: 0.35;
-}
-
-.stk-slab,
-.stk-tower__slab {
-  position: absolute;
-  pointer-events: none;
-  border-radius: 0.9rem;
-  border: 1px solid color-mix(in oklab, var(--cyan-accent) 28%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--foreground) 5%, transparent),
-    color-mix(in oklab, var(--cyan-accent) 11%, transparent)
-  );
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, #fff 16%, transparent),
-    0 14px 24px -16px rgba(2, 6, 23, 0.55);
-}
-
-/* Plate: a glass slab leaning back in perspective, hinged on its front edge. */
-.stk-slab {
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: calc(var(--lh) / cos(var(--rx)));
-  transform-origin: 50% 100%;
-  transform: perspective(900px) rotateX(var(--rx));
-}
-
-.stk-layer__name {
-  position: absolute;
-  left: 0.45rem;
-  top: 50%;
-  transform: translateY(-50%) rotate(180deg);
-  writing-mode: vertical-rl;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.5625rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--cyan-accent);
-}
-
-.stk-row {
-  position: absolute;
-  inset: 0 0.6rem 0 1.7rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  justify-content: center;
-  gap: 0.35rem 0.4rem;
-}
-
-/* Side towers: glass pillars turned slightly toward the stack. */
-.stk-tower {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: var(--tw);
-  z-index: 5;
-  opacity: calc(0.3 + var(--explode, 0) * 0.7);
-  transition: scale 200ms ease-out;
-}
-
-.stk-tower--l {
-  left: 0;
-  transform: translateX(calc((1 - var(--explode, 0)) * 1.5rem));
-}
-
-.stk-tower--r {
-  right: 0;
-  transform: translateX(calc((1 - var(--explode, 0)) * -1.5rem));
-}
-
-.stk-tower__slab {
-  inset: 0;
-  transform: perspective(900px) rotateY(var(--ry));
-}
-
-.stk-tower--l .stk-tower__slab {
-  --ry: 14deg;
-  transform-origin: 100% 50%;
-}
-
-.stk-tower--r .stk-tower__slab {
-  --ry: -14deg;
-  transform-origin: 0 50%;
-}
-
-.stk-tower__name {
-  position: absolute;
-  top: 0.55rem;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--cyan-accent);
-}
-
-.stk-col {
-  position: absolute;
-  inset: 1.9rem 0.45rem 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 0.45rem;
-}
-
-.stk-col .stk-block {
-  justify-content: center;
-  text-align: center;
-}
-
-.stk-base {
-  position: absolute;
-  left: calc(var(--tw) + 0.75rem);
-  right: calc(var(--tw) + 0.75rem);
-  top: calc(5 * var(--P));
-  height: calc(var(--P) * 0.62);
-  z-index: 1;
-  opacity: calc(0.3 + var(--explode, 0) * 0.7);
-}
-
-.stk-base .stk-slab {
-  height: calc(var(--P) * 0.62 / cos(var(--rx)));
-}
-
-.stk-base__label {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-}
-
-/* Block: a small chip standing on its plate. Depth is a per-state shadow. */
-.stk-block {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 1.625rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--foreground) 9%, var(--background)),
-    color-mix(in oklab, var(--foreground) 4%, var(--background))
-  );
-  color: var(--foreground);
-  font-size: 0.6875rem;
-  line-height: 1.1;
-  cursor: pointer;
-  transform: translateY(0);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, #fff 30%, transparent),
-    0 2px 0 0 rgba(15, 23, 42, 0.2),
-    0 5px 10px -6px rgba(2, 6, 23, 0.4);
-  transition:
-    transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 160ms ease-out;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.dark .stk-block {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 2px 0 0 rgba(0, 0, 0, 0.5),
-    0 5px 10px -6px rgba(0, 0, 0, 0.6);
-}
-
-.stk-block__dot {
-  width: 0.4rem;
-  height: 0.4rem;
-  flex: none;
-  border-radius: 9999px;
-}
-
-.stk-block__label {
-  position: relative;
-  z-index: 1;
-}
-
-.stk-block__glow {
-  position: absolute;
-  inset: 45% -0.2rem -0.6rem;
-  border-radius: 0.7rem;
-  background: radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--cyan-accent) 70%, transparent), transparent 70%);
-  filter: blur(6px);
-  opacity: 0;
-  transition: opacity 140ms ease-out;
-  pointer-events: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .stk-block:hover {
-    transform: translateY(-6px);
-    border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent);
-  }
-
-  .stk-block:hover .stk-block__glow {
-    opacity: 0.8;
-  }
-}
-
-.stk-block[data-sel] {
-  transform: translateY(-6px);
-  border-color: color-mix(in oklab, var(--cyan-accent) 55%, transparent);
-}
-
-.stk-block[data-sel] .stk-block__glow {
-  opacity: 0.8;
-}
-
-.stk-block[data-related] {
-  outline: 1.5px solid color-mix(in oklab, var(--cyan-accent) 75%, transparent);
-  outline-offset: 2px;
-}
-
-.stk-block[data-hit] {
-  border-color: var(--cyan-accent);
-}
-
-.stk-block[data-hit] .stk-block__glow {
-  opacity: 1;
-}
-
-.stk-block:focus-visible {
-  outline: 2px solid var(--cyan-accent);
-  outline-offset: 2px;
-}
-
-.stk-block--flat {
-  min-height: 44px;
-  padding: 0 0.9rem;
-  font-size: 0.8125rem;
-}
-
-/* SVG overlay: related lines and the trace packet (transform / opacity only). */
-.stk-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.stk-rel {
-  stroke: var(--cyan-accent);
-  stroke-width: 1.5;
-  stroke-dasharray: 4 4;
-  opacity: 0.85;
-}
-
-.stk-trace-line {
-  stroke: var(--cyan-accent);
-  stroke-width: 1.5;
-  stroke-dasharray: 3 5;
-  opacity: 0;
-  transition: opacity 200ms ease-out;
-}
-
-.stk-trace-packet {
-  fill: #fff;
-  opacity: 0;
-  filter: drop-shadow(0 0 6px var(--cyan-accent)) drop-shadow(0 0 12px var(--cyan-accent));
-}
-
-.stk-caption {
-  margin-top: 0.75rem;
-  min-height: 1.25rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.75rem;
-  color: var(--cyan-accent);
-}
-
-.stk-chip {
+/* ── Tech Stack: 3D carousel ring ──────────────────────────────────────
+   CSS 3D, no WebGL. A ring (preserve-3d) rotated by --ring-angle; each card
+   sits at rotateY(i * step) translateZ(radius). The rAF loop writes only
+   custom properties (--ring-angle, and per card --o / --s / --g), so the
+   motion is transform + opacity. Mobile uses a scroll-snap row instead. */
+.ring-chip {
   min-height: 1.875rem;
   padding: 0.3rem 0.8rem;
   border-radius: 9999px;
@@ -2744,106 +2398,247 @@ html:not(.dark) .hero-letter {
   transition: color 140ms ease-out, background-color 140ms ease-out;
 }
 
-.stk-chip:hover {
+.ring-chip:hover {
   color: var(--foreground);
 }
 
-.stk-chip[aria-checked="true"] {
+.ring-chip[aria-checked="true"] {
   color: var(--foreground);
   border-color: color-mix(in oklab, var(--cyan-accent) 50%, transparent);
   background: color-mix(in oklab, var(--cyan-accent) 13%, transparent);
 }
 
-.stk-chip:focus-visible,
-.stk-trace-btn:focus-visible {
+.ring-chip:focus-visible,
+.ring-card:focus-visible .ring-card__face,
+.ring-arrow:focus-visible {
   outline: 2px solid var(--cyan-accent);
   outline-offset: 2px;
 }
 
-.stk-trace-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 1.875rem;
-  padding: 0.3rem 0.9rem;
-  border-radius: 0.6rem;
-  border: 1px solid color-mix(in oklab, var(--cyan-accent) 45%, transparent);
-  background: color-mix(in oklab, var(--cyan-accent) 12%, transparent);
-  color: var(--cyan-accent);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.75rem;
-  transition: opacity 160ms ease-out;
-}
-
-.stk-trace-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
 @media (pointer: coarse) {
-  .stk-chip,
-  .stk-trace-btn {
+  .ring-chip {
     min-height: 44px;
   }
 }
 
-.stk-panel {
-  min-height: 11rem;
+.ring-stage {
+  position: relative;
 }
 
-.stk-baseflat {
-  margin-top: 0.75rem;
+.ring-scene {
+  position: relative;
+  height: calc(var(--ch) + 6.5rem);
+  perspective: 1400px;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
 }
 
-/* Mobile: bottom sheet for a block's card. */
-.stk-sheet {
-  position: fixed;
-  inset: auto 0 0 0;
-  z-index: 90;
-  max-height: 75svh;
+.ring-scene:active {
+  cursor: grabbing;
+}
+
+.ring-fade {
+  position: absolute;
+  inset: 0;
+  transition: opacity 180ms ease-out;
+}
+
+.ring-fade.is-fading,
+.ring-row.is-fading {
+  opacity: 0;
+}
+
+.ring-ring {
+  position: absolute;
+  left: 50%;
+  top: 1.25rem;
+  width: 0;
+  height: var(--ch);
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--radius) * -1)) rotateY(var(--ring-angle, 0deg));
+  will-change: transform;
+}
+
+.ring-card {
+  position: absolute;
+  left: calc(var(--cw) / -2);
+  top: 0;
+  width: var(--cw);
+  height: var(--ch);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: var(--o, 1);
+  transform: rotateY(calc(var(--i) * var(--step))) translateZ(var(--radius)) scale(var(--s, 1));
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ring-card:focus-visible {
+  outline: none;
+}
+
+.ring-card__face {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  padding: 0.9rem;
+  border-radius: 1.1rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+
+.ring-card[data-related] .ring-card__face {
+  border-color: color-mix(in oklab, var(--cyan-accent) 60%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--cyan-accent) 35%, transparent);
+}
+
+/* The front card's glow: a pre-blurred layer whose opacity follows --g (0 at the sides, 1 at the front). */
+.ring-card__glow {
+  position: absolute;
+  inset: -0.6rem;
+  z-index: 0;
+  border-radius: 1.6rem;
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in oklab, var(--cyan-accent) 60%, transparent), transparent 72%);
+  filter: blur(18px);
+  opacity: var(--g, 0);
+  pointer-events: none;
+}
+
+/* The floor: a soft glow ellipse under the ring, labelled with the old hub text. */
+.ring-floor {
+  position: absolute;
+  left: 50%;
+  bottom: 0.25rem;
+  width: min(34rem, 80%);
+  height: 4.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in oklab, var(--cyan-accent) 28%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.ring-floor span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.ring-arrow {
+  position: absolute;
+  top: calc(var(--ch) / 2 + 0.5rem);
+  z-index: 5;
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  background: color-mix(in oklab, var(--background) 70%, transparent);
+  color: var(--foreground);
+  transition: border-color 140ms ease-out, color 140ms ease-out;
+}
+
+.ring-arrow:hover {
+  border-color: color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+  color: var(--cyan-accent);
+}
+
+.ring-arrow--l {
+  left: 0.25rem;
+}
+
+.ring-arrow--r {
+  right: 0.25rem;
+}
+
+@media (pointer: coarse) {
+  .ring-arrow {
+    height: 44px;
+    width: 44px;
+  }
+}
+
+/* Mobile: a horizontal scroll-snap row; the centred card is larger. */
+.ring-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 1rem calc(50% - 5rem);
+  scroll-snap-type: x mandatory;
+  transition: opacity 180ms ease-out;
+}
+
+.ring-row .ring-card {
+  position: relative;
+  left: auto;
+  flex: none;
+  width: 10rem;
+  height: 12.5rem;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  opacity: 0.7;
+  transform: scale(0.94);
+  transition:
+    transform 200ms ease-out,
+    opacity 200ms ease-out;
+  backface-visibility: visible;
+}
+
+.ring-row .ring-card[data-front] {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+.ring-row .ring-card__glow {
+  opacity: 0;
+}
+
+.ring-row .ring-card[data-front] .ring-card__glow {
+  opacity: 0.8;
+}
+
+/* Detail panel: fixed height, content crossfades. */
+.ring-panel {
+  height: 20rem;
   overflow-y: auto;
-  border-radius: 1.25rem 1.25rem 0 0;
-  padding: 0.75rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom, 0px));
-  animation: stk-sheet-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  /* near-opaque so the cards behind never ghost through the text */
-  background: color-mix(in oklab, var(--background) 96%, var(--foreground));
 }
 
-@keyframes stk-sheet-in {
+.ring-panel__in {
+  animation: ring-fade-in 220ms ease-out;
+}
+
+@keyframes ring-fade-in {
   from {
-    transform: translateY(100%);
+    opacity: 0;
   }
   to {
-    transform: translateY(0);
+    opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stk-tilt,
-  .stk-layer,
-  .stk-tower,
-  .stk-layer__in,
-  .stk-tower__in,
-  .stk-block,
-  .stk-trace-line {
+  .ring-fade,
+  .ring-row,
+  .ring-row .ring-card,
+  .ring-chip,
+  .ring-arrow {
     transition: none;
   }
 
-  .stk-tilt {
-    transform: none;
-  }
-
-  .stk-block:hover,
-  .stk-block[data-sel] {
-    transform: none;
-  }
-
-  .stk-layer[data-focus],
-  .stk-tower[data-focus] {
-    scale: 1;
-  }
-
-  .stk-sheet {
+  .ring-panel__in {
     animation: none;
   }
 }
@@ -3329,5 +3124,59 @@ html:not(.dark) .hero-letter {
   .api-key__resp,
   .api-key__glow {
     transition: none;
+  }
+}
+
+/* Contact: the panel lands clearly below the fixed nav (nav + 32px) for native hash scrolls too;
+   the nav links use the anchor heading inside the panel. */
+#contact {
+  scroll-margin-top: 3.5rem;
+}
+
+@media (min-width: 1024px) {
+  #contact {
+    scroll-margin-top: 2.5rem;
+  }
+}
+
+/* Packet trail: the ghosts share the packet's look but are dimmer (their opacity comes from the animation). */
+.api-packet {
+  box-shadow:
+    0 0 10px 2px var(--cyan-accent),
+    0 0 26px 6px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+}
+
+/* Submit button inside the chat input. */
+.chat-submit {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.4rem;
+  display: inline-flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+  background: linear-gradient(90deg, var(--cyan-accent), var(--blue-accent));
+  color: var(--background);
+  transition: opacity 140ms ease-out;
+}
+
+.chat-submit:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.chat-submit:focus-visible {
+  outline: 2px solid var(--cyan-accent);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .chat-submit {
+    height: 44px;
+    width: 44px;
+    bottom: 0;
+    right: 0;
   }
 }

@@ -12,7 +12,7 @@ import { Reveal } from "../effects/hero-interactions";
 import { usePauseAnimations } from "../effects/use-pause-animations";
 import { Keycap } from "./Keycap";
 import { SkillEvidence } from "./SkillEvidence";
-import { StackLayers } from "./StackLayers";
+import { StackRing } from "./StackRing";
 import { matchesQuery, usageFor } from "./skill-usage";
 
 const capabilities = [
@@ -319,7 +319,7 @@ export function Skills() {
         </Reveal>
 
         <div className="mt-12">
-          <StackLayers skillLabels={SKILL_LABELS} />
+          <StackRing skillLabels={SKILL_LABELS} />
         </div>
       </div>
 

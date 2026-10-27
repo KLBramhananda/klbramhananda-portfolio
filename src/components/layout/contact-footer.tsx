@@ -155,7 +155,7 @@ export function Contact() {
   const panelRef = useRef<HTMLDivElement | null>(null);
   usePanelPause(panelRef);
   const stageRef = useRef<HTMLDivElement | null>(null);
-  const { wrap: attachWrap, origin: attachOrigin, packet: attachPacket } = session.attach;
+  const { wrap: attachWrap, origin: attachOrigin, packet: attachPacket, ghost: attachGhost } = session.attach;
   const setStage = useCallback(
     (el: HTMLDivElement | null) => {
       stageRef.current = el;
@@ -207,6 +207,9 @@ export function Contact() {
       <div className="mx-auto max-w-7xl px-4">
         <Reveal className="relative">
           <div ref={panelRef} className="contact-panel relative overflow-hidden glass-strong rounded-3xl p-5 sm:p-7">
+            {/* Landing anchor: the nav links and deep links align the first h1/h2 of a section just below the
+                nav, so this empty, hidden heading puts the panel's own top edge there instead. */}
+            <h2 aria-hidden className="absolute top-0 left-0 h-0 w-0 overflow-hidden" />
             <div
               aria-hidden
               className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[6.25rem]"
@@ -250,6 +253,9 @@ export function Contact() {
                 <div ref={setStage} className="mon-stage relative">
                   <div className="mon-height">{left}</div>
                   <Honeypot session={session} />
+                  <span ref={attachGhost(0)} aria-hidden className="api-packet" />
+                  <span ref={attachGhost(1)} aria-hidden className="api-packet" />
+                  <span ref={attachGhost(2)} aria-hidden className="api-packet" />
                   <span ref={attachPacket} aria-hidden className="api-packet" />
                 </div>
                 <button
@@ -273,6 +279,9 @@ export function Contact() {
                 <div className="mon-height">{left}</div>
                 <div className="mon-height">{right}</div>
                 <Honeypot session={session} />
+                <span ref={attachGhost(0)} aria-hidden className="api-packet" />
+                <span ref={attachGhost(1)} aria-hidden className="api-packet" />
+                <span ref={attachGhost(2)} aria-hidden className="api-packet" />
                 <span ref={attachPacket} aria-hidden className="api-packet" />
               </div>
             )}
