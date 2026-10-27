@@ -2934,68 +2934,312 @@ html:not(.dark) .hero-letter {
   }
 }
 
-/* ── Contact: API console ──────────────────────────────────────────────
-   Endpoint cards, request builder, JSON preview and response console. Only
-   transform / opacity animate; shadows are static per-state values. */
-.api-card {
-  transition: border-color 0.2s ease;
+/* ── Contact: API console with two monitors ───────────────────────────
+   Chat + request.log monitors, keycap-style endpoint tiles, themed
+   scrollbars. Only transform / opacity animate; shadows are static per-state
+   values. Idle loops (glow breathing, blinking cursors, typing dots) are
+   opacity animations and pause while the section is off-screen. */
+#contact * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--foreground) 26%, transparent) transparent;
 }
 
-.api-hit {
-  border-radius: inherit;
-  cursor: pointer;
+#contact ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.api-hit:focus-visible {
-  outline: 2px solid var(--cyan-accent);
-  outline-offset: 2px;
+#contact ::-webkit-scrollbar-track,
+#contact ::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
-.api-glow {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
+#contact ::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--foreground) 24%, transparent);
+  background-clip: content-box;
+}
+
+#contact ::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--cyan-accent) 60%, transparent);
+  background-clip: content-box;
+}
+
+#contact ::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Monitors */
+.mon-height {
+  height: var(--mon-h, 30rem);
+  min-width: 0;
+}
+
+.mon {
+  height: 100%;
+}
+
+.mon__tilt {
+  position: relative;
+  height: 100%;
+}
+
+.mon--angled {
+  transform-origin: 50% 50%;
+}
+
+.mon--left {
+  transform: perspective(1600px) rotateY(6deg);
+}
+
+.mon--right {
+  transform: perspective(1600px) rotateY(-6deg);
+}
+
+.mon__bezel {
+  position: relative;
   z-index: 1;
-  border-radius: inherit;
-  padding: 1px;
-  background: radial-gradient(circle 180px at var(--gx, 50%) var(--gy, 50%), var(--cyan-accent), transparent);
-  opacity: var(--glare, 0);
-  transition: opacity 300ms ease-out;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
 }
 
-/* The response preview's line is always reserved: only its opacity changes. */
-.api-preview {
-  opacity: 0;
-  transition: opacity 160ms ease-out;
+.mon__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  background: color-mix(in oklab, var(--foreground) 4%, transparent);
 }
 
-.api-card:hover .api-preview,
-.api-card:focus-within .api-preview {
-  opacity: 1;
+.mon__screen {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  padding: 0.85rem 1rem;
 }
 
-.api-wrap {
-  perspective: 1200px;
+/* The screen glow: a pre-blurred layer whose opacity breathes over 4 s. */
+.mon__glow {
+  position: absolute;
+  inset: -0.6rem;
+  z-index: 0;
+  border-radius: 1.75rem;
+  background: radial-gradient(ellipse at 50% 45%, color-mix(in oklab, var(--cyan-accent) 55%, transparent), transparent 72%);
+  filter: blur(22px);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: mon-breathe 4s ease-in-out infinite;
 }
 
-.api-json-box,
-.api-console {
+@keyframes mon-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.api-box {
   border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
   background: color-mix(in oklab, var(--foreground) 4%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 5%, transparent);
 }
 
-.api-json-scroll {
-  height: 8.5rem;
+/* Blinking cursor (console idle line, empty chat input). */
+.api-cursor {
+  color: var(--cyan-accent);
+  animation: api-blink 1.1s steps(1, end) infinite;
 }
 
-.api-console {
-  height: 10.5rem;
+@keyframes api-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.chat-input__caret {
+  position: absolute;
+  left: 0.8rem;
+  top: 0.62rem;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.chat-input[data-idle]:not(:focus-within) .chat-input__caret {
+  visibility: visible;
+}
+
+/* B-Bot "typing": three dots fading in turn (opacity only). */
+.chat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--muted-foreground);
+  animation: chat-dot 1s ease-in-out infinite;
+}
+
+@keyframes chat-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.anim-paused .mon__glow,
+.anim-paused .api-cursor,
+.anim-paused .chat-dot,
+.anim-paused .api-send__glow {
+  animation-play-state: paused;
+}
+
+/* Endpoint tiles: 3D keycaps (same layered depth, lift, underglow and press as the Skills keycaps). */
+.api-key {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: transform 140ms cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.api-key__top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--foreground) 9%, var(--background)),
+    color-mix(in oklab, var(--foreground) 4%, var(--background))
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, #fff 35%, transparent),
+    0 3px 0 0 rgba(15, 23, 42, 0.18),
+    0 6px 14px -8px rgba(2, 6, 23, 0.35);
+  transition: border-color 140ms ease-out;
+}
+
+.dark .api-key__top {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 3px 0 0 rgba(0, 0, 0, 0.55),
+    0 6px 14px -8px rgba(0, 0, 0, 0.6);
+}
+
+.api-key__glow {
+  position: absolute;
+  inset: 45% -0.25rem -0.75rem;
+  border-radius: 0.9rem;
+  background: radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--cyan-accent) 70%, transparent), transparent 70%);
+  filter: blur(7px);
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+  pointer-events: none;
+}
+
+/* One reserved line: the label crossfades into the 200 OK preview. */
+.api-key__line {
+  position: relative;
+  display: block;
+  height: 1.1rem;
+}
+
+.api-key__label,
+.api-key__resp {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  line-height: 1.1rem;
+  transition: opacity 160ms ease-out;
+}
+
+.api-key__resp {
+  opacity: 0;
+}
+
+.api-key:focus-visible {
+  outline: none;
+}
+
+.api-key:focus-visible .api-key__top {
+  outline: 2px solid var(--cyan-accent);
+  outline-offset: 2px;
+}
+
+.api-key:focus-visible .api-key__label {
+  opacity: 0;
+}
+
+.api-key:focus-visible .api-key__resp {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .api-key:hover {
+    transform: translateY(-2px);
+  }
+
+  .api-key:hover .api-key__glow {
+    opacity: 0.8;
+  }
+
+  .api-key:hover .api-key__top {
+    border-color: color-mix(in oklab, var(--cyan-accent) 45%, transparent);
+  }
+
+  .api-key:hover .api-key__label {
+    opacity: 0;
+  }
+
+  .api-key:hover .api-key__resp {
+    opacity: 1;
+  }
+}
+
+.api-key:active {
+  transform: translateY(2px);
+}
+
+.api-key:active .api-key__top {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, #fff 20%, transparent),
+    0 1px 0 0 rgba(15, 23, 42, 0.18),
+    0 2px 4px -2px rgba(2, 6, 23, 0.3);
+}
+
+.dark .api-key:active .api-key__top {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 0 0 rgba(0, 0, 0, 0.55),
+    0 2px 4px -2px rgba(0, 0, 0, 0.5);
 }
 
 .api-hp {
@@ -3036,7 +3280,7 @@ html:not(.dark) .hero-letter {
   }
 }
 
-/* The packet: an orb launched from the JSON panel to the console. */
+/* The packet: an orb flown from the chat monitor to the console. */
 .api-packet {
   position: absolute;
   left: 0;
@@ -3055,13 +3299,35 @@ html:not(.dark) .hero-letter {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .mon__glow {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .api-cursor,
+  .chat-dot {
+    animation: none;
+  }
+
+  .chat-dot {
+    opacity: 0.6;
+  }
+
   .api-send[data-valid] .api-send__glow {
     animation: none;
     opacity: 0.4;
   }
 
-  .api-preview,
-  .api-glow {
+  .api-key,
+  .api-key:hover,
+  .api-key:active {
+    transform: none;
+    transition: none;
+  }
+
+  .api-key__label,
+  .api-key__resp,
+  .api-key__glow {
     transition: none;
   }
 }

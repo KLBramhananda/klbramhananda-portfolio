@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { motion } from "framer-motion";
 import { SectionEyebrow } from "../sections/about";
 import bkLogo from "@/assets/branding/bk-logo.jpeg";
 import { Reveal } from "../effects/hero-interactions";
+import { navHeight } from "@/lib/sections";
 import { Mail, Phone, ArrowUp } from "lucide-react";
 import { EndpointCard } from "./EndpointCard";
-import { RequestBuilder } from "./RequestBuilder";
+import { MonitorPanel } from "./MonitorPanel";
+import { BbotChat } from "./BbotChat";
+import { ClassicForm, Honeypot, RequestPane, useContactSession } from "./RequestBuilder";
 
 // Shared with the terminal command bar so contact details live in one place.
 // eslint-disable-next-line react-refresh/only-export-components
@@ -54,51 +57,225 @@ function useIstTime() {
   return time;
 }
 
+type Breakpoint = "mobile" | "tablet" | "desktop";
+const readBreakpoint = (): Breakpoint =>
+  window.matchMedia("(min-width: 1024px)").matches ? "desktop" : window.matchMedia("(min-width: 768px)").matches ? "tablet" : "mobile";
+
+function useBreakpoint() {
+  const [bp, setBp] = useState<Breakpoint>(readBreakpoint);
+  useEffect(() => {
+    const qs = [window.matchMedia("(min-width: 768px)"), window.matchMedia("(min-width: 1024px)")];
+    const on = () => setBp(readBreakpoint());
+    qs.forEach((q) => q.addEventListener("change", on));
+    return () => qs.forEach((q) => q.removeEventListener("change", on));
+  }, []);
+  return bp;
+}
+
+const MODE_KEY = "bk:contact:mode";
+type Mode = "chat" | "form";
+
+function readMode(): Mode {
+  try {
+    return window.sessionStorage.getItem(MODE_KEY) === "form" ? "form" : "chat";
+  } catch {
+    return "chat";
+  }
+}
+
+/**
+ * Pauses the section's idle loops (glow, cursors, typing dots) while it is off
+ * screen, by toggling `anim-paused` on the panel. It reads the LATEST observer
+ * entry: after a deep-link jump the observer delivers a batch, and the first
+ * entry (from before the jump) must not win.
+ */
+function usePanelPause(ref: RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => el.classList.toggle("anim-paused", !entries[entries.length - 1].isIntersecting),
+      { rootMargin: "140px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+}
+
+/**
+ * Desktop: both monitors get the same height, sized so the whole panel fits
+ * `100svh - nav - 48px`. The height is written to a CSS variable on the panel
+ * (rAF-throttled, on resize and when the header row changes); other
+ * breakpoints use the CSS default.
+ */
+function useMonitorHeight(
+  panelRef: RefObject<HTMLDivElement | null>,
+  stageRef: RefObject<HTMLDivElement | null>,
+  enabled: boolean,
+) {
+  useEffect(() => {
+    const panel = panelRef.current;
+    const stage = stageRef.current;
+    if (!panel || !stage) return;
+    if (!enabled) {
+      panel.style.removeProperty("--mon-h");
+      return;
+    }
+    let raf = 0;
+    const apply = () => {
+      raf = 0;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const used = panel.offsetHeight - stage.offsetHeight;
+      const h = window.innerHeight - navHeight() - 48 - used;
+      panel.style.setProperty("--mon-h", `${Math.round(Math.min(Math.max(h, rem * 18), rem * 38))}px`);
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+    apply();
+    const ro = new ResizeObserver(schedule);
+    const head = panel.querySelector(".contact-head");
+    if (head) ro.observe(head);
+    window.addEventListener("resize", schedule, { passive: true });
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", schedule);
+      cancelAnimationFrame(raf);
+    };
+  }, [panelRef, stageRef, enabled]);
+}
+
 export function Contact() {
   const time = useIstTime();
+  const bp = useBreakpoint();
+  const [mode, setMode] = useState<Mode>(readMode);
+  const [requestOpen, setRequestOpen] = useState(false);
+  const session = useContactSession({ onStart: () => setRequestOpen(true) });
+  const email = channels[0].value;
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  usePanelPause(panelRef);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const { wrap: attachWrap, origin: attachOrigin, packet: attachPacket } = session.attach;
+  const setStage = useCallback(
+    (el: HTMLDivElement | null) => {
+      stageRef.current = el;
+      attachWrap(el);
+    },
+    [attachWrap],
+  );
+  useMonitorHeight(panelRef, stageRef, bp === "desktop");
+
+  const toggleMode = () => {
+    const next: Mode = mode === "chat" ? "form" : "chat";
+    setMode(next);
+    try {
+      window.sessionStorage.setItem(MODE_KEY, next);
+    } catch {
+      /* private mode: the choice just isn't remembered */
+    }
+  };
+  const angled = bp === "desktop";
+
+  const toggle = (
+    <button
+      type="button"
+      onClick={toggleMode}
+      className="rounded-md px-1.5 py-0.5 font-mono text-[0.6875rem] text-cyan-accent transition-colors hover:text-cyan-accent/80 [@media(pointer:coarse)]:min-h-[44px]"
+    >
+      {mode === "chat" ? "Use classic form" : "Use chat"}
+    </button>
+  );
+
+  const left = (
+    <MonitorPanel title={mode === "chat" ? "chat.tsx" : "contact.form"} side="left" angled={angled} actions={toggle} screenRef={attachOrigin}>
+      <div hidden={mode !== "chat"} className="h-full min-h-0">
+        <BbotChat session={session} active={mode === "chat"} email={email} />
+      </div>
+      <div hidden={mode !== "form"} className="h-full min-h-0 overflow-y-auto pr-1">
+        <ClassicForm session={session} />
+      </div>
+    </MonitorPanel>
+  );
+  const right = (
+    <MonitorPanel title="request.log" side="right" angled={angled}>
+      <RequestPane session={session} email={email} />
+    </MonitorPanel>
+  );
 
   return (
     <section id="contact" className="relative py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4">
-        <Reveal className="relative overflow-hidden glass-strong rounded-3xl p-6 sm:p-10 lg:p-14">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[6.25rem]"
-          />
+        <Reveal className="relative">
+          <div ref={panelRef} className="contact-panel relative overflow-hidden glass-strong rounded-3xl p-5 sm:p-7">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-32 right-[10%] h-72 w-72 rounded-full bg-cyan-accent/15 blur-[6.25rem]"
+            />
 
-          <div className="relative max-w-2xl">
-            <SectionEyebrow>Let's Talk</SectionEyebrow>
-            <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-gradient">
-              Let's build something enterprise-grade.
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Open to full-stack, ERPNext, SAP BTP, and AI opportunities. Have a
-              question, idea, or opportunity? Let's talk.
-            </p>
-          </div>
+            {/* Header row: text on the left, status chip + endpoint keycaps on the right */}
+            <div className="contact-head relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-start lg:gap-8">
+              <div className="max-w-2xl">
+                <SectionEyebrow>Let's Talk</SectionEyebrow>
+                <h2 className="mt-3 text-4xl sm:text-5xl lg:text-[2.5rem] lg:leading-tight font-bold tracking-tight text-gradient">
+                  Let's build something enterprise-grade.
+                </h2>
+                <p className="mt-4 text-muted-foreground">
+                  Open to full-stack, ERPNext, SAP BTP, and AI opportunities. Have a
+                  question, idea, or opportunity? Let's talk.
+                </p>
+              </div>
 
-          {/* Status strip */}
-          <p className="relative mt-8 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-muted-foreground">
-            <span aria-hidden className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-foreground/90">Available for opportunities</span>
-            <span aria-hidden>·</span>
-            <span>Bengaluru</span>
-            <span aria-hidden>·</span>
-            <span className="tabular-nums">IST {time}</span>
-            <span aria-hidden>·</span>
-            <span>Usually replies within 24 h</span>
-          </p>
-
-          <div className="relative mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] lg:gap-8">
-            {/* Endpoints */}
-            <div className="grid grid-cols-2 content-start gap-3 lg:sticky lg:top-[5.75rem] lg:grid-cols-1 lg:self-start" role="group" aria-label="Contact endpoints">
-              {channels.map((c) => (
-                <EndpointCard key={c.label} channel={c} />
-              ))}
+              <div className="grid gap-3">
+                <div className="glass flex items-center gap-4 rounded-2xl px-4 py-3">
+                  <div className="shrink-0 font-mono text-3xl font-semibold leading-none tracking-tight text-foreground tabular-nums">
+                    {time}
+                    <span className="ml-1.5 text-xs font-normal tracking-wide text-muted-foreground">IST</span>
+                  </div>
+                  <p className="flex min-w-0 items-start gap-2 font-mono text-xs leading-relaxed text-muted-foreground">
+                    <span aria-hidden className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                    <span>Available for opportunities · Bengaluru · Usually replies within 24 h</span>
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3" role="group" aria-label="Contact endpoints">
+                  {channels.map((c) => (
+                    <EndpointCard key={c.label} channel={c} />
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Request builder + response console */}
-            <RequestBuilder email={channels[0].value} />
+            {/* The monitors */}
+            {bp === "mobile" ? (
+              <div className="relative mt-6">
+                <div ref={setStage} className="mon-stage relative">
+                  <div className="mon-height">{left}</div>
+                  <Honeypot session={session} />
+                  <span ref={attachPacket} aria-hidden className="api-packet" />
+                </div>
+                <button
+                  type="button"
+                  aria-expanded={requestOpen}
+                  aria-controls="contact-request"
+                  onClick={() => setRequestOpen((o) => !o)}
+                  className="mt-3 min-h-[44px] rounded-lg font-mono text-xs text-cyan-accent"
+                >
+                  {requestOpen ? "Hide request" : "View request"}
+                </button>
+                <div id="contact-request" hidden={!requestOpen} className="mt-1">
+                  <div className="mon-height">{right}</div>
+                </div>
+              </div>
+            ) : (
+              <div
+                ref={setStage}
+                className={`mon-stage relative mt-6 grid grid-cols-[minmax(0,0.55fr)_minmax(0,0.45fr)] gap-4 lg:gap-8 ${angled ? "mon-stage--3d" : ""}`}
+              >
+                <div className="mon-height">{left}</div>
+                <div className="mon-height">{right}</div>
+                <Honeypot session={session} />
+                <span ref={attachPacket} aria-hidden className="api-packet" />
+              </div>
+            )}
           </div>
         </Reveal>
       </div>
