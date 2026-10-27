@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { AIResearchLabShell } from "./components/AIResearchLabShell";
-import { WakeSystem, type LabPhase } from "./components/WakeSystem";
+import { AIGateway } from "./components/AIGateway";
+import { GATEWAY_KEY, markGatewaySeen } from "./data/rooms";
 import "./styles/ai-lab.css";
 
 const preloadHome = () =>
@@ -9,14 +10,22 @@ const preloadHome = () =>
   }));
 const AIResearchLabHome = lazy(preloadHome);
 
-const INIT_ITEMS = 8;
-const INIT_MS = 190;
-const INIT_BUFFER_MS = 1500;
+type Stage = "gateway" | "leaving" | "world";
+
+/** The gateway shows once per session; a deep link to a room skips it. */
+function initialStage(): Stage {
+  try {
+    if (window.sessionStorage.getItem(GATEWAY_KEY) === "1") return "world";
+    if (new URLSearchParams(window.location.search).has("room")) return "world";
+  } catch {
+    /* storage blocked: show the gateway */
+  }
+  return "gateway";
+}
 
 export function AIResearchLab() {
-  const [phase, setPhase] = useState<LabPhase>("dormant");
-  const [entered, setEntered] = useState(false);
-  const online = phase === "online";
+  const [stage, setStage] = useState<Stage>(initialStage);
+  const worldOpen = stage !== "gateway";
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -26,38 +35,26 @@ export function AIResearchLab() {
     window.dispatchEvent(new CustomEvent("bk:page-ready"));
   }, []);
 
-  // Fetch the Lab's content chunk while the boot screen plays so the ENTER
-  // reveal never waits on a network round-trip.
+  // Fetch the world's chunk while the gateway plays so the hand-over never
+  // waits on a network round-trip.
   useEffect(() => {
     void preloadHome();
   }, []);
 
   useEffect(() => {
-    if (phase !== "initializing") return;
-    const t = window.setTimeout(
-      () => setPhase("online"),
-      INIT_ITEMS * INIT_MS + INIT_BUFFER_MS,
-    );
-    return () => window.clearTimeout(t);
-  }, [phase]);
+    if (stage === "world") markGatewaySeen();
+  }, [stage]);
 
-  const handleWake = useCallback(() => {
-    setPhase((current) => (current === "dormant" ? "initializing" : current));
-  }, []);
-
-  const handleEntered = useCallback(() => {
-    setEntered(true);
-  }, []);
+  const handleLeave = useCallback(() => setStage("leaving"), []);
+  const handleDone = useCallback(() => setStage("world"), []);
 
   return (
     <>
-      <WakeSystem
-        phase={phase}
-        onWake={handleWake}
-        onEntered={handleEntered}
-      />
-      <AIResearchLabShell online={online}>
-        {phase !== "online" || !entered ? (
+      {stage !== "world" && (
+        <AIGateway leaving={stage === "leaving"} onLeave={handleLeave} onDone={handleDone} />
+      )}
+      <AIResearchLabShell online={worldOpen}>
+        {!worldOpen ? (
           <div className="ai-lab-wake-placeholder" aria-hidden />
         ) : (
           <Suspense fallback={<div className="ai-lab-wake-placeholder" aria-hidden />}>
