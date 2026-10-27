@@ -2933,3 +2933,135 @@ html:not(.dark) .hero-letter {
     transition: none;
   }
 }
+
+/* ── Contact: API console ──────────────────────────────────────────────
+   Endpoint cards, request builder, JSON preview and response console. Only
+   transform / opacity animate; shadows are static per-state values. */
+.api-card {
+  transition: border-color 0.2s ease;
+}
+
+.api-hit {
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.api-hit:focus-visible {
+  outline: 2px solid var(--cyan-accent);
+  outline-offset: 2px;
+}
+
+.api-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(circle 180px at var(--gx, 50%) var(--gy, 50%), var(--cyan-accent), transparent);
+  opacity: var(--glare, 0);
+  transition: opacity 300ms ease-out;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+/* The response preview's line is always reserved: only its opacity changes. */
+.api-preview {
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+
+.api-card:hover .api-preview,
+.api-card:focus-within .api-preview {
+  opacity: 1;
+}
+
+.api-wrap {
+  perspective: 1200px;
+}
+
+.api-json-box,
+.api-console {
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  background: color-mix(in oklab, var(--foreground) 4%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 5%, transparent);
+}
+
+.api-json-scroll {
+  height: 8.5rem;
+}
+
+.api-console {
+  height: 10.5rem;
+}
+
+.api-hp {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Send: a soft pulsing glow while the form is valid (opacity only). */
+.api-send {
+  isolation: isolate;
+}
+
+.api-send__glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 0 26px 3px color-mix(in oklab, var(--cyan-accent) 75%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.api-send[data-valid] .api-send__glow {
+  animation: api-send-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes api-send-pulse {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+/* The packet: an orb launched from the JSON panel to the console. */
+.api-packet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow:
+    0 0 10px 2px var(--cyan-accent),
+    0 0 26px 6px color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .api-send[data-valid] .api-send__glow {
+    animation: none;
+    opacity: 0.4;
+  }
+
+  .api-preview,
+  .api-glow {
+    transition: none;
+  }
+}
