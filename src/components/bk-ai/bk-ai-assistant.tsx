@@ -218,11 +218,11 @@ export function BkAiAssistant() {
     if (isBot) {
       window.addEventListener("pointerdown", onTouch, { passive: true });
 
-      const flags = { terminal: false, asleep: false, happy: false, surprised: false };
+      const flags = { terminal: false, chat: false, asleep: false, happy: false, surprised: false };
       const render = () => {
         const state: BotState = flags.surprised
           ? "surprised"
-          : flags.terminal
+          : flags.terminal || flags.chat
             ? "listening"
             : flags.asleep
               ? "sleeping"
@@ -289,6 +289,14 @@ export function BkAiAssistant() {
         window.removeEventListener("bbot:happy", onHappy);
         window.clearTimeout(happyTimer);
       });
+
+      // The Contact chat fires `bbot:listening` (detail: boolean) while its input is focused.
+      const onChat = (e: Event) => {
+        flags.chat = (e as CustomEvent<boolean>).detail === true;
+        render();
+      };
+      window.addEventListener("bbot:listening", onChat);
+      cleanups.push(() => window.removeEventListener("bbot:listening", onChat));
 
       // Click / Enter / Space: a small hop, then open the terminal.
       const onClick = () => {
