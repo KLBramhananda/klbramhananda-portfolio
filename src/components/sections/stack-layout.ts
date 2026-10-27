@@ -83,39 +83,6 @@ export function buildStack(skillLabels: ReadonlySet<string>): StackModel {
   return { layers: MAIN.map(keep), towers: TOWERS.map(keep), skipped };
 }
 
-/** "Trace a request": the hops out and the caption of each step. */
-export const TRACE_HOPS: { key: string; layer: LayerId; caption: string }[] = [
-  { key: "React", layer: "frontend", caption: "1 · UI request — React" },
-  { key: "API Gateway", layer: "api", caption: "2 · Routed — API Gateway" },
-  { key: "Spring Boot", layer: "services", caption: "3 · Business logic — Spring Boot" },
-  { key: "Kafka", layer: "services", caption: "4 · Event published — Kafka" },
-  { key: "PostgreSQL", layer: "data", caption: "5 · Persisted — PostgreSQL" },
-];
-
-export const TRACE_RETURN_CAPTION = "6 · Response returned";
-
-/**
- * Resolve each hop to a block that exists; a missing block falls back to the
- * first block of the same layer. `substituted` lists those fallbacks.
- */
-export function resolveTrace(model: StackModel) {
-  const substituted: string[] = [];
-  const keys = TRACE_HOPS.map((h) => {
-    const layer = model.layers.find((l) => l.id === h.layer);
-    if (layer?.blocks.some((b) => b.key === h.key)) return h.key;
-    const alt = layer?.blocks[0]?.key ?? h.key;
-    substituted.push(`${h.key} → ${alt}`);
-    return alt;
-  });
-  return { keys, substituted };
-}
-
-/** Related keys of a block that are themselves blocks of the stack. */
-export function relatedBlocks(key: string, model: StackModel): string[] {
-  const all = new Set([...model.layers, ...model.towers].flatMap((l) => l.blocks.map((b) => b.key)));
-  return (skills[key]?.related ?? []).filter((r) => all.has(r));
-}
-
 export function layerOf(key: string, model: StackModel): LayerDef | undefined {
   return [...model.layers, ...model.towers].find((l) => l.blocks.some((b) => b.key === key));
 }
