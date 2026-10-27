@@ -134,6 +134,58 @@ async function fetchFull() {
   return { generatedAt: now.toISOString(), totalContributions, calendar, publicRepoCount: conn?.totalCount, repos };
 }
 
+// ── unauthenticated: the public contribution graph (HTML) ───────────────────
+const WEB = (process.env.GITHUB_WEB_URL || "https://github.com").replace(/\/+$/, "");
+
+async function getHtml(path, label) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(`${WEB}${path}`, { headers: { "User-Agent": "portfolio-build", Accept: "text/html" }, signal: AbortSignal.timeout(TIMEOUT_MS) });
+      if (!res.ok) throw new Error(`${label}: HTTP ${res.status}`);
+      return await res.text();
+    } catch (e) {
+      if (attempt === 1) throw new Error(e instanceof Error && e.message.startsWith(label) ? e.message : `${label}: request failed`);
+      await sleep(800);
+    }
+  }
+}
+
+/** One page of the public graph: per-day counts and the page's own total. */
+function parseContributions(html) {
+  const ids = new Map();
+  for (const m of html.matchAll(/<td\b[^>]*>/g)) {
+    const date = /data-date="(\d{4}-\d{2}-\d{2})"/.exec(m[0])?.[1];
+    const id = /\bid="(contribution-day-component-[\d-]+)"/.exec(m[0])?.[1];
+    if (date && id) ids.set(id, date);
+  }
+  const days = [];
+  for (const m of html.matchAll(/<tool-tip\b[^>]*\bfor="(contribution-day-component-[\d-]+)"[^>]*>([^<]*)<\/tool-tip>/g)) {
+    const date = ids.get(m[1]);
+    const n = /^(No|\d[\d,]*)\s+contributions?\b/.exec(m[2].trim());
+    if (date && n) days.push({ date, count: n[1] === "No" ? 0 : Number(n[1].replace(/,/g, "")) });
+  }
+  const total = /([\d,]+)\s+contributions?\s+in\s+(?:the last year|\d{4})/.exec(html)?.[1];
+  return { days, total: total ? Number(total.replace(/,/g, "")) : null };
+}
+
+/** Calendar (last 365 days) and the total since SINCE_YEAR, from the public pages: no token needed. */
+async function fetchPublicContributions() {
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const first = new Date(now.getTime() - 364 * DAY).toISOString().slice(0, 10);
+  const page = parseContributions(await getHtml(`/users/${LOGIN}/contributions`, "contribution graph"));
+  const calendar = page.days.filter((d) => d.date >= first && d.date <= today).sort((a, b) => (a.date < b.date ? -1 : 1));
+  if (calendar.length < 300) throw new Error("contribution graph: unexpected page");
+  let totalContributions = 0;
+  for (let y = SINCE_YEAR; y <= now.getUTCFullYear(); y++) {
+    const to = y === now.getUTCFullYear() ? today : `${y}-12-31`;
+    const t = parseContributions(await getHtml(`/users/${LOGIN}/contributions?from=${y}-01-01&to=${to}`, `contributions ${y}`)).total;
+    if (t === null) throw new Error(`contributions ${y}: unexpected page`);
+    totalContributions += t;
+  }
+  return { calendar, totalContributions, generatedAt: now.toISOString() };
+}
+
 // ── unauthenticated: repositories only ─────────────────────────────────────
 async function fetchReposOnly() {
   const list = await rest(`/users/${LOGIN}/repos?per_page=100&type=owner&sort=pushed`, "repositories");
@@ -222,10 +274,18 @@ async function main() {
     next = { ...base, ...full, login: LOGIN, sinceYear: SINCE_YEAR };
     summary = `${full.repos.length} repos, ${full.calendar.length} calendar days, ${full.totalContributions} contributions`;
   } else {
-    log("GITHUB_TOKEN is not set: refreshing the repository list only (calendar and totals are kept).");
+    log("GITHUB_TOKEN is not set: refreshing the repositories (REST) and the calendar and totals (public contribution graph).");
     const { repos } = await fetchReposOnly();
     next = { ...base, repos, publicRepoCount: existing ? base.publicRepoCount : repos.length };
     summary = `${repos.length} public repos`;
+    try {
+      const pub = await fetchPublicContributions();
+      next = { ...next, ...pub };
+      summary += `, ${pub.calendar.length} calendar days, ${pub.totalContributions} contributions`;
+    } catch (e) {
+      // The graph page is best-effort: keep the existing calendar and totals.
+      console.warn(`[github] WARNING: could not read the public contribution graph (${e instanceof Error ? e.message : "unknown error"}); keeping the existing calendar.`);
+    }
   }
 
   validateSnapshot(next);

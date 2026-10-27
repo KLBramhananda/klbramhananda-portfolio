@@ -262,3 +262,57 @@
     animation: none;
   }
 }
+
+/* Card artwork: a glyph on a tinted tile (the skill's own colour) over a soft radial glow. */
+.tsr-card__art {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  color: var(--tsr-c);
+}
+
+.tsr-card__art::before {
+  content: "";
+  position: absolute;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, color-mix(in oklab, var(--tsr-c) 38%, transparent), transparent 70%);
+  filter: blur(6px);
+}
+
+.tsr-card__art::after {
+  content: "";
+  position: absolute;
+  width: 4.75rem;
+  height: 4.75rem;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--tsr-c) 45%, transparent);
+  background: linear-gradient(145deg, color-mix(in oklab, var(--tsr-c) 22%, transparent), color-mix(in oklab, var(--tsr-c) 6%, transparent));
+  box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 18%, transparent);
+}
+
+.tsr-card__glyph {
+  position: relative;
+  z-index: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.tsr-row .tsr-card__art::before {
+  width: 4.75rem;
+  height: 4.75rem;
+}
+
+.tsr-row .tsr-card__art::after {
+  width: 3.75rem;
+  height: 3.75rem;
+}
+
+.tsr-row .tsr-card__glyph {
+  width: 2rem;
+  height: 2rem;
+}

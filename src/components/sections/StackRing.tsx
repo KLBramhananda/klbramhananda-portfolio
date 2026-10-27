@@ -2,7 +2,42 @@ import "./stack-ring.css";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useReducedMotion } from "framer-motion";
-import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Atom,
+  Blocks,
+  Bot,
+  ChevronLeft,
+  ChevronRight,
+  Cloud,
+  Code2,
+  Container,
+  Cpu,
+  Database,
+  DatabaseZap,
+  DoorOpen,
+  Factory,
+  FileCode2,
+  Gauge,
+  GitBranch,
+  Hexagon,
+  Layers,
+  Leaf,
+  Plug,
+  RefreshCw,
+  SearchCode,
+  Server,
+  Sparkles,
+  Table2,
+  Terminal,
+  Webhook,
+  Workflow,
+  Wind,
+  Zap,
+  Boxes,
+  type LucideIcon,
+} from "lucide-react";
 import { skills } from "@/data/skills";
 import { landingY, lockSpy } from "@/lib/sections";
 import { NO_USAGE_TEXT } from "./SkillEvidence";
@@ -196,6 +231,43 @@ function BlockCard({
 interface Card {
   def: BlockDef;
   category: string;
+}
+
+/** The artwork of each card: a glyph from the project's icon set, tinted with the skill's own colour. */
+const ART: Record<string, LucideIcon> = {
+  React: Atom,
+  TypeScript: FileCode2,
+  Vite: Zap,
+  Tailwind: Wind,
+  "REST APIs": Webhook,
+  "API Gateway": DoorOpen,
+  "Node.js": Hexagon,
+  Python: Code2,
+  "Spring Boot": Leaf,
+  FastAPI: Gauge,
+  Kafka: Workflow,
+  Microservices: Boxes,
+  PostgreSQL: Database,
+  MongoDB: DatabaseZap,
+  MySQL: Table2,
+  Cloud: Cloud,
+  Docker: Container,
+  Linux: Terminal,
+  Git: GitBranch,
+  AWS: Server,
+  "CI/CD": RefreshCw,
+  AI: Sparkles,
+  MCP: Plug,
+  "LLM Integration": Bot,
+  "RAG Workflows": SearchCode,
+  ERPNext: Factory,
+  Frappe: Blocks,
+  "SAP BTP": Layers,
+};
+
+function ArtIcon({ name }: { name: string }) {
+  const Icon = ART[name] ?? Cpu;
+  return <Icon className="tsr-card__glyph" strokeWidth={1.5} />;
 }
 
 const AUTO_DEG_PER_S = 6;
@@ -595,6 +667,9 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
                 {skill.status}
               </span>
             )}
+          </span>
+          <span aria-hidden className="tsr-card__art" style={{ "--tsr-c": skill?.color ?? "var(--cyan-accent)" } as CSSProperties}>
+            <ArtIcon name={c.def.key} />
           </span>
           <span className="mt-auto block text-base font-semibold leading-tight text-foreground">{c.def.key}</span>
           <span className="mt-1 block text-[0.6875rem] uppercase tracking-widest text-muted-foreground">{c.category}</span>
