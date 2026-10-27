@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { LabShell } from "./components/LabShell";
 import { LabHome } from "./components/LabHome";
 import { LAB_MODULES, type LabModule } from "./data/modules";
+import { clearLabHandoff, peekLabHandoff } from "./data/lab-handoff";
 import "./styles/lab.css";
 
 /**
@@ -47,7 +48,12 @@ function ModuleLoadingFallback() {
  * after editing the module data) can never be rendered raw.
  */
 export function EngineeringLab() {
-  const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  // The terminal's `open <lab>` commands and Ctrl/Cmd-click new tabs ask for a
+  // lab through a handoff (see data/lab-handoff.ts); honoured once, on mount.
+  const [activeModuleId, setActiveModuleId] = useState<string | null>(() => {
+    const id = peekLabHandoff();
+    return id && LAB_MODULES.some((m) => m.id === id) ? id : null;
+  });
 
   const activeModule = activeModuleId
     ? (LAB_MODULES.find((m) => m.id === activeModuleId) ?? null)
@@ -59,11 +65,13 @@ export function EngineeringLab() {
   // at its home header.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
+    clearLabHandoff();
     // The cinematic page transition waits for this signal before revealing
     // the Lab, so the overlay holds (never a blank flash) until the Lab has
     // actually painted.
     window.dispatchEvent(new CustomEvent("bk:page-ready"));
-    return () => setActiveModuleId(null);
+    // No cleanup reset: the state dies with the component, and a StrictMode
+    // re-run would otherwise wipe a module requested through the handoff.
   }, []);
 
   const openModule = (module: LabModule) => {

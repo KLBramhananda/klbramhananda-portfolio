@@ -64,18 +64,11 @@ export function LabShell({
             </span>
             <Link
               to="/"
-              className="group inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-slate-900/[0.06] dark:hover:bg-white/[0.06]"
-            >
-              <ArrowLeft className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
-              <span className="hidden sm:inline">Back to Portfolio</span>
-              <span className="sm:hidden">Exit</span>
-            </Link>
-            <Link
-              to="/"
               className="group inline-flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-accent to-blue-accent px-4 py-2 text-sm font-semibold text-background shadow-[0_10px_40px_-12px_rgba(6,182,212,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_50px_-10px_rgba(6,182,212,0.75)]"
             >
-              Exit Lab
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+              <span className="hidden sm:inline">Back to Portfolio</span>
+              <span className="sm:hidden">Back</span>
             </Link>
           </div>
         </div>
