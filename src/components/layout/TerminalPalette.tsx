@@ -3,6 +3,7 @@ import { useReducedMotion } from "framer-motion";
 import { useRouter } from "@tanstack/react-router";
 import { useTheme } from "@/lib/theme";
 import { lockSpy, scrollToSection, sectionForPath } from "@/lib/sections";
+import { LAB_OPEN_KEY } from "@/components/EngineeringLab/data/lab-handoff";
 import { channels } from "./contact-footer";
 
 interface Line {
@@ -23,13 +24,23 @@ const SECTION_COMMANDS: Record<string, string> = {
   contact: "contact",
 };
 
+// command -> Engineering Lab playground. Only the AI Research Lab has its own
+// route; the others are opened inside /lab through a sessionStorage handoff.
+const LAB_COMMANDS: Record<string, { route: "/lab/ai-research" } | { module: string }> = {
+  "open ai-lab": { route: "/lab/ai-research" },
+  "open system-design": { module: "system-design" },
+  "open erp-lab": { module: "erp-procurement" },
+  "open incident-lab": { module: "production-incident" },
+};
+
 const OTHER_COMMANDS = ["help", "github", "linkedin", "email", "theme", "clear", "exit"];
 const EGG = ["hire bramha", "sudo hire bramha"];
-const ALL_COMMANDS = [...Object.keys(SECTION_COMMANDS), ...OTHER_COMMANDS, ...EGG];
+const ALL_COMMANDS = [...Object.keys(SECTION_COMMANDS), ...Object.keys(LAB_COMMANDS), ...OTHER_COMMANDS, ...EGG];
 const CHIPS = ["help", "about", "projects", "skills", "contact", "github", "theme", "clear"];
 
 const HELP = [
   "Navigate:  about · experience · projects · skills · stack · opensource · certs · contact",
+  "Labs:      open ai-lab · open system-design · open erp-lab · open incident-lab",
   "Links:     github · linkedin · email",
   "Other:     theme · clear · exit · help",
 ];
@@ -82,6 +93,21 @@ export default function TerminalPalette({ onClose }: { onClose: () => void }) {
 
     if (cmd in SECTION_COMMANDS) {
       void goToSection(SECTION_COMMANDS[cmd]);
+      onClose();
+      return;
+    }
+    if (cmd in LAB_COMMANDS) {
+      const target = LAB_COMMANDS[cmd];
+      if ("route" in target) {
+        void router.navigate({ to: target.route });
+      } else {
+        try {
+          window.sessionStorage.setItem(LAB_OPEN_KEY, target.module);
+        } catch {
+          /* private mode: /lab simply opens on its landing page */
+        }
+        void router.navigate({ to: "/lab" });
+      }
       onClose();
       return;
     }
