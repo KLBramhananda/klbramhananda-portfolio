@@ -1,0 +1,264 @@
+/* Tech Stack carousel: scoped to its own file (imported by StackRing.tsx). Every class is prefixed
+   `tsr-` so none can collide with Tailwind's `ring` utilities or with another section. */
+/* ── Tech Stack: 3D carousel ring ──────────────────────────────────────
+   CSS 3D, no WebGL. A ring (preserve-3d) rotated by --tsr-angle; each card
+   sits at rotateY(i * step) translateZ(radius). The rAF loop writes only
+   custom properties (--tsr-angle, and per card --tsr-o / --tsr-s / --tsr-g), so the
+   motion is transform + opacity. Mobile uses a scroll-snap row instead. */
+.tsr-chip {
+  min-height: 1.875rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  background: color-mix(in oklab, var(--foreground) 4%, transparent);
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  transition: color 140ms ease-out, background-color 140ms ease-out;
+}
+
+.tsr-chip:hover {
+  color: var(--foreground);
+}
+
+.tsr-chip[aria-checked="true"] {
+  color: var(--foreground);
+  border-color: color-mix(in oklab, var(--cyan-accent) 50%, transparent);
+  background: color-mix(in oklab, var(--cyan-accent) 13%, transparent);
+}
+
+.tsr-chip:focus-visible,
+.tsr-card:focus-visible .tsr-card__face,
+.tsr-arrow:focus-visible {
+  outline: 2px solid var(--cyan-accent);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .tsr-chip {
+    min-height: 44px;
+  }
+}
+
+.tsr-stage {
+  position: relative;
+}
+
+.tsr-scene {
+  position: relative;
+  height: calc(var(--tsr-ch) + 6.5rem);
+  perspective: 1400px;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.tsr-scene:active {
+  cursor: grabbing;
+}
+
+.tsr-fade {
+  position: absolute;
+  inset: 0;
+  transition: opacity 180ms ease-out;
+}
+
+.tsr-fade.is-fading,
+.tsr-row.is-fading {
+  opacity: 0;
+}
+
+.tsr-ring {
+  position: absolute;
+  left: 50%;
+  top: 1.25rem;
+  width: 0;
+  height: var(--tsr-ch);
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--tsr-radius) * -1)) rotateY(var(--tsr-angle, 0deg));
+  will-change: transform;
+}
+
+.tsr-card {
+  position: absolute;
+  left: calc(var(--tsr-cw) / -2);
+  top: 0;
+  width: var(--tsr-cw);
+  height: var(--tsr-ch);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: var(--tsr-o, 1);
+  transform: rotateY(calc(var(--tsr-i) * var(--tsr-step))) translateZ(var(--tsr-radius)) scale(var(--tsr-s, 1));
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tsr-card:focus-visible {
+  outline: none;
+}
+
+.tsr-card__face {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  padding: 0.9rem;
+  border-radius: 1.1rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+
+.tsr-card[data-related] .tsr-card__face {
+  border-color: color-mix(in oklab, var(--cyan-accent) 60%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--cyan-accent) 35%, transparent);
+}
+
+/* The front card's glow: a pre-blurred layer whose opacity follows --tsr-g (0 at the sides, 1 at the front). */
+.tsr-card__glow {
+  position: absolute;
+  inset: -0.6rem;
+  z-index: 0;
+  border-radius: 1.6rem;
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in oklab, var(--cyan-accent) 60%, transparent), transparent 72%);
+  filter: blur(18px);
+  opacity: var(--tsr-g, 0);
+  pointer-events: none;
+}
+
+/* The floor: a soft glow ellipse under the ring, labelled with the old hub text. */
+.tsr-floor {
+  position: absolute;
+  left: 50%;
+  bottom: 0.25rem;
+  width: min(34rem, 80%);
+  height: 4.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in oklab, var(--cyan-accent) 28%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.tsr-floor span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.tsr-arrow {
+  position: absolute;
+  top: calc(var(--tsr-ch) / 2 + 0.5rem);
+  z-index: 5;
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  background: color-mix(in oklab, var(--background) 70%, transparent);
+  color: var(--foreground);
+  transition: border-color 140ms ease-out, color 140ms ease-out;
+}
+
+.tsr-arrow:hover {
+  border-color: color-mix(in oklab, var(--cyan-accent) 55%, transparent);
+  color: var(--cyan-accent);
+}
+
+.tsr-arrow--l {
+  left: 0.25rem;
+}
+
+.tsr-arrow--r {
+  right: 0.25rem;
+}
+
+@media (pointer: coarse) {
+  .tsr-arrow {
+    height: 44px;
+    width: 44px;
+  }
+}
+
+/* Mobile: a horizontal scroll-snap row; the centred card is larger. */
+.tsr-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 1rem calc(50% - 5rem);
+  scroll-snap-type: x mandatory;
+  transition: opacity 180ms ease-out;
+}
+
+.tsr-row .tsr-card {
+  position: relative;
+  left: auto;
+  flex: none;
+  width: 10rem;
+  height: 12.5rem;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  opacity: 0.7;
+  transform: scale(0.94);
+  transition:
+    transform 200ms ease-out,
+    opacity 200ms ease-out;
+  backface-visibility: visible;
+}
+
+.tsr-row .tsr-card[data-front] {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+.tsr-row .tsr-card__glow {
+  opacity: 0;
+}
+
+.tsr-row .tsr-card[data-front] .tsr-card__glow {
+  opacity: 0.8;
+}
+
+/* Detail panel: fixed height, content crossfades. */
+.tsr-panel {
+  height: 20rem;
+  overflow-y: auto;
+}
+
+.tsr-panel__in {
+  animation: tsr-fade-in 220ms ease-out;
+}
+
+@keyframes tsr-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsr-fade,
+  .tsr-row,
+  .tsr-row .tsr-card,
+  .tsr-chip,
+  .tsr-arrow {
+    transition: none;
+  }
+
+  .tsr-panel__in {
+    animation: none;
+  }
+}

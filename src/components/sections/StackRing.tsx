@@ -1,3 +1,4 @@
+import "./stack-ring.css";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useReducedMotion } from "framer-motion";
@@ -279,7 +280,7 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
       const w = scene.clientWidth;
       const gap = 24;
       const ideal = (cw + gap) / (2 * Math.tan(Math.PI / Math.max(n, 3)));
-      setRadius(Math.round(Math.min(Math.max(ideal, cw * 1.35), Math.max(w * 0.5, cw * 1.35))));
+      setRadius(Math.round(Math.min(Math.max(ideal, cw * 1.35), Math.max(w * 0.95, cw * 1.35))));
     };
     compute();
     let raf = 0;
@@ -299,18 +300,17 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
     (angle: number) => {
       const ring = ringRef.current;
       if (!ring) return;
-      ring.style.setProperty("--ring-angle", `${angle}deg`);
+      ring.style.setProperty("--tsr-angle", `${angle}deg`);
       const s = st.current;
       for (let i = 0; i < cardEls.current.length; i++) {
         const el = cardEls.current[i];
         if (!el) continue;
         const rel = delta(0, i * step + angle);
         const c = Math.cos((rel * Math.PI) / 180);
-        const depth = (c + 1) / 2;
         const f = Math.max(0, c);
-        el.style.setProperty("--o", String(0.15 + 0.85 * Math.pow(depth, 1.4)));
-        el.style.setProperty("--s", String(1 + 0.12 * Math.pow(f, 40)));
-        el.style.setProperty("--g", String(Math.pow(f, 40)));
+        el.style.setProperty("--tsr-o", String(0.15 + 0.85 * Math.pow(Math.max(0, c), 3)));
+        el.style.setProperty("--tsr-s", String(1 + 0.12 * Math.pow(f, 40)));
+        el.style.setProperty("--tsr-g", String(Math.pow(f, 40)));
         const ok = Math.abs(rel) < 95;
         if (s.pe[i] !== ok) {
           s.pe[i] = ok;
@@ -583,11 +583,11 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
         aria-current={isFront ? "true" : undefined}
         tabIndex={isFront || near ? 0 : -1}
         onClick={(e) => onCardClick(i, e)}
-        className="ring-card"
-        style={{ "--i": i } as CSSProperties}
+        className="tsr-card"
+        style={{ "--tsr-i": i } as CSSProperties}
       >
-        <span aria-hidden className="ring-card__glow" />
-        <span className="ring-card__face glass-strong">
+        <span aria-hidden className="tsr-card__glow" />
+        <span className="tsr-card__face glass-strong">
           <span className="flex items-center gap-2">
             <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: skill?.color ?? "var(--cyan-accent)" }} />
             {skill?.status && (
@@ -604,7 +604,7 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
   };
 
   return (
-    <div className="ring">
+    <div className="tsr">
       <div role="radiogroup" aria-label="Filter by category" className="-mx-1 flex max-w-full flex-wrap gap-1.5 px-1 py-1">
         {FILTERS.map((f, i) => (
           <button
@@ -618,7 +618,7 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
             }}
             onClick={() => pickFilter(f.id)}
             onKeyDown={(e) => onChipKey(e, i)}
-            className="ring-chip"
+            className="tsr-chip"
           >
             {f.label}
           </button>
@@ -626,13 +626,13 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
       </div>
 
       {ringMode ? (
-        <div className="ring-stage mt-4" style={{ "--cw": `${cw}px`, "--ch": `${ch}px`, "--radius": `${radius}px`, "--step": `${step}deg` } as CSSProperties}>
-          <button type="button" aria-label="Previous card" onClick={() => step1(-1)} className="ring-arrow ring-arrow--l">
+        <div className="tsr-stage mt-4" style={{ "--tsr-cw": `${cw}px`, "--tsr-ch": `${ch}px`, "--tsr-radius": `${radius}px`, "--tsr-step": `${step}deg` } as CSSProperties}>
+          <button type="button" aria-label="Previous card" onClick={() => step1(-1)} className="tsr-arrow tsr-arrow--l">
             <ChevronLeft className="h-5 w-5" aria-hidden />
           </button>
           <div
             ref={sceneRef}
-            className="ring-scene"
+            className="tsr-scene"
             role="group"
             aria-label="Engineering technology ring"
             onPointerDown={onPointerDown}
@@ -645,21 +645,21 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
             onBlur={() => interact({ focus: false })}
             onKeyDown={onRingKey}
           >
-            <div className={`ring-fade ${fading ? "is-fading" : ""}`}>
-              <div ref={ringRef} className="ring-ring">
+            <div className={`tsr-fade ${fading ? "is-fading" : ""}`}>
+              <div ref={ringRef} className="tsr-ring">
                 {cards.map(cardEl)}
               </div>
             </div>
-            <div aria-hidden className="ring-floor">
+            <div aria-hidden className="tsr-floor">
               <span>{BASE_LABEL}</span>
             </div>
           </div>
-          <button type="button" aria-label="Next card" onClick={() => step1(1)} className="ring-arrow ring-arrow--r">
+          <button type="button" aria-label="Next card" onClick={() => step1(1)} className="tsr-arrow tsr-arrow--r">
             <ChevronRight className="h-5 w-5" aria-hidden />
           </button>
         </div>
       ) : (
-        <div ref={rowRef} className={`ring-row mt-4 ${fading ? "is-fading" : ""}`} role="group" aria-label="Engineering technology cards">
+        <div ref={rowRef} className={`tsr-row mt-4 ${fading ? "is-fading" : ""}`} role="group" aria-label="Engineering technology cards">
           {cards.map(cardEl)}
         </div>
       )}
@@ -672,12 +672,12 @@ export function StackRing({ skillLabels }: { skillLabels: readonly string[] }) {
       <aside
         id={PANEL_ID}
         aria-label="Selected technology details"
-        className="ring-panel glass-strong mt-5 rounded-2xl p-5"
+        className="tsr-panel glass-strong mt-5 rounded-2xl p-5"
         onPointerEnter={() => interact({ panel: true })}
         onPointerLeave={() => interact({ panel: false })}
       >
         {frontCard && (
-          <div key={frontCard.def.key} className="ring-panel__in">
+          <div key={frontCard.def.key} className="tsr-panel__in">
             <BlockCard def={frontCard.def} layerTitle={frontCard.category} onClose={() => {}} hasCard={hasCard} onRelated={goToKey} />
           </div>
         )}
